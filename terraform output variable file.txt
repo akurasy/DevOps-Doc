@@ -1,0 +1,12 @@
+#to output our desired contents
+# EC2 Instance Public IP
+output "instance_publicip" {
+    description = "EC2 instance Public IP"
+    value = aws_instance.first_demo.public_ip
+}
+
+# EC2 Instance Public DNS
+output "instance_publicdns" {
+    description = "EC2 instance public DNS"
+    value = aws_instance.first_demo.public_dns
+}

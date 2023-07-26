@@ -1,0 +1,1935 @@
+PYTHON NOV 15th, 2022
+
+
+Agenda
+
+1.1Introduction:
+
+1.2Print Functions
+
+1.3Literals
+
+1.4Arithmetic Operators
+
+
+1.5Variables
+
+
+1.6Input Functions
+
+1.7String
+
+
+1.1Introduction
+--Download python via python.org
+-install it and check the 2 initial boxees and install directly
+-to confirm if pyhton is installed, search CMD and type python in the cmd, it will tell you the version installed
+-next dowload Pycharm (type on google "pycharm download for the OS you want (in my case windows")
+-install pycharm
+-next, go back to vs code and extension and search for 
+   -"python" extension and install
+   -"auto Complete by TAG", (dont user Auto import)
+   -"Code runner" by .run
+   -Unit testing (ignored for now)
+   -Jupyter (all 5 jupyter)
+   linting" and other extensions to make life easier for us wwhile doing python.
+
+
+   What is Python?
+
+   Python is a high level  general purpose programming language.  Python is general  purpose bcos it can be used in various occupations
+   by software engineers, data analysts, mathematicians, scientists, accountants, network engineers, etc.  
+   In fact, Python= is the ideal programming language to learn first.  So with python, you can solve complexx problems with just few lines of codes.
+
+   Usecases
+   application Areas of Python:
+   ---------------------------
+
+   -Web-Apllication development
+   -API Development
+   -Data Anaylsis
+   -Artificial Intelligence
+
+
+
+   Automation (This is what matters to us as DevOps Engineers)
+
+   - To launch Jupyter note book or any extension do "Ctrl + shift + p" and type the extension you want
+   You can use it to take note (select "+ Markdown") and write code (select "+ code")
+
+
+  -Popular Organizations that use python
+Five most popular companies that use Python:
+
+-Youtube
+-Spotify
+-Instagram
+-Dropbox
+-Pinterest
+-Facebook
+
+What makes Python very popular:
+---------------------------------
+
+-easy to learn
+-pre-defined and third party modules (samples) to use.  147k modules
+-code length is very short because of the avialbaility of modules
+-platform independent.  You can use it on any OS.
+Python has been around for over 20yrs
+
+
+
+============================================
+Lab
+ON YOUR VSCODE, PRESS CTRL + SHIFT + P
+search jupiter notebook and click the first one. it will open your python command line.
+
+for coding click on code
+for comment click on markdown
+
+
+SOME CODES TO START WITH:
+# in bash we use echo
+
+#in python, we use print
+print ("welcome to Acada Learning") = will echo welcome to Acada Learning
+
+print("Welcome", "to", "Acada", "Learning", "Comrades") = will echo welcome to Acada lerarning as well)
+
+'''
+the fundction 
+is matahtichcal					=  multiline comment
+hahahha
+'''
+
+Key word arguements to print functions:
+	Keyword arguements ( or named arguments) are values that, when passed into a function, are 
+	identifiable by specific parameter names.  A keyword argument is preceded by a parameter
+	and the assignment operator, =.
+
+	1. end=""
+	2. sep=""
+
+example of how to use end="".
+
+print("Hello", end="! ");\
+	print("Python is a great programming language")  = this will echo or print Hello! Python is a great programming langage
+
+
+example of how to use sep=""
+
+print("Hello", "DevOps Engineers", sep="! ", end="Cheers\n");\
+	print("So", "are you enjouing python so far?", sep=", ", end=" I guess YOU ARE") = output Hello! DevOps Engineers Cheers
+																							  So, are you enjoying python so far?  I guess YOU ARE
+
+
+	Assignment 1
+	a.  print(1, 2, 3, 4, sep='#', end='&') = 1#2#3#4&
+	b. print("Hello" + " " "future" + " " "DevOps Engineers!") = Hello future DevOps Engineers!
+	c. print("My account balance is " + 7000) = error cos mixing string with interger?
+
+pythoninstitute.org/pcep = to write the cerification
+
+
+
+1.3 LITERALS
+
+1. Integers = e,g 1, 2, ....., 90, .....,   180,0000.
+When dealing with integers you don't need a quotation
+
+2. Floating Point Numbers (Float) = e.g. 1.1, ....., 52.08, ....., infinity
+Wehn dealing with floats you don't need a quotation mark
+
+3. Strings (aka str)= e.g mango, winter, money, DevOps Engineer, etc
+When dealing with stings, you need a single or double quotation
+
+4. Booleans aka (bool)= e.g True and False.
+Numeric false = 0
+Numeric true = 1
+no quotation mark is needed
+
+
+practicing the above
+
+print(type(45.55)) =  output "<class 'float>"
+
+print (type(3_00_0000_000)) = output <class int'>
+
+
+
+1.4 ARITHMETIC OPEERATORS
+
+Addition +
+
+e.g print(2 + 4)  ==> output is 6
+
+Subtrction -
+e.g. print(8 - 2) ==> output 6
+
+Multiplication *
+e.g print(3 * 2)  ==> output 6
+
+Division /  Note: Whenever you use a division, the output would be a float
+e.g. print (12 / 2)  ==> 6
+print (13 / 2)  ==> 6.5
+
+Floor or Dobuble Division //   Note: This will always produce a whole number
+e.g. print(13 // 2)  ==> 6
+
+Modular Operator % (output the reminder)
+e.g. print(15 % 4)  ==> 3
+
+Exponential/Power Operator **
+e.g print(2 ** 3)  ===> output 8
+
+
+Note:  Python uses what we call BODMAS in Math in performing Arithmetic Operations
+B = Brackets
+O = Orders (indices or powers or roots)
+D = Division
+M = Multiplication
+A = Addition
+S = subtraction
+
+
+example of the above
+
+print(2 * 3 ** 4)  =
+
+print (2 * (2 + 3)) = 10
+
+
+x = 10 / 4 
+y =  5 / 2.0
+print (x + y) = 5
+
+
+print(13 / 4 + 13 % 4)
+
+
+1.5 PYTHON VARIABLES
+
+We use variables to temporarily store data in the compute memory.
+
+Python reads commands from top to bottom
+
+e.g
+
+age = 20
+age = 30
+print(age)  = 30 (reads commands from top to bottom)
+
+Define variables in Python
+Dela_Amos = cohort 8  = this is wrong
+Dela_Amnos = "cohort 8"
+
+Things you cannot use when defining variables in pythons
+True, False, print, and, or else etc
+
+e.g
+ 
+x, y, z = "Orange", "Banana", "Cherry"
+print(x)
+print(y)
+print(z)
+
+Orange
+Banana
+Cheerry
+
+x, y, z = "Orange", "Banana", "Cherry"
+print(x, y, z) = Orange Banana Cherry
+
+
+y = 5
+y = "Acada"
+print(y)
+
+output "Acada"
+
+
+
+amount = 4
+cost = 2
+cost += 2
+print(amount * cost) 
+
+output 16
+
+
+age = 22
+AGE = 44
+age /= 2
+print(age + AGE)
+
+output  55
+
+
+1.6 INPUT FUNCTIONS
+We use input functions to take inputs from users.
+In bash, we use "read"
+In python, we use "input"
+
+Examples
+name = input("What's your name? ")
+print("Hey " + name)
+
+output Hey ---- (ask user to insert name)
+
+
+# We want to write a code to compute users' ages
+name = input("What's your name? ")
+print("Hey " + name)
+birth_year = input("Please enter your year of bith: ")
+age = 2022 - birth_year
+print(age)
+
+output error "unsupported operand types for -: 'int' and 'str'"
+
+How to correct the error in the above code
+#1
+name = input("What's your name? ")
+print("Hey " + name)
+birth_year = int(input("Please enter yur year of bier: "))
+age = 2022 - birth year
+print(age)
+
+output 52
+
+#2
+name = input("What's your name? ")
+print("Hey " + name)
+birth_year = input("Please enter your year of birth: ")
+age = 2022 - int(birth_year)
+print(age)
+
+output Hey Dela
+42
+
+
+Assignment
+#Let's write a simple code to be used as a calculator.
+
+print("Please follow the instructions on the screen to compute your numbers")
+first_num = int(input("Enter your first number: "))
+second_num = int(input("Enter your second number: "))
+sum = first_num + second_num
+print("The sum of your two numbers is: " + int(sum)) <----can't use int here
+
+output "error invalid literal for int() with base 10: '10.2"
+
+
+Correcting the above
+
+print("Please follow the instructions on the screen to compute your numbers")
+first_num = float(input("Enter your first number: "))
+second_num = float(input("Enter your second number: "))
+sum = first_num + second_num
+print("The sum of your two numbers is: " + str(sum)) <----can only use str to call it
+
+output 30,( prof enter 10 and 20)
+
+
+Break Assignment
+
+What is the output of the following code:
+
+InputString = input("Enter a string: ")
+print(inputString, sep='#', end='&')
+
+solution
+
+InputString = input("Enter a string: ") = shola ibrahim
+
+output
+
+Shola ibrahim& = success
+
+Take Home Assignment
+In bash, when we want to take a secret text, we run read -s.
+How do we do the same in Python?
+
+
+classwork
+
+InputString = input("Enter a string: ")
+do_it = input("Please enter what you want to do: ")
+print(inputString, do_it, sep=' # ', end='&')
+
+inputstring = Acada
+do_it = learning
+
+output Acada # learning&
+
+1.7 STRING
+
+String is a collection of alphabets, words or other xters.  It is one of the primiteve data structures and are building blocks
+for data manipulation.  Python has a built-in string class named str.  Python strings are "immutable" which means they cannot be 
+changed after they are created.
+
+examples of strings
+
+x = "10.0.0.26"
+y = "50"
+name = "Acada Learning"
+
+course = "DevOps Engineering"
+print(len(course))
+
+output "18"  = basically calculated the length of the code including the space
+
+course = "DevOps Engineering"
+print(course[0])
+
+output D = command to show the first leter in "DevOps Engineering"
+
+
+course = "DevOps Engineering"
+print(course[-3])
+
+output "i" = 3rd to the last alphabet
+
+course = "DevOps Engineering"
+print(course[0:3]) =output "Dev" =first three letters
+
+course = "DevOps Engineering"
+print(course[:]) = that's asking the system to print everything
+
+
+course = "DevOps Engineering"
+print(course[0:]) = that's asking the system to print everything "DevOps Engineering"
+
+
+example2
+do = "We are learning a course called"
+course = "DevOps Engineering"
+x = "10.0.0.0"
+y = "25"
+print(do , course , "and our cidr block is",  x + "/" + y)
+
+
+out come = We are learning a course called DevOps Engineering and our cidr block is 10.0.0.0/25
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Nov 19, 2022 - PYTHON CLASS 2
+
+Two ways to format strings
+
+1-# Formatting Strings
+first = "Acada"                  <---- this will print Acada Learning
+last = "Learning"
+full = first + " " + last
+print(full)
+
+2-# Formatting Strings
+first = "Acada"
+last = "Learning"                <----  this will print Acada Learning
+print(f"{first}  {last}")
+
+
+UPPERCASE - LOWERCASE
+
+course = "Acada Learning"
+print(course.upper())
+print(course.lower())
+print(course.title())
+print(course.find("Eng")) <------ use like grep in linux = if it finds the word "Eng", it will return +1 or  -1?
+print("Learn" in course) <----- to check if something is present in the value ( if it is there, it will print "True" if not, it will print "false"?)
+
+
+above will print respectively
+
+ACADA LEARNING
+acada learning
+Acada Learning
+-1
+True
+
+
+course = "Acada Learning"
+print(course.replace("Acada", "Python"))
+
+Above will replace Acada in "Acada Learning" with Python, and then it would ouput = Python Learning.  
+
+course = "Acada Learning"
+print("Learning" not in course)
+
+above is asking if "Learning is NOT in course", it prints = false, because it is in course
+
+
+Num =  input("Enter a number: )  <---asks us to enter a number, if we entered 2
+print(Num * 3)  
+
+abbove will print 222 (printing 2 in three places).  reason for ":" at the end is to allow you enter your value, if we do "\n", this will allow you to input your value on a new line.
+
+
+inputString = input("Enter a string: ")
+print(inputString * 2)   <---- this will output shola boyshola boy if "shola boy was entered in the string"
+
+x = 5
+y = "Francisca"
+print(str(x) + y)
+
+
+
+LECTURE TWO 2 - 3 hours        Saturday Nov 19, 2022 (A day before world cup)
+2.1 Comparison Operatores
+2.2 Conditional statements
+2.3 Ternary Operator
+2.4 Loops
+2.5 Logical Operators
+
+
+2.1 Comparison Operators
+Python supports the usual logical conditons in mathematics.
+
+Equals ==
+e.g a == b
+
+Not Equal !=
+e.g a != b
+
+Less than  <
+e.g. 5 < 6
+
+Less than or equal to <=
+e.g. 5 <= 6
+
+Greater than >
+e.g 6 > 5
+
+Greater than or equal to >=
+e.g 6 >= 5
+
+
+These conditions can be used in several ways, most commonly in "if statements" and "Loops"
+
+Example
+
+x = 6
+y = 7
+print(x != y)
+
+output = True
+
+Example 2
+y = 20
+y += 3
+x = y
+print(x)
+
+=23
+
+Example 3
+min_score = 13
+score = 13
+print(score > min_score)
+print(score <= min_score)
+
+answr = false
+         true
+
+print(10 == "10") = false  (becos int is not string)
+
+Example 4
+print("bag" > "apple") = True (reason is alphabetical order was used, so bag starts with "b"  and "apple"starts with "a".  a = 1 ( first letter so = 1), and bag starts with "b" (second letter so  =2) and 2>1, so it is TRUE)
+
+
+Example 5
+print("bag" == "BAG") = False  ( small letter has higher order than Upper case letter.  if we do  --> ord("B") this will tell us the value of capital B, and do the same for "b" --> ord("b").  And it is 66 and 98 respectively.)
+
+
+2.2 CONDITIONAL STATEMENTS
+Used to set conditions and automate things. say you are a devops eng for timhortons, and there is a high traffic on the site, say you have about 4000 traffic on that particular server, another server should be able to take care of some of the traffic.  In the afternoon when the traffic lessen, you can set a conditionfor the server to go down.
+
+There are 3 conditonal statements to know (there are more but know these 3 for now).
+
+-if Statement
+-if-else statement
+-if-elif-else statement
+
+2.2.1 - IF STATEMEBNT
+
+Used to determine if a block of code will be executed or not.
+
+Example 1
+
+age = int(input("How old are you? "))
+if age >= 18:
+    print("You are an adult")
+
+    if you enter 20
+
+    it will output = You are an adult
+
+Example 2
+
+age = int(input("How old are you? "))
+if age >= 18:
+    print("You are an adult")
+
+    if you enter 12
+
+    it will output nothing except if we define else
+
+Example 3
+
+age = int(input("How old are you? "))
+if age >= 18:
+    print("You are an adult")
+    print("Your age is: " + str(age))
+
+    answer = You are an adult
+            Your age is: 20
+
+
+age = int(input("How old are you? "))
+if age >= 18:
+    print("You are an adult")
+    print("Your age is: " + str(age))
+
+    if you enter 15
+
+    answer = Your age is: 15
+
+
+z = 6
+if  z % 2 == 0:
+   print(" Z is an even number")
+
+
+2.2.2 If-ElSE statement
+    
+    Example 1
+
+age = int(input("How old are you? "))
+if age >= 18:
+    print("You are an adult")
+else:
+    print("You are a minor")
+
+    if you enter 6
+
+    ir prints you are a minor
+
+    if you enter 19 
+
+    it pritns you are an adult
+
+
+
+    Example 2:
+
+print("Hello Welcome to Acada Learning.  Please introduce yourself. ")
+name = input("What is your name?: ")
+if name == "Zazu":
+    print("You're not welcome to Acada Learning")
+else:
+    print("Hello " + name + ", thank you so much for coming")
+
+    if we enter shola, it will print Hello Welcome to a..... and Hello shola, thank you so much for coming.
+
+    If you enter Zazu, it will print Hello Zazu, you re not welcome...
+
+# List of African Countries at the World cup
+
+af_qatar = ["Ghana", "Morocco", "Senegal", "Cameroon", "Tunisia"]
+af_country = input("Please enter the name of your country: ")
+if af_country == af_qatar:
+   print("Your country is at the World Cup")
+else:
+   print("Unfortunatley, your country could not qualify.  Sorry!!")
+
+ IF-ELIF STATEMENT
+
+temperature = int(input("Enter the temperature"))
+if temperature >= 30:
+   print("It's a hot day")
+   print("Drink a lot of water")
+elif temperature > 20:
+   print("It's a nice day")
+   print("Go to the beach")
+elif temperature > 10:
+   print ("It is a bit cold")
+else:
+   print("It's cold")
+   print("Please wear a jacket")
+
+Assignment
+
+a = float(input("Enter first number"))
+b = float(input("Enter second number"))
+if b < a:
+   print("a is greater than b")
+elif a == b:
+   b = 5
+   print("a and b are equal")
+else:
+   print("b is greater than a")
+
+
+Example 5
+
+x = 3
+if ( x == 0 ):
+   print("Am I here?")
+elif (x == 3):
+   print("or here?")    <-----  or here or over here
+   print("or over here?")
+
+
+2.3 TERNARY OPERATOR
+
+Allows to run code in a single line (or lesser lines)
+
+REGULAR CODE
+
+age = 12
+if age >= 18:
+    message = "Eligible"
+else:
+    message = "Not Eligible"
+print(message)
+
+answer = NOT eligible
+
+
+TERNARY FORMAT
+
+age = int(input("Enter your number: "))
+message = "Eligible" if age >= 18 else "Not Eligible"
+print(message)
+
+if we enter 12, ouput = NOT Eligible
+
+
+2.4 LOOPS
+
+it means repeating something over and over until a particular condition is satisfies.
+
+For this course there are 2 types of loops (there are more):
+-For loops
+-While loops
+
+Before we do loops, let's briefly look at Range Function in Python,
+
+Range Function  = When we say 
+
+range(5) ==> 0, 1, 2, 3, 4 ( it will not include 5)
+range (10,15) ==> 10, 11, 12, 13, 14 (no 15)
+range (1, 10, 3) = this means 1 is the begginig
+                     10 is the limit
+                     3 is the step
+                     therefore, ==> 1, 4, 7
+
+Example
+
+x = range(5)
+for i in x:
+   print(i)
+
+   output, 0, 1, 2, 3, 4
+
+
+x = range(1, 10, 3)
+for i in x:
+   print(i)
+
+    ==> 1, 4, 7
+
+    2.4.1 FOR LOOPS (now doing loops) = is a control flow statement used to repeatedly execute a group of statement as long as the condition is satisfied
+
+    Example1
+    for number in range(3):
+    print("You're #", (number + 1))
+
+OOUTPUT
+You're # 1
+You're # 2
+You're # 3
+
+Example 2
+x = [1, 2, 3, 4]
+for i in x:
+   if ( i == 3):  <----- this means rang of 3, it will list all numbers before 3 except 3 itself
+        break
+    print("i is: ", i)
+
+    output
+    i is:  1
+   i is:  2
+
+   Example 3 
+
+   b = [20, 10, 5]
+   for e in b:
+    print(e)
+
+    output
+    20
+    10
+    5
+
+
+    Example 5
+
+# Let's Print even numbers in a list
+list1 = [10, 21, 4, 45, 66, 93]
+for num in list1:
+    if num % 2 == 0:
+        print(num, end=" ") <------ ouputed horizontal
+
+# Let's Print odd numbers in a list
+list2 = []
+
+
+   output
+   10 4 66 
+
+
+# Let's Print even numbers in a list
+list1 = [10, 21, 4, 45, 66, 93]
+for num in list1:
+    if num % 2 == 0:  <---- to print odd numbers; change "==" to "!=" it will output horizontally
+        print(num) <----ouputed vertically
+
+        10
+        4
+        66
+
+x = range(99, 0, -2)
+for i in x:
+   print(i)
+
+   output
+
+   99
+   97
+   95
+   93
+   ---
+   3
+   1
+
+Same way as below but different way
+
+   For LOOP 
+Assignment (Interview question)
+x = range(99, 1, -1)
+for i in x:
+    if i % 2 != 0:
+        print(i )  <===== for odd number
+
+x = range(99, 0, -1)
+for i in x:
+    if i % 2 == 0:
+        print(i) <==== for even number
+
+
+
+
+
+   apexsystems.com/careers  <---- apply for jobs here
+
+
+
+
+
+   2.4.2 WHILE LOOPS
+
+   While loop continues to loop the command until condition is met.  e.g when you set a pin on your phone, it could be 1234, anytime someone is trying to login to your phone and enters wrong pin, it wouldn't allow them till they input correct pin.
+
+secret_pin = 4421
+pin = int(input("Please enter your pin: "))
+while pin != secret_pin:
+    pin = int(input("Enter your pin: "))
+else:
+    print("Congratulations, you're logged in!")
+
+    Above will ask you to enter pin, if you enter any pin other than 4421, it will keep asking user to enter pin. However, if user enters correct pin, then it shows congruatlations, you are logged in
+
+    Making the above more interactive
+
+Just a modification to the login code, yo add login attempts, in case we wanna practice
+secret = 4421
+pin = int(input("Enter your pin: "))
+count = 0
+while pin != secret:
+    count += 1
+    if count == 3:
+        print("You have exceeded number of login attempts!")
+        break
+    else:
+        pin = int(input("Invalid pin, Enter your pin: "))
+else:
+    print("Congratulobia!")
+
+    Example 8
+
+#Write python program to take range limits from user input and print the even numbers in that range
+start = int(input("Enter the start of range"))
+end = int(input("Enter the end of range"))
+for num in range(start, end + 1):
+    if num % 2 == 0:
+        print(num)
+
+
+start = int(input("Enter the start of range"))
+end = int(input("Enter the end of range"))
+for num in range(start, end + 1, -1):
+    if num % 2 == 0:
+        print(num)
+
+
+
+list = ("mango , pawpaw , apple")
+print(list. replace("mango" , "cherry"))
+
+
+
+To take password
+
+import getpass
+pswd = getpass.getpass('Please enter your number:')
+
+import getpass
+username = input("Enter your username: ")
+passwd = getpass.getpass('Please enter your number:')
+print("Hello", str(username))
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Nov 22, 2022  Class 3
+
+Duplex.Play  <----- to watch world cup and movies, only $5 a year
+
+
+2.5 - LOGICAL OPERATORS = used to combine conditional statements
+
+- AND = Returns True if both statements are true
+- OR   = Returns True if one of the statements is true
+- NOT = Reverses the result, returns False if the result is true
+
+Example 1 - AND
+
+income = float(input("Please Enter Your Income: "))
+credit = int(input("Please Enter Your Credit Score: "))
+
+if income >= 100000 and credit >= 700:
+    print("You're eligible for Mortgage. ")
+else:
+    print("You're NOT eligible for Mortgage. ")
+
+    For the above
+    we entererd 200000 and 700 = it output eligible
+    we then entered 200000 and 600 = it out put you are not eligible, this because we are using "AND", both of condition must be TRUE
+
+Example 2 - OR
+
+income = float(input("Please Enter Your Income: "))
+credit = int(input("Please Enter Your Credit Score: "))
+
+if income >= 100000 or credit >= 700:
+    print("You're eligible for Mortgage. ")
+else:
+    print("You're NOT eligible for Mortgage. ")
+
+Example 3 - AND
+
+age1 = int(input("Oluwafemi, Enter your age: "))
+age2 = int(input("Dela, Enter your age: "))
+
+if age1 > 18 and age2 >= 18:
+      print("You're both Adult")
+else:
+      print("You are both Minors")
+
+Example 4 - NOT
+
+income = float(input("Please Enter Your Income: "))
+credit = int(input("Please Enter Your Credit Score: "))
+student = True
+#student = bool(input("Are you a student? Enter True or False: "))
+
+if income >= 100000 or credit >= 700 and not student:
+    print("You're eligible for Mortgage. ")
+else:
+    print("You're NOT eligible for Mortgage. ")
+
+
+if less than 100k, and crdit is greater 
+
+
+
+Assignment
+
+is_hungry = False
+if(not is_hungry):
+      print("You are not hungry. ")
+else:
+      print("You are hungry. ")
+
+3.1 LISTS
+List is a data structure in most cases table or in sequences of element, each element in a list is called an item, could be name of people, mathecal figures etc. 
+ List have values in square bracket
+
+Diff btwn string and list/
+
+str we use ("") - we use curvy bracket and put in quotation
+list we use [].
+
+e.g
+x = [7, "Efe", "Judith", 8.6, False, "Susan", True]
+
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+print(north_america)
+
+Above prints:  ['Barbados', 'Belize', 'Canada', 'Haiti', 'United States']
+
+Now for List it will index it in number from like:
+['Barbados', 'Belize', 'Canada', 'Haiti', 'United States']
+      0         1         2          3            46        <---- going from left to right, you start from 0 
+      -5        -4        -3         -2           -1        <---- going from right to left, you start from -1
+
+such that if you run 
+Example
+1
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+print(north_america[0])  <--- it will output Barbados
+
+Example 2
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+print(north_america[4])<---- it will ouput United states etc
+
+
+Example 3
+
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+print("Francisca is in the " + north_america[-1])
+print(len(north_america))
+
+
+Example 4
+numbers = list(range(20))
+for item in numbers:
+      print(item)
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+
+Example 5
+
+chars = list("HelloWorld")
+print(chars) <----  this will output a list of the character 
+
+['H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd']
+
+
+Example 6
+
+list1 = [10, 11, 12, 13, 14]
+for item in list1:
+   print(list1[::2])  <--- : : 2 = first ":" means start from the first.  second  ":" means consider all value.  Third "2" means take a step of 2 (common difference)
+
+
+   will output
+
+[10, 12, 14]
+
+Example 7
+
+list1 = [10, 11, 12, 13, 14]
+for item in list1:
+   print(list1[:3:2]) <---- means list from beginning, do the frist 3 range and set 2.
+
+ouptut
+
+[10, 12]
+
+
+
+Example 8
+
+list1 = [4, 3, 2, 1]
+print(list1[::-1]) <--- means list from beginning, do all, but set each number -1
+(I put "break" in Jupyter)
+
+output
+
+[1, 2, 3, 4]
+
+
+Another way  to write above
+
+list1 = [4, 3, 2, 1]
+list1.reverse()
+print(list1)
+
+
+-Modifying items in Lists aka List Methods
+
+append() = adds an element at the end of the list
+
+insert() = adds an element at a specified position
+
+clear() = removes all the elements from the list
+
+copy() = returns a copy of the list
+
+count() = returns the number of elements with the specified value
+
+extend() = add the elements of a list (or any iterable), to the end of the current list
+
+index() = returns the index of the first element of the specified value
+
+pop() = removes element at the end of the list
+
+remove() = removes the item with the specified value if you don't want to use index
+
+sort() = sorts the list
+
+
+Examples
+
+x = [7, "Efe", "Judith", 8.6, False, "Susan", True]
+x.append("Edna")
+print(x)  <---- Adds Edna to the list
+
+output
+
+[7, 'Efe', 'Judith', 8.6, False, 'Susan', True, 'Edna']
+
+Example
+
+x = [7, "Efe", "Judith", 8.6, False, "Susan", True]
+x.remove("Judith")
+print(x)  <---- removes Judith from the list
+
+output
+[7, 'Efe', 8.6, False, 'Susan', True]
+
+Example 2
+
+x = [7, "Efe", "Judith", 8.6, False, "Susan", True]
+x.insert(-1, "Edna")
+print(x)  <---- Added Edna but placed between "Susan" and "True" ( means add Edna in -1 position)
+
+output
+
+[7, 'Efe', 'Judith', 8.6, False, 'Susan', 'Edna', True]
+
+
+Example 3
+
+ages= [56, 72, 24, 46]
+ages.sort()
+print(ages) <---sort from smallest number to highest number
+
+output
+
+[24, 46, 56, 72]
+
+Example 4
+
+ages= [56, 72, 24, 46]
+ages.reverse()
+print(ages)  <-----reverse the order of the list
+
+output
+
+[46, 24, 72, 56]
+
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[1] = 'Grenada'
+north_america[-3] = 'Honduras'
+print(north_america)  <-----Grenada replaces Belize and Honduras replaces Canada (Replace and append)
+
+output
+
+['Barbados', 'Grenada', 'Honduras', 'Haiti', 'United States']
+
+Assignment
+
+1-north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[1:-3] = ['Grenada', 'Honduras']
+print(north_america) <---- north_america[1:-3] = it replaces and appends.  how it does it is, in this example, it starts from position 1, 
+and it inserts the  new values in postion 1 and position 3 intersection
+
+output
+['Barbados', 'Grenada', 'Honduras', 'Canada', 'Haiti', 'United States']
+
+2-north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[1:-2] = ['Grenada', 'Honduras'] <---basically starts at position one and replace everyting between position 1 and position -2
+print(north_america)
+
+
+output
+['Barbados', 'Grenada', 'Honduras', 'Haiti', United States']
+
+
+3-north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[1:-4] = ['Grenada', 'Honduras', 'Jamaica']
+print(north_america)
+
+output
+['Barbados', 'Grenada', 'Honduras', 'Jamaica', 'Belize', 'Canada', 'Haiti', 'United States']
+READ: https://therenegadecoder.com/code/how-to-add-an-item-to-a-list-in-python/ 
+
+
+Assignmetn 2
+
+sea_creatures = ['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab']
+del sea_cratures[-3]
+print(sea_creatures)
+
+ouput
+
+['shark', 'octopus', 'turtle', 'shrimp', 'crab']
+
+
+
+
+Assignemnt
+sea_creatures = ['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab']
+del sea_creatures[1:4]
+print(sea_creatures) <---we are saying start deleting from 1 (octopus and remove 4 in total from 1)
+
+output
+['shark', 'shrimp', 'crab']
+
+
+Assignment 3
+
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[0], north_america[1] = north_america[1], north_america[0]
+print(north_america)
+
+this is just a rearrangement, but the argument is best described as replacement
+
+output
+['Belize', 'Barbados', 'Canada', 'Haiti', 'United States']
+
+
+Assignment
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[0], north_america[1] = north_america[2], north_america[3]
+print(north_america)
+
+output
+['Canada', 'Haiti', 'Canada', 'Haiti', 'United States']
+
+
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+north_america[0], north_america[1], north_america[-1] = north_america[2], 'Costa Rica', 'Cayman Islands'
+print(north_america)
+
+output
+['Canada', 'Costa Rica', 'Canada', 'Haiti', 'Cayman Islands']
+
+list1 = ["Go", "Java", "C", "Python"]
+print(max(list1)) <----print one with highest number of letters = Python
+
+
+list1 = ["Go", "Java", "C", "Python"]
+print(min(list1)) <----print one with lowest number of letters = C (also, small letters is bigger than capital letter.)
+
+
+list1 = [4, 3, 2, 1]
+list1.pop(2) <----saying to print index 2 which is also 2 from the list
+
+
+list1 = [4, 3, 2, 1]
+list1.pop(1) = output 3
+
+list1 = [4, 3, 2, 1]
+list1.pop(2) <============ this will remove 2 from the list and orint everything in list1 except 2
+print(list)
+
+
+list = ['UK', 'India', 'Canada']
+list.insert(2, 8) <---- will insert 8 after India
+print(list)
+
+
+letters = ['a', 'b', 'c']
+for letter in letters:
+      print(letter)
+
+      output
+
+      a
+      b
+      c
+
+
+      Example = to find average
+
+ages= [56, 72, 24, 46]
+total = 0
+for age in ages:
+      total +=age  <----- same as total = total + age
+average = total / len(ages)
+print(average)
+
+output
+49.5
+
+
+Example
+
+for letter in "AcadaLearning":
+      if letter = 'd':
+         continue
+      print('Letter : ' + letter)  <----- continue running the code, but once you hit "d" skip it and continue
+
+outcome
+Letter : A
+Letter : c
+Letter : a
+Letter : a
+Letter : L
+Letter : e
+Letter : a
+Letter : r
+Letter : n
+Letter : i
+Letter : n
+Letter : g
+
+
+for letter in "AcadaLearning":
+      if letter == 'L':
+         break
+      print('Letter : ' + letter) <---- continue running the code, but once you hit "L" stop and output the result
+
+output
+
+Letter : A
+Letter : c
+Letter : a
+Letter : a
+Letter : L
+
+
+
+
+north_america = ["Barbados", "Belize", "Canada", "Haiti", "United States"]
+print(north_america[1:4])  <---start from position 1 and list the range of 4, will show canada, haiati aand uSA
+print(north_america[:3]) = 
+print(north_america[2:]) ['Canada', 'Haiti', 'United States']
+print(north_america[-4:-2]) = ['Belize', 'Canada']
+
+
+
+sea_creatures = ['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab']
+oceans = ['Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic']
+print(sea_creatures + oceans)
+print(sea_creatures * 2)
+print(oceans * 3)
+
+output
+
+['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab', 'Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic']
+['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab', 'shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab']
+['Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic', 'Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic', 'Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic']
+
+
+x = ['Africa']
+print(x * 30)
+
+
+
+our_list = [['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab'], ['Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic']]
+print(our_list[1][0]) <--- we have lists within a list , the first one index is 0 and the second list index is 1.
+so what we are printing is second list and the the first word in the second list.  Pacific.  Apply the logiic to the second print
+
+our_list = [['shark', 'octopus', 'turtle', 'dolphin', 'shrimp', 'crab'], ['Pacific', 'Atlantic', 'Indian', 'Southern', 'Artic']]
+print(our_list[0][0])
+
+output
+[shark]
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+Class 4 -  Nov 26, 2022
+
+4.1 Functions
+4.2 Tuples
+4.3 Modules or Python Packages
+4.4 AWS Environment Setting for Python Scripts
+
+
+4.1 FUNCTIONS
+
+Functions are very important, if you write a large code, functions make it managable, it is more like a shortcut for large codes.
+
+Examples of Python default function:
+
+print, input, len, type, string, float, max, min etc
+
+If we want to create our own functions, we follow the examples below:
+
+def greet():
+   print("Hi there")
+   print("Welcome to Acada Learning")
+
+greet()  
+
+output
+Hi there
+Welcome to Acada Learning
+
+
+def greet(name):
+   print("Hello, " + name + ". Welcome to Acada Learning")
+   
+greet("shola")
+
+
+
+def greet(first_name, last_name):
+   print(f"Hello {first_name} {last_name} ")
+   print("Welcome to Acada Learning")
+   
+greet("Francisca", "Dogbatse")   <----we can change the name to wahtever.  This is making our code dynamic
+
+output
+Hello Francisca Dogbatse 
+Welcome to Acada Learning
+
+
+def increment(number, by):
+    return number + by
+
+
+print(increment(number=2, by=3))
+
+output
+5
+
+
+def multiply(*numbers):
+    for number in numbers:
+      print(number)
+
+multiply(2,3,4,5)
+
+output
+2
+3
+4
+5
+
+def multiply(*numbers):
+    total = 1
+    for number in numbers:
+        total *= number
+    return total
+
+multiply(2, 3, 4, 5)
+
+output
+
+120
+
+
+
+def my_function(*students):
+    print("The tallest student is " + students[-2])
+
+my_function("Susan", "Francisca", "Eseoghene") 
+
+output
+The tallest student is Francisca
+
+
+
+def print_info(name, age=18):
+    print(name, age)
+
+print_info("Victor", 19)  <--top to bottom remember?
+
+output
+Victor 19
+
+
+def print_info(name, age=18):
+    print(name, age)
+
+print_info("Victor")  <---cos nothing other than age was defined here
+
+output
+Victor 18
+
+
+def print_info(name, age):
+    print(name, age)
+
+print_info("Victor") <--- this will output error, because we din't define age, system is expecting two things
+
+
+a = 0  <--- this is a local variable
+def add_one(a):
+    return a + 1
+
+result = add_one(a)
+print(result)
+
+output 1
+
+
+
+
+
+
+a = 0
+def add_one(a):
+    return a + 1
+
+result = add_one(a)
+
+b = 4
+
+print(a + b)
+
+
+Did below myself
+a = 0
+def add_one(a):
+    return a + 1
+
+result = add_one(a)
+
+b = 4
+
+print(result + b)
+
+above output 5
+
+https://roadmap.sh/devops
+
+
+https://ums.edube.org/products/pcep-30-02-exam-retake-practice-test-bundle
+
+
+
+4.2  TUPLES
+
+Tuple is basically a read only list (you can't edit, append, delete etc).  If you are writing a code and you don't want anybody to modify, you pass the code as Tuple.
+
+e.g.
+
+x = 1, <--- ensure you put a comma, so that system doesn't recognize it as varible
+
+
+tuple1 = (1, 2, 3)
+print(type(tuple1))
+print(tuple1)
+
+output
+<class 'tuple'>
+(1, 2, 3)
+
+
+tuple1 = 1, 2, 3
+print(type(tuple1))   
+print(tuple1)  <----same as above
+
+output
+<class 'tuple'>
+(1, 2, 3)
+
+
+tuple1 = (1, 2, 3)
+for item in tuple1:   
+   print(item)
+
+outcome
+1
+2
+3
+
+---
+
+point = (1, 2) * 3
+print(point)
+
+output
+(1, 2, 1, 2, 1, 2)
+
+
+
+
+Converting List to Tuple
+
+point = tuple["Apple", "Acada", 1, 2]  <--- this is a list
+print(point)
+
+output
+tuple['Apple', 'Acada', 1, 2]
+
+
+point = tuple(["Apple", "Acada", 1, 2])  <--- this is a tuple
+print(point)
+('Apple', 'Acada', 1, 2)
+
+
+point =("Acada", "DevOps", "Learning", 1, 2, 3)
+print(point[-2])
+print(point[0:-2])
+
+output
+2
+('Acada', 'DevOps', 'Learning', 1)
+
+
+point = ("Acada", "DevOps", "Learning", 1, 2, 3)
+print(point[1:-2])
+
+output
+('DevOps', 'Learning', 1)
+
+
+
+Concatenating Tuple
+
+point= (1, 2) + (3, 4)
+print(point)
+
+4.3. Dictionary
+
+Candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+
+print(Candidates["LP"])
+
+
+output
+Peter Obi
+
+
+
+
+Candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+
+print(Candidates.keys())
+
+output
+dict_keys(['YPP', 'AAC', 'LP', 'APC', 'PDP'])
+
+
+
+candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+for key in candidates.keys():
+    print(key + " - " + candidates[key])
+
+output
+YPP - Prince Malik
+AAC - Omoyele Sowore
+LP - Peter Obi
+APC - Bola Tinubu
+PDP - Atiku Abubakar
+
+
+keys , values = items
+
+candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+print(candidates.items())
+
+output
+dict_items([('YPP', 'Prince Malik'), ('AAC', 'Omoyele Sowore'), ('LP', 'Peter Obi'), ('APC', 'Bola Tinubu'), ('PDP', 'Atiku Abubakar')])
+
+
+
+candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+del candidates["APC"]
+print(candidates)
+
+
+{'YPP': 'Prince Malik', 'AAC': 'Omoyele Sowore', 'LP': 'Peter Obi', 'PDP': 'Atiku Abubakar'}
+
+
+
+
+candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+candidates.popitem()
+print(candidates)
+
+output
+{'YPP': 'Prince Malik', 'AAC': 'Omoyele Sowore', 'LP': 'Peter Obi', 'APC': 'Bola Tinubu'}
+
+
+
+candidates = {
+   "YPP": "Prince Malik",
+   "AAC": "Omoyele Sowore",
+   "LP": "Peter Obi",
+   "APC": "Bola Tinubu",
+   "PDP": "Atiku Abubakar",
+
+}
+
+
+flagbearers = candidates.copy()
+print(flagbearers)
+
+output
+{'YPP': 'Prince Malik', 'AAC': 'Omoyele Sowore', 'LP': 'Peter Obi', 'APC': 'Bola Tinubu', 'PDP': 'Atiku Abubakar'}
+
+
+
+4.5  Relevant Modules for a DevOps Engineer
+
+As DevOps Engineer, we will be using the following modules quite a lot
+
+1. Request (get, post, put, delete)
+
+example
+import requests
+
+r = request.get("https://api.github.com/repos/psf/requests")
+print(r.json()['description'])
+print(r.json)
+
+
+2. Paramiko
+3. Panda
+4. Selenium
+5. Beautiful Soup
+6. OS
+7. JSON
+8. XLWT
+9. Platform
+10. Time
+
+----------------------------------------------------------------------------------------------------
+
+Nov 29th, 2022
+
+LECTURE 5 
+
+-Create 2 AWS instances   AMI of choice = Ubuntu
+-Name one of the instance as Python and in that instance, create at least 4 directories and as many files as possible with extensions:  txt, pdf jng, sh, etc except json and py.
+
+-Create another ubuntu instance and name it "remote server"
+
+-Python installation in Ubuntu
+
+sudo apt update -y
+sudo apt upgrade -y
+mkdir python_learn
+cd python_learn
+
+#-Next step is to install a virtual environment and activate
+
+sudo apt-get install python3 virtualenv
+sudo virtualenv --python=python3 env
+sudo python3 -m virtualenv <project_name>
+source <project_name>/bin/activate
+ls env/lib
+python3 --version  ===== to check the version of python3 installed.
+
+
+
+==================================================================================
+
+
+
+RUNNING PYTHON ON OUR UBUNTU
+
+
+-Please create a simple python script in your cli e.g  sudo vi hello.py and type in ==> print("Hello World"), save and quit
+
+-run the script by running: python3 hello.py
+
+-to see the script, run cat hello.py
+
+
+- created  some dir and touched files in each of them see below fro
+   1 in our python_learn (python_script in class) directory, we created the following files =sudo mkdir acada learning devops python
+     (ls, ls -R, ls -lrt, pwd  = we did all of these just to list the dir we created, basic linux commands)
+
+   2 next we "cd python" and then created these files = sudo touch cal.pdf sudo.txt bravo.jng help.txt
+  
+   3 We then installed "tree" in python_learn to organize our dir and files and display all in one command =  sudo apt-get install tree
+   
+   4 next we  "cd acada" and then created these files = sudo touch maven.txt sonar.pdf mongo.db server.sh
+   
+   5 next we "cd devops" and then created these files = sudo touch script.sh jenkins.sh tomcat.txt nexus.pdf
+   
+   6 We then ran "tree" in  python_learn dir to see all we have created so far
+
+
+
+Project 1
+
+#!/usr/bin/env python
+#python script to clear your screen and list dir and files
+#This code would run on both windows and linux
+#touch a file name it project1.py and paste the below script
+#run it with "python3 project1.py"
+
+
+import os
+import time
+import platform
+
+def mycode(cmd1, cmd2):
+    print("Please wait. Cleaning the screen..... ")
+    time.sleep(2)
+    os.system(cmd1)
+    print("Please wait, find the list of dir and files")
+    time.sleep(2)
+    os.system(cmd2)
+if platform.system() == "Windows":
+    mycode("cls", "dir")
+else:
+    mycode("clear", "ls -lrt")
+
+
+
+Project 2
+
+#!/usr/bin/env python
+#important to put "w" to signify you are writing into a file
+#adding "\n" is synonymous to using "Enter" on the keyboard
+#below is a script to create a file and write into it in window and Linux
+
+file_ops = open("random.txt", "w")
+file_ops.write("This is the first line\n")
+file_ops.write("This is the second line\n")
+file_ops.write("This is the third line")
+file_ops.close()
+
+
+
+
+Project 3
+
+#!/usr/bin/env python
+#copying the contents of a file to another file
+#where sfile = source file
+#where dfile = destination file
+#in this case we are copying from source dir "python_learn" and we are copying a file created in project 2 "random.txt"
+#we are pasting  in destination directory "acada"
+#to run this script use "sudo python3 third.py"
+
+import shutil
+
+sfile = "/home/ubuntu/python_learn/random.txt"
+dfile = "/home/ubuntu/python_learn/acada"
+shutil.move(sfile, dfile)
+#sfo = open (sfile, 'r') we don't need from this line to the last
+#content = sfo.read()
+#sfo.close()
+
+
+project 4
+
+#!/usr/bin/env python
+#use the script below to move files around in your environment. it is rather dynamic
+#sfile = "/home/ubuntu/python_learn/acada/random.txt"
+#dfile = "/home/ubuntu/python_learn/random.txt"
+
+import shutil
+
+sfile = input("Enter your source file: ")
+dfile = input("Enter your destination: ")
+shutil.move(sfile, dfile)
+
+
+
+project 5
+
+#!/usr/bin/env python
+#Transfer files from local env to remote server
+#Paramiko documentation. https://docs.paramiko.org/en/stable/api/client.html
+#touch a file in cli under a dir (we used "acada_python" dir )
+#redirect "echo "This is paramiko at work" > paramikio_download.txt"  I made a typo, correct the spelling of paramiko
+#we will run the script below in the Python server (instance)
+#we expect the outcome of this code to reflect in Remote server (instance we created)
+#so we are basically SShing into the Remote server from Python server
+#we installed pip = sudo apt install python-pip
+#we then installed paramiko = pip install paramiko
+#This script wansn't successful in class/.
+#Ayo shared this link https://www.youtube.com/watch?v=dtvV2xKaVjw
+
+
+
+import paramiko
+
+ssh = paramiko . SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+ssh.connect(hostname='44.212.220.126', username='ubuntu', key_filename='C:\Users\yinka\Desktop\DEVOPS\key\SGself.pem', port=22)
+sftp_client = ssh.open_sftp()
+
+sftp_client.get('/home/ubuntu/python_script/paramiko_download.txt', 'paramiko_downloaded.txt')
+sftp_client.close()
+ssh.close()

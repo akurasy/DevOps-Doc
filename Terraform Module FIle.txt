@@ -1,0 +1,225 @@
+ MODULES FILE TO SPIN UP EC2 WITH ELASTIC IP AND USER DATA
+
+BEFORE YOU START, ENSURE YOU HAVE GIVEN TERRAFORM SERVER AN EC2 OR ADMIN ROLE ATTACHED TO THE INSTANCE.
+
+CREATE A DIRECTORY CALL PROJECT
+cd project
+
+mkdir sg & touch sg.tf
+vi sg.tf
+
+paste the following inside the sg.tf file
+
+variable "ingressrules" {
+  type = list(number)
+  default = [80,443,8080]
+}
+
+variable "egressrules" {
+  type = list(number)
+  default = [80,443,25,53,8080,3306]
+}
+
+output "sg_name" {
+    value = aws_security_group.web_traffic.name
+}
+
+resource "aws_security_group" "web_traffic" {
+  name        = "Web traffic"
+  description = "Allow TLS inbound traffic"
+
+  dynamic "ingress" {
+    iterator         = port
+    for_each         = var.ingressrules
+    content {
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+
+  dynamic "egress" {
+    iterator         = port
+    for_each         = var.egressrules
+    content {
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "TCP"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+}
+
+
+
+
+
+
+
+
+save the above file and cd backward ( cd ..)
+
+make a directory called eip for elastic ip resources
+mkdir eip
+cd eip
+touch eip.tf
+vi eip.tf
+paste the following inside eip.tf file:
+
+variable "instance_id" {
+    type = string
+}
+
+resource "aws_eip" "web_ip" {
+  instance = var.instance_id
+}
+
+output "PublicIP" {
+    value = aws_eip.web_ip.public_ip
+}
+
+
+
+
+
+
+cd backward
+
+make another directory called web
+mkdir web
+cd web
+inside the web directory, do the following:
+
+vi data.tf    ===== to create data resources and paste the following
+
+#data is used to update the ami automatically
+data "aws_ami" "amzlinux2" {
+  most_recent      = true
+  owners           = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+
+save and close
+
+
+create another file called script.sh for the userdata details
+
+vi script.sh
+paste the following 
+
+#!/bin/bash
+sudo yum update -y
+sudo yum install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo echo "<h3>Welcome to Akuracy DevOps</h3>" | sudo tee /var/www/html/index.html
+
+
+
+save and close
+
+create another file called web.tf for instance resources
+
+
+vi web.tf
+paste the following 
+
+resource "aws_instance" "web" {
+    ami = data.aws_ami.amzlinux2.id
+    instance_type = "t2.micro"
+    user_data = file("./web/script.sh")
+
+    tags = {
+        "Name" = "web server"
+    }
+}
+
+module "eip" {
+    source = "../eip"
+    instance_id = aws_instance.web.id
+}
+
+output "pub_ip" {
+    value = module.eip.PublicIP
+}
+
+module "sg" {
+   source = "../sg"
+}
+
+close and save
+
+
+
+cd backward from the web directory to the project directory.
+
+
+inside the project directory, create a file called main.tf
+
+vi main.tf
+
+paste the following
+
+terraform {
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"
+    }
+  }
+}
+
+
+provider "aws" {
+    region = "us-east-2"
+  #profile = "default"
+}
+
+module "webmodule" {
+    source = "./web"
+}
+output "PublicIP" {
+    value = module.webmodule.pub_ip
+}
+
+
+save and close.
+
+
+
+
+
+inside the project directory ( containing the main.tf, sg,web.eip directories) do the following
+
+terraforn init
+
+terrafform plan
+
+terraform apply -auto-approve
+
+
+#browse the outputed public ip 
+
+
+
+

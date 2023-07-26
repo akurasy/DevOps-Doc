@@ -1,0 +1,2124 @@
+Terraform:
+
+Introduction:
+
+Key concepts:
+1. Infrastructure as a code
+
+-Managing and provisioning of infrastructure through code instead of manually
+-Files that contain configurations are created and makes it easy to edit and distribute
+-Ensures that the same environment is provisioned everytime.
+-Helps avoid undocumented, ad-hoc configuration changes
+-Easy to version control
+-can create infrastructure in modular components
+
+
+Gives you a template to follow for provisioning b) Benefits:
+-cost reduction
+-increase the speed of deployment
+-reduce errors
+-Improve infrastructure consistency
+-Eliminate configuration drift = 
+
+
+What is Terraform:
+
+-IaaC tool from Hashicorp
+-Used to building, changing and Managing infrastructure in a safe, repeatable way
+-Uses HCL - Hashicorp Configuration Language - human readable.
+-Reads configuration files and provides an execution plan which can be reviewed before being applied.
+-It is platform agnostic - can manage a heterogeneous environment - multi cloud. (can be used by multiple cloud)
+-State management - creates a state file when a project is first initialized.(functions like git tracking (head arrow))
+-Uses this state file to create plans and make changes based on the desired and  
+-current state of the infrastructure.
+-Creates operator confidence
+
+Terraform Configuration Files:
+
+Terraform uses declarative syntax to describe your Infrastructure as Code (IaC) 
+infrastructure and then persist it in configuration files that can be shared, 
+reviewed, edited, versioned, preserved, and reused.
+
+
+Terraform configuration files can use either of two formats: 
+Terraform domain-specific 
+language (HashiCorpConfiguration Language format [HCL]), which is the recommended approach, 
+or JSON format if the files need to be machine-readable.
+Configuration files that use the HCL format end with the .tf file extension;
+Those using JSON format end with the .tf.json file extension.
+The Terraform format is human-readable, while the JSON format is machine readable
+
+NOTE: Efe went on google = terraform ec2 instance (for aws)
+-registry.terraform.io/modules/terraform-aws-modules/ec2-instance/aws/latest
+
+-terraform.io/language/providers/configuration
+
+provider "aws" {
+  project = "acme-app"
+  region  = "us-central1"
+}
+
+
+provider "google" {
+  project = "acme-app"
+  region  = "us-central1"
+}
+
+NOTE: always check the provider, could be aws, google, azure, ivm, oracle etc.
+
+
+--------------------------------------------------------------------------------
+Terraform Installation:
+
+-Windows OS
+-Mac OS (terraform.io/downloads)
+-Linux OS
+
+A) Prerequisites (do one of these)
+* Install Terraform CLI
+* Install AWS CLI  OR GCP CLI if using google etc <---we did this, provisioned instance, installed terraform, installed aws cli, configured aws credentials.
+* Install VS Code Editor - recommended for this course
+* Install HashiCorp Terraform plugin for VS Code - recommended
+
+
+1-Linux (I installed directly from documentation):
+
+goto terraform.io/downloads to get documentation
+
+ sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+ sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+ sudo apt-get update && sudo apt-get install terraform
+
+
+2-To confirm terraform installation:
+terraform
+terraform --version
+
+3-Next install your machine cli:
+-if you are working on aws = install awscli = sudo apt install awscli
+-if google = install google cli
+-if azure = install azure cli
+-etc
+
+4-Next: Since we are using aws, manually configure credentials, either:
+  -create a programmatic access
+  -OR create an IAM role
+    -click role
+    -create a role
+    -leave as is and select EC2
+    -Attach admininstratoraccess (not recommended at work)
+    -go back to your instance and attach the role to the terraform server.
+
+5-Next run the command: = aws s3 ls  (it will output the buckets you have if you have created some, 
+  and if you haven't if will show empty, instead of asking you to configure)
+
+
+----------------------------------------------------------------------------------
+Install Terraform on Windows (IF WINDOWS):
+-Download Terraform  == https://www.terraform.io/downloads and select windows
+
+open the downloaded file 
+
+unzip it by right clicking on the folder, then extract all. you can extract to another location of your choice
+
+create a folder maybe in your onedrive and name it terraform
+
+extract the application downloaded to this folder or just drag it inside. 
+
+now, configure environmental variables on your windows
+
+goto pc ===== advance system settings ===== click env variables====== on system variables,
+
+goto path===== click edit ===== click new=== paste the path to the extracted terraform like this,  
+
+C:\Users\MY PC\OneDrive\software\terraform_1.4.6_windows_386\terraform.exe and save
+
+goto to the extracted terraform file and right-click. then run as administrator. nothing will happen here, just close it after running this. 
+
+
+next goto your command prompt and do "terraform --version"  to check if terraform has been installed
+
+
+
+
+OR INSTALL USING THE CLI CXOMMANDS WITHOUT SETTING E.VARIBLAES (This worked for me)
+-open cmd and install chocolatey if not already installed = https://docs.chocolatey.org/en-us/choco/setup (there is a long command in this link copy and install)
+-Install CLI  ==  https://learn.hashicorp.com/tutorials/terraform/install-cli
+-next do "terraform --version" to confirm terraform installation.
+NEXT STEPS= since we have already installed terraform on windows, we can now open VSCODE, CMD, POWERSHELL anyone we want, but we are using VSCODE
+-do "terraform --version" on VSCODE again just to confirm
+
+
+=================================================================================
+
+CONNECTING WINDOWS TERRAFORM TO AWS (can connect to other cloud too):
+-open your CLI (in our case we opened VSCODE, could also be powershell or CMD)
+-Download and install awscli for windows (or anydevice you are using) (since we are using aws, if gcp, you can do same for gcp etc) by going to this link https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+-Next create a programmatic access by going to IAM and create user
+-select Acess programmatic access
+- attach AdminstratorAccess
+-add tag "Name", and add value "Terraform-admin" (is optional)
+-Review
+-Create user
+-Download and Copy Access key and ID (it is a one time file)
+-Next head back to VSCODE and run the command = "aws configure" , this should ask for the access key, paste the access key gotten from above, 
+copy the key too and paste
+-Next Enter the region: if you don't know, just hit enter, but since we are on us-west-2, we can insert "us-west-2"
+ (always put in the region your company have their resoureces on)
+-Next, enter the output format.  Default is JSON, hit enter, no need to change anything. and that's all
+-Next run = aws s3 ls  <---- this shows you what you have in s3 bucket, if you don't have anything there, then it will be empty.  
+-WITH THE ABOVE STEP YOU ARE DONE BUT TO FURTHER TROUBLESHOOT JUST IN CASE YOU HAVE MULTIPLE CREDENTIALS DO THE BELOW:
+-run  = "ls ~/.aws" to get your credentials
+-cat ~/.aws/credentials = to see the content of your credential, if you have multiple credentials, edit and input the aws prog. access credentials you want to use 
+(switch to gitbash and vi into the credentials), if you dont have multiple, you should be good to go without modifying anything.
+-next set your aws default profile (docs.aws.amazon.com/cli/latesst/userguide/cli-configure-files.html) OR "aws configure set region <inser region> --profile <insert profileNAME>""
+"aws configure set region us-east-2 --profile default" ( doing this for the first time, no need to do all this, it's already set)
+-IF ANOTRHER PROFILE IS IN USE, you would need to set access key, do "set AWS_ACCESS_KEY_ID=<insertACESSKEY ID>" and "set AWS_SECRET_ACCESS_KEY=<insert SECRET ACCESS KEY>
+-set region too do = set AWS_REGION=<insert REGION>
+-no success, with the above troubleshooting steps, but PLS READ DOCUMENTATION = google it
+-if the above steps didn't work, delete the profile by doing = "rm -rf ~/.aws" to remove and do the steps before the last red step above.
+-Once done
+-our windows or vscode can now talk to aws as an admin.
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+Writing terraform file for EC2
+
+provider "aws" {
+  region  = "us-east-2" 
+  #profile "efe"
+}
+
+resource "aws_instance" "first_demo" {
+  ami = "ami-00978328f54e31526" 
+  instance_type = "t2.micro"
+  
+  tags ={
+    "Name" = "EKS-Master"
+}
+}
+
+#next = create a directory "mkdir shola-terraform"
+#CD into the Directory then vi into a new file (EC2.tf) by running "code ." = this will open a text editor in the directory you created. 
+ Works in a VSCODE connected to the aws
+#copy and paste the  in the terraform script wrritten  in EC2.tf 
+
+
+terraform init
+$ terraform init: 
+# Initialise to install plugins  
+The terraform init command is used to initialize a working directory 
+containing Terraform configuration files. This is the first command that 
+should be run after writing a new Terraform configuration or cloning an 
+existing one from version control.
+
+terraform validate:
+# Validate terraform scripts 
+# validates terraform scripts which will list resources which is going  be created. 
+The terraform validate command validates the configuration files in a directory, 
+referring only to the configuration and not accessing any remote services such as
+ remote state, provider APIs, etc.
+
+
+terraform plan:  
+# The terraform plan command evaluates a Terraform configuration to determine 
+the desired state of all the resources it declares, then compares that desired 
+state to the real infrastructure objects being managed with the current working 
+directory and workspace. It uses state data to determine which real objects 
+correspond to which declared resources, and checks the current state of each 
+resource using the relevant infrastructure provider's API.
+
+
+terraform apply (terrafform apply -auto-approve: to run the .tf file.  This will request validation (yes/no)
+
+-when you apply, "terraformstate file" will be created, (terraform.tfstate), this houses everything written and done one terraform.  Every new lines
+added to the terrform file (EC2.tf) will add set of new lines in the statefile.
+
+-this is why it is good to create different terraform module.
+
+terraform destroy: to terminate the running server/instance.
+
+rm -rf .terraform*
+rm -rf terraform.tfstate*
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+DEC 28, 2022
+
+Main commands:
+  Terraform init          Prepare your working directory for other commands
+  Terraform validate      Check whether the configuration is valid
+  Terraform plan          Show changes required by the current configuration
+  Terraform apply         Create or update infrastructure
+ Terraform destroy       Destroy previously-created infrastructure
+
+
+
+
+
+
+
+TERRAFORM CONFIGURATION LANGUAGE SYNTAX:
+
+Step 1:Different Terraform Blocks -this is the way terraform provision its resoureces and knows its value (e.g terraform script we wrote)
+
+
+
+
+1.	TERRAFORM SETTINGS BLOCK:
+helps set all configurations that we need (https://developer.hashicorp.com/terraform/language/settings)
+
+
+2.	PROVIDER BLOCK: 
+ this is where we specify who the provider of our environment is in terraform script. See e.g below (https://developer.hashicorp.com/terraform/language/providers/configuration)
+e.g.
+
+provider "google" {
+
+}
+
+where to find more info about this --> registry.terraform.io/browse/providers
+                                       https://developer.hashicorp.com/terraform/language/settings =to include a terraform version.  IT IS VERY IMPORTANT TO CHECK VERSION FIRST
+                                       terraform{
+                                         required_version = "1.2.3"
+                                       }
+
+  NOTE: terraform versioning come before writing the provider block
+  NOTE: required_version = "~> 4.0"  <--- putting infinity sign means it can run on any version 4, e.g 4.1, 4.2 etc 
+  NOTE: required_version = "4.0"  <--- without the infiniey sign means it can only run on version 4.0.1, 4.0.2, 4.0.anyminor verion
+  NOTE: required_version = ">= 4.0" <---- this means greater than or equal to version 4.0
+
+version 1.2.3 means 1= version or release, 2 = major version and 3 = minor verision.
+if we put 1.0, it means we are running terraform on release or version 1 and major version 0 and any minor version.
+
+
+
+3.	RESOURCE BLOCK: 
+ contains terraform identified resource(this is constant) and user identified resource 
+e.g.
+
+Syntax: <BLOCK type> "BLOCK Label" "Blocks label"
+
+resource "aws_instance" "your_description" {
+  ami = "ami-00978328f54e31526" 
+  instance_type = "t2.micro"
+  
+  tags ={
+    "Name" = "EKS-Master"
+}
+}
+
+where to find more info about this --> registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance#security_groups (for AWS)
+NOTE: We can have multiple rresources.
+
+
+
+4.	INPUT VARIABLE BLOCK:
+This block let's us customize terraform or some aspect of terraform module (A module is a group of terraform files in a folder) without 
+altering the module source code. There can be a module and a child block.  An input variable helps us to declare an input function, either on 
+the run-time without altering what is in the module.  We have input variable in different form.  
+e.g.
+
+variable "aws_instance" "cohort7" {
+  default = "t2.micro" 
+  ami = "ami-00978328f54e31526" 
+  instance_type = "t2.micro"
+}
+
+
+
+5.	OUTPUT VARIABLE BLOCK:
+to take information out of our resources without altering the state.  We can output and append the out to a file
+  output "ec2_instance_publicip" {
+    description = "Ec2 Instance Public IP"
+    value = aws_instance.cohort7.public_ip
+  }
+
+
+
+
+6.	LOCAL VALUES BLOCK: 
+this helps to define the local e.g s3 bucket state, where do we want to run our back end file.
+You can store your terraform code as;
+
+terraform file (manifest script)  saved in  GitHub
+
+statefile  saved in S3 bucket
+
+locals {
+  name = "${var.app_name}-${var.environment_name}"  <--- writing the statefile saved in s3 bucket as a variable, this is just an example.
+}
+
+
+bucket_name = locals.name   <--- calling the above locals as bucket_name, again, this is just an example.
+
+
+
+
+7.	DATA SOURCE BLOCK: 
+terraform.io/language/data-sources
+
+
+
+8	MODULES BLOCK: 
+A module is a group of terraform files in a folder. There can be a module and a child block.  This is what a lot of people use these days. 
+They create different modules and call it.  You can create different Terraform scripts in github and save as a files, then call them individually using module syntax.
+Similar to saving a jenkins file in a github repository and call it in pipeline syntax to build and all.
+
+terraform.io/language/modules/syntax
+
+
+
+
+terraform
+
+dev
+ec3.tf
+main.tf
+security.tf
+
+
+
+	BLOCK TYPE:
+
+Arguments:
+  They assign a value to a name. they appear with the block. 
+  Arguments can be required or optional
+
+Expressions:
+  They represent a value, either literally or by referencing and combining other values.
+  They appear as values for Arguments, or within other expressions.
+
+Attributes:
+  - They represent a named piece of data that belongs to some kind of object. 
+  The value of an attribute can be referenced in expressions using a dot-separated notation, 
+  like aws_instance.example.id.
+- The format looks like `resource_type.resource_name.attribute_name`
+
+Identifiers:
+  - Argument names, block type names, and the names of most Terraform-specific constructs 
+  like resources, input variables, etc. are all identifiers.
+
+comments:
+  #
+  //   single line
+
+  multi line:
+    /*    and    */
+
+
+meta-arguments:
+can change the behavior of a resource type
+Example
+  count   = numeric form
+  for_each
+  each.key
+  each.value
+
+read up more
+
+map: - helps map resources
+
+    resource "azurerm_resource_group" "rg" {
+    for_each = {
+      a_group = "eastus"
+      another_group = "westus2"
+    }
+    name     = each.key
+    location = each.value
+  }
+
+set of Strings:
+resource "aws_user" "the_account" {
+  for_each = toset(["Chidi", "Yusuf", "Hope", "Paul"])
+  name = each.key
+}
+
+
+
+
+
+putting reources and provider together:
+
+terraform {
+    required_version = "~> 4.0"
+    required_providers {
+      aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"  <---since this is there we can revmove required_version line above
+
+      }
+    }
+}
+
+provider "aws" {
+  region  = "us-east-2" 
+  #profile "efe"
+}
+
+resource "aws_instance" "first_demo" {
+  ami = "ami-00978328f54e31526" 
+  instance_type = "t2.micro"
+  
+  tags ={
+    "Name" = "EKS-Master"
+}
+}
+
+
+IN VSCODE, we created files named each and added content to each:
+
+provider.tf:
+terraform {
+    required_providers {
+      aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"  <---since this is there we can revmove required_version line above
+
+      }
+    }
+}
+
+provider "aws" {
+  region  = "us-east-2" 
+  #profile "akuracy"
+}
+
+EC2.tf:
+resource "aws_instance" "first_demo" {
+  ami = "ami-00978328f54e31526" 
+  instance_type = "t2.micro"
+  user_data = file("${path.module}/app1-install.sh")
+  
+  tags ={
+    "Name" = "EKS-Master"
+}
+}
+
+app1-install.sh: We patched a static website patched on a webserver (apache2)
+
+  #!bin/bash
+sudo apt-get update
+sudo apt-get install -y apache2
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo echo "<h3>Welcome to Akuracy DevOps Class</h3>" | sudo tee /var/www/html/index.html
+
+
+We saved all the 3 files and did terraform plan and terraform apply and went to the front end to open port 80 and then check it.
+
+==========================================================================================================================================
+
+DEC 29, 2022
+
+
+PROJECT 1:
+1. Create a new folder /directory called: Project 1
+2. Create a VPC named "FirstVPC"  <--- simply search "terraform aws vpc sample on google or go here -->" (registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc)
+3. CIDR range 192.168.0.0/24
+
+Answer to the above assignment
+
+
+-HOLD ctrl + space to get list of attributes you can pass
+-when you do "terraform init" = it prepares your working directory for terraform use, and also creates ".terraform" and ".terraform.lock.hcl" - this where your dependency is stored
+-when you do "terraform plan" it creates the terraform.tfstate  file, which keeps all the current state, exactly like ETCD but for terraform. Stores the information of your current
+state and the desired statefile
+-
+
+
+terraform {
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"
+    }
+  }
+}
+
+
+provider "aws" {
+    region = "us-east-2"
+  #profile = "default"
+}
+
+resource "aws_vpc" "FirstVPC" {
+  cidr_block = "192.168.0.0/24"
+
+  tags = {
+    "Name" = "FirstVPC"
+  }
+}
+
+
+Variables:
+-A variable is a value that can change, depencing on the conditions or on information passed to the progeram.
+-Variables are used to store information to be refrerenced and manipulated in a computer program.
+-They also provide a ways of labeling data with a descriptieve name, so our programs can be understood more clearly by the reader and ourselves
+-It is helpful to think of varialbes as containers that hold information.  Their sole purpose is to label and storee data in memory.  This
+data cna then be used thorughout your program.
+
+
+The following example show the variable types that are supported by terrafform.
+
+Strings:
+- Strings are usually represented by a double-quouted sequence of Unicode characters,  "like this"
+
+variable "vpcname" {
+  type = string
+  default = "myvpc"
+}
+
+$ = is what we use to call varible in linux e.g $name
+var. = this is our we call variable in terraform e.g var.vpcname, this means we are calling the above block. 
+
+Number:
+- Numbers are rerpresented by unquouted sequences of digits with or without a decimal point, like 15 or .
+
+variable "sshport" {
+  type = number
+  defautt = 22
+}
+
+Boolean:
+- Bools are represented by the unquoted symbols true and false.
+
+variable "enabled" {
+  default = faulse
+}
+
+
+List:
+- Lists is represented by a pair of square brackets containing a comma-separated sequence of values, like ["a", 15, true].
+
+variable "mylist" {
+  type = list(string)
+  default = ["Value1", "Value2", value2]  <---value1 = 0, value2 = 1, value3 = 2
+}
+
+
+How to refrence List values?:
+
+instance_type = var.mylist[1]
+
+
+Map:
+  - Maps/Obhects are represted by a pair of curl braces contain ing a series of <KEY> = <VALUE> pairs;
+
+  variable "mymap" {
+    type = map
+    default = {
+      key1 = "Value1"
+      key2 = "Value2"
+    }
+  }
+
+
+How to refernce Map values:
+instance_type = var.mymap["key1"]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+Input:
+
+  variable "inputname" {
+    type = string
+    description = "Set the name of VPC"
+  }
+
+-Note that if no default value is provided, then the variable will be an input variable and will prompt you to enter a value at runtime.
+
+resource "aws_vpc" "FirstVPC" {
+  cidr_block = "192.168.0.0/24"
+
+  tags = {
+    "Name" = "FirstVPC"
+  }
+}
+
+
+Output:
+
+  output "vpcid" {
+    value = aws_vpc.myvpc.id
+  }
+
+
+Tuple:
+  -Lists/tuples are representd by a pair of square brackets containing a comma-separated sequence of values, like ["a", 15, true]
+
+  variable "mytuple" {
+    type = tuple([string, number, string])
+    default = ["cat", 1, "dog"]
+  }
+
+Objects:
+
+  variable "myobject" {
+    type = object({ name = string, port = list(number) })
+    defautl = {
+      name = "Shola"
+      port = [22, 25, 80]
+    }
+  }
+  
+
+
+BLOCK Type BLOCK Label BLOCK Label
+
+Variables with Lists and Maps:
+
+#AWS EC2 instance Type - Lists
+```t
+ variable "instance_type_list" {
+  description = "EC2 instance Type"
+  tyoe = list(string)
+  default = ["t3.micro", "t3.small"]
+ }
+
+Instance_type = var.instance_type_list[0]
+```
+
+#AWS EC2 instance Type - Map
+
+ variable "instance_type_map" {
+  description = "EC2 Instance Type"
+  type = map(string)
+  default = {
+    "dev" = "t3.micro"
+    "qa" = "t3.small"
+    "prod" = "t3.large"
+  }
+ }
+
+instance_type = var.instance_type_map["qa"]
+
+
+
+Sample provision of VPC, subnet and EC2-instance (without using VARIABLE)- PROJECT 2:
+
+terraform {
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"
+    }
+  }
+}
+
+
+provider "aws" {
+    region = "us-east-2"
+  #profile = "default"
+}
+
+resource "aws_vpc" "FirstVPC" {
+  cidr_block = "10.0.0.0/16"
+
+  tags = {
+    "Name" = "FirstVPC"
+  }
+}
+
+resource "aws_subnet" "FirstVPCsub" {
+    vpc_id = aws_vpc.FirstVPC.id
+    cidr_block = "10.0.0.0/24"
+
+    tags = {
+        "Name" = "FirstVPCSubnet"
+    }
+  
+}
+
+resource "aws_instance" "my_First_EC2" {
+    ami = "ami-00978328f54e31526"
+    instance_type = "t2.micro"
+  
+    tags = {
+        "Name" = "DEV"
+    }
+}
+
+
+
+
+Sample provision of EC2-instance, using VARIABLE- PROJECT 3:  <----BELOW IS AN EXAMPLE OF INPUT VARIABLE
+
+
+-We created resource file, provider.tf and variable.tfstate
+-we first wrote everything normally in a file, then we wrote the variable for each of the files.
+
+
+provider.tf:
+terraform {
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"
+    }
+  }
+}
+
+
+provider "aws" {
+    region = var.my_region                <----call the variable from region  
+  #profile = "default"
+}
+
+resource.tf:
+resource "aws_instance" "frist_demo" {
+    ami = var.my_ami                      <--- called as variable
+    instance_type = var.instance_shola    <---- called as variable
+    key_name = var.key_pair               <---- called as variable (see below)
+    tags = {
+        "Name" = "demo"
+    }
+}
+
+variable.tf:
+variable "instance_shola" {
+  description = "The aws instance type"
+  type = string
+  default = "t2.micro"
+}
+
+
+#variable "my_ami" {                   <---WE LATER CALLED THE AMI USING DATA-SOURCES (see datasource section below) we commented this out, BECAUSE writing specific ami could be get deprecated, using data sources will pick latest.
+#  description = "My machine ami"    <---(read this all like you didn't comment it out  )
+#  type = string
+#  default = "ami-00978328f54e31526"
+#}
+
+
+
+variable "my_region" {
+  description = "my aws region"
+  type = string
+  default = "us-east-2"
+}
+
+variable "key_pair" {
+    description = "my ec2 key pair"
+    type = string
+    default = "vpc2"
+}
+
+security.tf:
+resource "aws_security_group" "first_demo_SG" {
+  name        = "first_demo_SG"
+  description = "Allow TLS inbound traffic"
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]  <---- opening to all traffic (allowing traffic from everywheree)
+  
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "first_demo_SG"
+   }
+}
+
+
+resource link:  https://registry.terraform.io/providers/hashicorp/aws/4.47.0/docs/resources
+
+
+
+
+
+
+
+
+DATA SOURCE
+
+====================================================================================================================
+Dec 30th, 2022
+
+Data source:  registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami
+
+What is Data-source - used to fetch latest data (dynamically even if there is update to the data) to provision resources.
+Everything about terraform is about what you need and what you don't need.
+
+NOTE: when we do data-source, we do not need variable defined for that specific thing.  for example; below we have done the data-sources
+for amazon ami, and earlier we did variable for ami, we don't need the ami variable anymore now.
+
+we can either call a variable or data-source
+
+data "aws_ami" "amzlinux2" {   <---to call and add this a resource, we'd have "ami = data.aws_ami.amzlinux2.id"
+  most_recent      = true
+  owners           = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]      ---> gotten from here amzn2-ami-kernel-5.10-hvm-2.0.20221210.1-x86_64-gp2 ( we could use redhat, windows, ubuntu etc)
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecure"
+    values = ["x86_64"]  <----- you can add more filteers  (find most of the information in AMI page, all I did was search a public ami)
+  }
+}
+
+
+
+Putting it together;
+
+data "aws_ami" "amzlinux2" {
+  most_recent      = true
+  owners           = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+
+
+
+RECALL THE AMI IN THE RESOURCE FILE AS FOLLOWS
+
+replace the ami name with this;
+data.aws_ami.amzlinux2.id <------------- this is used to call your data just as you used var.name to call variables. this is the syntax for data.
+aws_ami = ami source
+amzlinux2 = the name given to the ami yourself. this is dynamic
+
+  resource "aws_instance" "frist_demo" {  
+    ami = data.aws_ami.amzlinux2.id    <---- calling the ami using the data-sources defined above.  (We replaced the variable with datasource)
+    instance_type = var.instance_shola
+    vpc_security_group_ids = [aws_security_group.first_demo_SG.id]  <-----(attaching the security group using data source)
+    key_name = var.key_pair   <-----(attaching key pair)
+  
+    tags = {
+        "Name" = "demo"
+    }
+}
+
+
+
+https://learn.hashicorp.com/tutorials/terraform/docker-destroy?in=terraform/docker-get-started
+
+Assignment:
+
+-use terraform to provision a vpc
+-in that vpc put 2 subnets
+-put instances in the subnet, one in public, one in previously-created
+-open two SG
+-pass same key_pair
+-open your IGW to public subnet and NAT to private subnets
+-open public and private route tables
+-instance running on your private network should expose public IP.
+
+
+
+
+
+===================================================================================================================
+
+Dec 30, 2022
+ 
+
+OUTPUTTING TERRAFORM VARIABLES
+
+
+Terraform output variable:  we do output to public data/information on the command line other than on the Gui
+
+# EC2 Instance Public IP
+output "instance_publicip" {
+    description = "EC2 instance Public IP"
+    value = aws_instance.first_demo.public_ip <--- we are publishing public Ip of the Ec2 resource up
+}
+
+# EC2 Instance Public DNS
+output "instance_publicdns" {
+    description = "EC2 instance public DNS"
+    value = aws_instance.first_demo.public_dns  <---- must add what you are outputting. Here, it is public_dns.  aws_instance.first_demo is the resource we are pointing to.
+}
+
+
+
+
+
+
+
+
+
+
+==================================================================================================================
+
+
+
+Dec 30, 2022
+
+What is a Dynamic Block: 
+
+If asked to open specific ports in the inbound rule of security group, we can use dynamic block to achieve this as against writing all the ingress and egress rule 
+for each of the ports (to save time and number of files that will be created).
+
+Dynamic Block: Assuming we want to open the following port;
+
+Ingress: 80 , 443 , 8080
+
+egress: 80 , 443 , 25 , 3306 , 53 , 8080
+
+
+
+
+variable "ingressrules" {    <-----we created variable for the security groups to allow us open lot of ports, 
+we added these ingress and egress variables to the variable file we created far above
+
+  type = list(number)
+  default = [80,443,8080]
+}
+
+variable "egressrules" {
+  type = list(number)
+  default = [80,443,25,53,8080,3306]
+}
+
+
+resource "aws_security_group" "first_demo_SG" {  <----we replaced the original security group we created far above with the new dynamic block.  
+  name        = "first_demo_SG"
+  description = "Allow TLS inbound traffic"
+
+  dynamic "ingress" {
+    iterator         = port
+    for_each         = var.ingressrules
+    content {       
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+
+  dynamic "egress" {
+    iterator         = port
+    for_each         = var.egressrules
+    content {
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "TCP"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+
+  tags = {
+    Name = "first_demo_SG"
+  }
+}
+
+NOTE: to add more or remove ports, just modify the variables
+
+Using list variable to provision different instances:
+
+variable "instance_type_list"
+description = EC2 instance type  <----- we added this to our variable file
+type = list(string)
+default = ["t2.micro", "t2.medium", "t3.large"]
+
+
+resource "aws_instance" "first_demo" {
+    ami = data.aws_ami.amzlinux2.id
+    #instance_type = var.instance_shola
+    instance_type = var.instance_type_list[1] #forlist        <------calling the variable we created above to provision t2.medium. t2 medium is argument $1 ( and other instances defined based on the number inputed)
+    vpc_security_group_ids = [aws_security_group.first_demo_SG.id]
+    key_name = var.key_pair
+  
+    tags = {
+        "Name" = "demo"
+    }
+}
+
+
+
+AWS EC2 Instance type - Map variable:
+
+variable "instance_type_map" {
+  description = "EC2 instance type"
+  type        = map(string) 
+  default     = {
+    "dev"     = "t2.mciro"
+    "stage"   = "t2.medium"
+    "prod"    = "t2.large"
+  }
+}
+
+
+resource "aws_instance" "first_demo" {
+    ami = data.aws_ami.amzlinux2.id
+    #instance_type = var.instance_shola
+    #instance_type = var.instance_type_list[1] #forlist        <------calling the variable we created above to provision t2.medium( and other instances defined based on the number inputed)
+    instance_type = var.instance_type_map[stage]
+    vpc_security_group_ids = [aws_security_group.first_demo_SG.id]
+    key_name = var.key_pair
+  
+    tags = {
+        "Name" = "demo"
+    }
+}
+
+note: only added  "instance_type = var.instance_type_map[stage]""
+
+META Argument:  allows you to provision multiple instance (or resources) , using simple codeson the resource file.
+count = 3   <--- added to resources, meaning to launch 3 resources if we added to the resources.  See usage below
+
+tags = {
+  "Name" = "Prod-${count.index}"   <----index means counting the numbers respectively.  "prod" can be changed to any name we like
+}
+
+Example:
+
+resource "aws_instance" "first_demo" {
+    ami = data.aws_ami.amzlinux2.id
+    #instance_type = var.instance_shola
+    #instance_type = var.instance_type_list[1] #forlist        <------calling the variable we created above to provision t2.medium( and other instances defined based on the number inputed)
+    instance_type = var.instance_type_map[stage]
+    vpc_security_group_ids = [aws_security_group.first_demo_SG.id]
+    key_name = var.key_pair
+    count = 3
+
+    tags = {
+      "Name" = "stage-${count.index}" <---what this does is basically to count the number of "stage" instances, it will count as stage 1, stage 2 , stage 3 etc, that's what the index does
+  }
+}
+
+
+NOTE: always ensure to validate, plan format your codes
+
+Assignement:
+
+write a terraform output variable for 3 instances
+
+
+It is good practice to create different modules for each of the resources and environment.
+
+
+
+
+
+
+
+
+
+=========================================================================================================================
+JAN 1, 2023
+
+Modules:
+
+A module is a container for multiple resources that are used together. 
+You can use modules to create lightweight abstractions, so that you can 
+describe your infrastructure in terms of its architecture, 
+rather than directly in terms of physical objects.
+
+* Enable code  re-use
+* Supports versioning to maintain compactability
+* Stores code remotely
+* Enable easier testing
+* Enables encapsulation with all the seperate resources under one configuration block
+* Modules can be nested inside other module, allowing you to quickly spin up whole separate environmments
+* can be reffered using source attributes
+* There is Parent module and Child modules
+* It is recommended to use modules
+* modules can be stored locally (with other terraform files) or remotely
+* Modules are saved locally in separate directory outside of each directory
+* Modules can be saved remotely but in separate repositories
+
+Support backend ( where we can store modules and call them from):
+  - local path
+  - terraform registry
+  - Github
+  - Bitbucket
+  - HTTP URLs
+  - S3 bucket
+  - GSC bucket
+
+  Module requirements:
+
+  - Must be on Github, Gitlab and must be public repo, if you are using public registry
+  - Must be on Github, Gitlab and must be private repo, if you are using private registry
+  - Must be named terraform <PROVIDER>-<NAME>, where <NAME> reflects the type of infrastructure the 
+  module manages and <PROVIDER> is the main provider where it creates the infrastructure
+  eg. terraform-google-vault or terraform-aws-ec2-instance
+  - Must maintain a standard module structure, which allow the registry to inspect the module and generate decumentation and
+  track the resource usage.
+
+
+  Lab:
+
+  -We created a new direcory and named it "example1"
+  -we created a terraform file inside the new directory and named it "main.tf" (this is where we put the provider script)
+  -we created another directory inside example1 and called it "ec2" (this is a child directory)
+  -we created some terraform files in "ec2" directory (variable.tf, output.tf, ec2.tf, datasource.tf)
+  -we then put all the terraform files in "ec2" directory in module by simply adding input and output varible at the bottom of "main.tf" file = 
+
+  module "ec2module" {         <--- "<nameofDirectorymodule>"
+    source = "./ec2"           <---this means, the source is in the current directory or path (that is what the "." means) 
+	 if it is two folder backward it would be "../../ec2" which means 2 steps backward
+    ec2directory = "Demo-ec2"  <---ec2directory has been defined in the variable below and "Demo-ec2" is just a name we call it, could be any name.
+  }
+
+
+  output "module_output" {  <---we need to write the output variable too
+    value = module.ec2module.instance_id  <---it must always carry .instance_id for modules
+  }
+
+
+  -we added a new variable to variable.tf to reference all the variable block.  We are basically defining a variable for the module it self,
+ and we made it the first string variable on the list. Note - whether we add string to the rest of the variables in variable.tf file 
+  or not, so long we added the variable type to the first one, they would all assume the variable type of the first variable define at the top. 
+The variable we added is
+
+  variable "ec2directory" {  <---this can be any name, i chose to call it "ec2directory"
+    type = string
+  }
+
+  after we added the above varible in variable.tf, we then went back to the 
+
+-What we are basically doing is to call everything in directory "ec2" with "main.tf" file (we have converted ec2 folder to module using main.tf)
+-next we need to go back to the first directory (Example1 directory) and initialize our module repository by ruuning "terraform init" and then "terraform plan"
+-We got an error around region after running "terraform plan" , even though we have everything set right.  
+The system isn't picking the variable we set for region (it picked earlier before the modules).
+We fixed this by simply removing the region varible and pass the region openly in the "main.tf"
+-We ran "terraform plan" again and we got an error about count.index, I took "count = 3" and "-${count.index}" out (both in ec2.tf) 
+and then did "terraform plan" again. and it worked
+
+
+TORUBLESHOOTING WHY THERE IS ERROR IN THE REGION VARIABLE.
+
+-we went into terraform github page = github.com/hashicorp/terraform/issues/11578
+github.com/hashicorp/terraform/issues/489
+stackoverflow.com/questions/72213875/transofrmer-how-to-call-a-module-with-variables-as-default-value
+
+Assignment
+
+Call aws region as variable.
+
+Lab: Example 2 (module example 2):
+  -we cd out to project1 (by running cd ..)
+  -we mkdir example2  and cd into it
+  -we then mkdir db inside example2 directory and cd into it too
+  -we then did "code ." to open a separate db directory window
+  -we then created 2 files db.tf and datasource.tf
+  -we put resource in db.tf ;
+
+resource "aws_instance" "db" {
+    ami = data.aws_ami.amzlinux2.id
+    instance_type = "t2.micro"
+tags = {
+      "Name" = "Db_server"
+    }
+}
+
+output "PrivateIP" {
+    value = aws_instance.db.private_ip
+
+  -we put the following in our datasource.tf;
+
+data "aws_ami" "amzlinux2" {
+  most_recent      = true
+  owners           = ["amazon"]
+  
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+
+-next we cd out to example2 directory and then mkdir eip (for elastic ip) and cd into it.
+-we cd back to example2 directory and "code ." to open example2 vscode window
+-we then cd into eip and create "eipvariable.tf" file and wrote the following in it:
+
+variable "instance_id" {
+    type = string
+}
+
+resource "aws_eip" "web_ip" {
+  instance = var.instance_id
+}
+
+output "PublicIP" {
+    value = aws_eip.web_ip.public_ip
+}
+
+
+-next we cd out to example2 again and mkdir web and create "ami-datasourece.tf" in it, and then write the following datasource in it 
+(same as the datasourece ealier):
+
+data "aws_ami" "amzlinux2" {
+  most_recent      = true
+  owners           = ["amazon"]
+  
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+-next we created "web-resource.tf" file and wrote the following in it: 
+
+resource "aws_instance" "web" {
+    ami = data.aws_ami.amzlinux2.id
+    instance_type = "t2.micro"
+    security_groups = [module.sg.sg_name]
+    #security_groups = [module.<name-of-direcory>.<name-of-sgresource_name>] this is how we call as a module
+    #module "name" {  <--security groups can be called using module like this or like the above
+    #    source = "../sg"   
+   # }
+
+   user_data = file("./web/server-script.sh")
+   #user_data = file("./web/server-script.sh")  <--- we called userdata here as a file instead of path as we have done before.
+
+   tags = {
+    "Name" = "web server"
+   }
+}
+
+output "pub_ip" {
+    value = module.eip.PublicIP       
+}
+
+module "eip" {                <----- we called eip module and linked it to web instance (rememebr eip was only linked to db instance)
+  source = "../eip"
+  instance_id = aws_instance.web.id   <--- this is how we link it to the web instance
+}
+
+
+module "sg" {        <----this is sg  module, it is already attached to web instance but we called it as a module in our example because we put it in another directory 
+    source = "../sg"  
+}
+
+
+
+-next we created another file "server-script.sh" (a userdata) in web directory and write the following shell script and html in it:
+
+#!bin/bash
+sudo apt-get update
+sudo apt-get install -y apache2
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo echo "<h3>Welcome to Akuracy DevOps</h3>" | sudo tee /var/www/html/index.html
+
+Note: what we have done so far is create 2 instances, one in web directory 
+(here we have instance datasource, userdata/script and instance that we want to launch our static website on) and one in db -where we have 
+(datasource and one instance) (to back up the web instance?), and elastic Ip and 
+
+-next we mkdir sg and created a file "sg.tf" we then copy the details of the earlier security group we created and its respective variable and pasted in this new sg.tf, as below:
+
+variable "ingressrules" {
+  type = list(number)
+  default = [80,443,8080]
+}
+
+variable "egressrules" {
+  type = list(number)
+  default = [80,443,25,53,8080,3306]
+}
+
+output "sg_name" {
+    value = aws_security_group.web_traffic.name
+}
+
+resource "aws_security_group" "web_traffic" {
+  name        = "Web traffic"
+  description = "Allow TLS inbound traffic"
+
+  dynamic "ingress" {
+    iterator         = port
+    for_each         = var.ingressrules
+    content {       
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+
+  dynamic "egress" {
+    iterator         = port
+    for_each         = var.egressrules
+    content {
+    from_port        = port.value
+    to_port          = port.value
+    protocol         = "TCP"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+}
+
+-next we created "main.tf" in example2 directory to tie all the other 4 directories together. we used wrote the provider and called the modules in this file
+see below:
+
+terraform {
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 4.0"
+    }
+  }
+}
+
+
+provider "aws" {
+    region = "us-east-2"
+  #profile = "default"
+}
+
+module "dbmodule" {
+    source = "./db"
+ #   dbfolder = "db" <--- removed this because we didn't create a variable for it
+  }
+
+module "webmodule" {
+    source = "./web"
+ #   webfolder = "web" <--- removed this because we didn't create a variable for it
+  }
+
+
+  output "PrivateIP" {
+    value = module.dbmodule.PrivateIP
+  }
+
+    output "PublicIP" {
+    value = module.webmodule.pub_ip
+  }
+
+
+NOTE: So basically, what we have done with main.tf is to tie web and db modules together. Then inside web directory, 
+because we are associating eip to it, we called eip module in it (which is located a step backword), and also called 
+sg module in web directory (also located one step backward)
+
+-next we did  "terraform init" to get our statfile
+NOTE: windows Key + navigation keys to align vscode screen side by side
+
+NOTE: terraform destroy --target=<resourceyouwantdestroyed  e.g
+
+terraform destroy --target=module.webmodule.module.sg.aws_security_group.web_traffic
+
+CLOUD FORMATION TO TERRAFORM:
+
+deliveroo.engineering/2020/01/02/CloudFormation-To-Terraofrm.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+==========================================================================================================
+Jan 3rd, 2023
+
+github.com/terraform-aws-modules/terraform-aws-vpc/blob/v3.16.0/examples/simple-vpc  
+
+registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
+
+
+EXAMPLE 3: Writng Terraform script to Create AWS VPC (not Module)
+
+We created the following ;
+
+1 - Version.tf - This is where we put the provider:
+
+terraform {
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 3.0"
+    }
+  }
+}
+
+#Provider Block
+provider "aws" {
+    region = var.aws_region
+    #profile = "default"
+}
+
+
+2 - Variable.tf - This is where we defined our region variable:
+
+#Input Variables
+
+#AWS Region
+variable "aws_region" {
+    description = "Region in which AWS Resources to be created"
+    type = string
+    default = "us-east-1"
+    
+}
+
+
+3 - vpc.tf - This is where we put all our vpc,subnets,routable etc  script:
+
+
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "3.16.0"
+
+  name = "vpc-dev"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a", "us-east-1b"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+
+  enable_nat_gateway = true   #<---- enabling Nat gateway
+  single_nat_gateway = true
+
+  create_database_subnet_group = true
+  create_database_subnet_route_table = true
+  database_subnets = ["10.0.151.0/24", "10.0.152.0/24"]
+
+  enable_dns_hostnames = true
+  enable_dns_support = true
+ 
+  public_subnet_tags = {
+    Type = "public_subnets"
+  }
+
+  private_subnet_tags = {
+    Type = "private_subnets"
+  }
+
+  database_subnet_tags = {
+    Type = "database_subnets"
+  } 
+
+  tags = {
+    owners= "Shola"
+    Environment = "dev"
+  }
+
+  vpc_tags = {
+    Name = "vpc-dev"
+  }
+}
+
+
+4- We did Terraform init
+
+5- We did Terraform apply -auto-approve
+
+6- We Terraform destroy -auto-approve
+
+
+Example 4:  VPC MODULE STANDARDIZATION (Calling everything as variable)
+
+We created the follow .tf files:
+
+1-versions.tf:
+#Terraform Block
+terraform {
+  required_version = "~> 1.0" #any version equals to or greater than version 1
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 3.0"
+    }
+  }
+}
+
+#Provider Block
+provider "aws" {
+    region = var.aws_region
+    #profile = "default"
+}
+
+/*
+Note-1: AWS Credentials Profile (profile = "default") configured on your local desktop terminal  
+$HOME/.aws/credentials */
+
+
+2-variables.tf:
+
+#Input Variables
+#AWS Region
+variable "aws_region" {
+    description = "Region in which AWS Resources to be created"
+    type = string
+    default = "us-west-2"
+    
+}
+
+#Environment Varibale
+variable "environment" {
+  description = "Enviroment Variable used as a prefix"
+  type = string
+  default = "dev"
+}
+
+#Business Division
+variable "business_division" {
+  description = "Business Division in the large organization this infrarstructure belongs"
+  default = "Finance"
+}
+
+3-local-values:
+
+#Define local values in Terraform
+locals {
+    owners =var.business_division
+    environment = var.environment
+    name = "${var.business_division}-${var.environment}"
+    #name = "${local.owners}-${local.environment}"
+    common_tags = {
+        owners = local.owners
+        environment = local.environment
+    }
+}
+
+4-vpc-varialbes:
+
+#VPC Input Variables
+
+#VPC Name
+variable "vpc_name" {
+    description  = "VPC Name"
+    type = string
+    default = "myvpc"
+}
+
+#VPC CIDR Block
+variable "vpc_cidr_block" {
+  description = "VPC CIDR Block"
+  type = string
+  default = "10.0.0.0/16"
+}
+
+#VPC Availability Zones
+variable "vpc_availability_zones" {
+    description = "VPC Availability Zones"
+    type = list(string)
+    default = [ "us-east-1a", "us-east-1b" ]
+  
+}
+
+#VPC Public Subnets
+variable "vpc_public_subnets" {
+  description = "VPC Public Subnets"
+  type = list(string)
+  default = ["10.0.101.0/24", "10.0.102.0/24"]
+}
+
+#VPC Private Subnets
+variable "vpc_private_subnets" {
+  description = "VPC Private Subnets"
+  type = list(string)
+  default = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
+#VPC Database Subnets
+variable "vpc_database_subnets" {
+  description = "VPC Database Subnets"
+  type = list(string)
+  default = ["10.0.151.0/24", "10.0.152.0/24"]
+}
+
+#VPC Create Database Subnet Group (True/False)
+variable "vpc_create_database_subnet_group" {
+  description = "VPC Create Database Subnet Group"
+  type = bool
+  default = true
+}
+
+#VPC Create Database Subnet Route Table (True or False
+variable "vpc_create_database_subnet_route_table" {
+  description = "VPC Create Database Subnet Route Table"
+  type = bool
+  default = true
+}
+
+#VPC Enable NAT GAteway (True/False)
+variable "vpc_enable_nat_gateway" {
+  description = "Enable NAT Gateways for Private Subnets Outbound Communication"
+  type = bool
+  default = true
+}
+
+#VPC Single NAT Gateway (True/False)
+variable "vpc_single_nat_gateway" {
+  description = "Enable only single NAT Gateway in one Availability zone to save costs during our demos"
+  type = bool
+  default = true
+}
+
+
+5-vpc-module:
+
+#Create VPC Terraform Module
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "3.11.5"
+  #version = "~> 2.78"
+
+#VPC Basic Details
+name = "${local.name}-${var.vpc_name}"
+cidr = var.vpc_cidr_block
+azs             = var.vpc_availability_zones
+public_subnets  = var.vpc_public_subnets
+private_subnets = var.vpc_private_subnets
+
+#Database Subnets
+database_subnets = var.vpc_database_subnets
+create_database_subnet_group = var.vpc_create_database_subnet_group
+create_database_subnet_route_table = var.vpc_create_database_subnet_route_table
+#create_database_internet_gateway_route = true
+#create_database_nat_gateway_route = true
+
+#NAT Gateways - Outbount Communication
+enable_nat_gateway = var.vpc_enable_nat_gateway
+single_nat_gateway = var.vpc_single_nat_gateway
+
+tags = local.common_tags
+vpc_tags = local.common_tags
+
+#additional Tags to Subnets
+public_subnet_tags = {
+    Type = "Public Subnets"
+}
+private_subnet_tags = {
+    Type = "Private Subnets"
+}
+database_subnet_tags = {
+    Type = "Private Database Subnets"
+}
+
+}
+
+
+6-vpc-outputs:
+
+#VPC Output values
+
+#VPC ID
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value = module.vpc.vpc_id
+}
+
+#VPC CIDR blocks
+output "vpc_cidr_block" {
+  description = "The CIDR block of the VPC"
+  value = module.vpc.vpc_cidr_block
+}
+
+#VPC Private Subnets
+output "private_subnets" {
+    description = "List of IDs of private subnets"
+    value = module.vpc.private_subnets
+}
+
+#VPC Public Subnets
+output "public_subnets" {
+    description = "List of IDs of public subnets"
+    value       = module.vpc.public_subnets
+}
+
+#VPC NAT Gateway public IP
+output "nat_public_ips" {
+    description = "List of public Elastic IPs created for AWS NAT Gateway"
+    value       = module.vpc.nat_public_ips
+}
+
+#VPC AZs
+output "azs" {
+    description = "A list of availability zones specified as arguement to this module"
+    value       = module.vpc.azs
+}
+
+7-trraform.tfvars:
+
+#Generic Variables
+aws_region = "us-east-1"
+environment = "stag"
+business_division = "HR1"
+
+
+8-vpc.auto.tfvars:
+
+#VPC Variables
+vpc_name = "myvpc"
+vpc_cidr_block = "10.0.0.0/16"
+vpc_availability_zones = ["us-east-1a", "us-east-1b"]
+vpc_public_subnets = ["10.0.101.0/24", "10.0.102.0/24"]
+vpc_private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+vpc_database_subnets = ["10.0.151.0/24", "10.0.152.0/24"]
+vpc_create_database_subnet_group = true
+vpc_create_database_subnet_route_table = true
+vpc_enable_nat_gateway = true
+vpc_single_nat_gateway = true
+
+
+
+NOTE: anything defined in .tfvars will override .tf
+also, anything defined in .auto.tfvars will override .tfvars
+
+
+HOW TO BACKUP TERRAFROM STATE FILE TO A REMOTE ENVIRONMENT
+
+Type Terraform Backend on google  or visit terraform.io/language/settings/backends/configuration  
+
+OR
+
+https://developer.hashicorp.com/terraform/language/settings/backends/configuration (for local or remote and others = check avaialable backends)
+
+You can either configure locally or remotely.
+
+Example 5:
+
+we created a new directory "TerraformBackend" and created the following files;
+Before starting this example, I created an s3 bucket "adetest" in us-east-2, if you don't create the bucket, it might not work.
+
+THE ABOVE MEANS YOU NEED TO CREATE A BUCKET FIRST ON S3 RESOURCES BEFORE DOING THIS
+
+
+
+
+1-ami-datasourece.tf:
+
+data "aws_ami" "amzlinux2" {
+  most_recent      = true
+  owners           = ["amazon"]
+  
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+
+2-backend.tf:
+
+#Terraform Block
+terraform {
+  required_version = "~> 1.0" #any version equals to or greater than version 1
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 3.0"
+    }
+  }
+}
+
+#Note:  we can run this locally by commenting the "backend "s3" ... below out
+#note2: we later uncomment it and ran it.  we did this twice, commented and uncommentd, if commented, then remove the last curly bracket above.
+
+
+/*
+terraform {
+  backend "s3" {          #<---creating a bucket for s3, you can also create for local, remote, azurerm etc, read the documentation.
+    bucket = "ade-test"   #<---bucket name.  
+    key    = "terraform/terraform.tfstate"   #<---- means I am creating a folder for my terraform state file
+    dynamodb_table = "terraform-lock"        #this is to lock the file, so that multiple user won't have the ability to pull my terraform statefile.  #This can cause Infrastructre drift, this is when there is disparity between what you are to provision and what you are actually provisioning as a result of multiple people using the file
+    region = "us-east-2"
+  }
+}
+
+
+
+/*passing object as private in s3 bucket
+
+resource "aws_s3_bucket" "my_buckt" {
+    bucket = "adetest"
+    acl    = "private"
+
+    versioning {
+        enabled = true
+    }
+
+    tags = {
+        Name        = "My terraform-bucket"
+        Environment = "Dev"
+    }
+}
+*/
+
+resource "aws_dynamodb_table" "tf_lock" {
+  name = "terraform-lock"
+  hash_key = "LockID"
+  read_capacity = 3
+  write_capacity = 3
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+  tags = {
+    Name = "Terrform Lock Table"
+  }
+  lifecycle {
+    prevent_destroy = false  #prevent destroy can be true or false, which means it is destroyalbe if yes and non destroyable if no
+  }
+}
+
+#Provider Block
+provider "aws" {
+    region = "us-east-2"
+  #profile = "default"
+}
+
+
+3-ec2.tf:
+
+resource "aws_instance" "ec2" {
+    ami = data.aws_ami.amzlinux2.id 
+    instance_type = var.my_instance_type
+
+
+    tags = {
+      "Name" = "Prod_ec2"
+    }
+}
+
+
+4-variables.tf:
+
+variable "my_instance_type" {
+  type = string
+  default = "t2.micro"
+}
+
+
+##**Sensitive values in state
+-When you run Terraform
+commands with a local state file, Terraform stores the state as plain text,
+including variable values, even if you have flagged them as sensitive. Terraform needs to store these values in your state 
+so that it can tell if you have changed them since the last time you applied your configuration.
+
+-Since Terraform state can contain sensitive values, you must keep your state file secure to avoid exposing this data.
+ Refer to the Terraform documentation to learn more about securing your state file.
+
+## **Backend**
+Each Terraform configuration can specify a backend, which defines exactly where and how operations are
+performed, where state snapshots are stored, etc.
+
+-If a configuration includes no backend block, Terraform defaults to using the local backend, which performs operations on the local system and stores state as a plain file in the current working directory.
+
+
+-When changing backends, Terraform will give you the option to migrate your state to the new backend. This lets you adopt backends without losing any existing state.
+
+
+-You can change your backend configuration at any time. You can change both the configuration itself as
+well as the type of backend (for example from "consul" to "s3").
+
+
+- Terraform will automatically detect any changes in your configuration and request a reinitialization. As part of the reinitialization process. 
+ Terraform will ask if you'd like to migrate your existing state to the new configuration.   This allows you to easily switch from one backend to another 
+
+
+**S3 Backend (with locking via DynamoDB) **-Stores the state as a given key in a given bucket on Amazon $3. This backend also supports state locking and consistency
+ checking via Dynamo DB, which can be enabled by setting the dynamodb_table field to an existing DynamodB table name .
+ A single DynamoDb table can be used to lock multiple remote state files.Terraform generates key names that include the values of the bucket and key variables
+
+-It is highly recommended that you enable Bucket Versioning on the s3 bucket to allow for state recovery in the case of accidental deletions and human error.
+
+**DynamoDB State Locking**
+The following configuration is optional:
+
+**Dynamodb _ table**(Optional) Name of DynamoDB Table to use for state locking and consistency. The table must have a primary key named LockID with type of string. 
+If not configured, state locking will be disabled.
+
+# *"DynamoDB Table Permissions**
+If you are using state locking, Terraform will need the following AWS IAM permissions on the DynamoDB table
+(arn: aws:dynamodb : : :table/mytable):
+    dynamodb:GetItem
+    dynamodb:PutItem
+    dynamodb: DeleteItem
+
+##**Data Source configurations**
+To make use of the S3 remote state in another configuration, use the terraforn remote_state data source.
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "terraform-state-prod"
+    key = "network/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
+
+
+What happen is that, we run the above script and the statefile was created in our local, which is not secure becos the statefile will be outputted in plain text.
+It is safer and securer to migrate it to remote, so we uncommented the "backend..." and then we;
+-terraform init --lock=false
+-we then terraform apply --auto-approve --lock=false
+-then we terraform destroy --auto-approve --lock=false   #if we don't put --lock=false, it won't destroy.
+
+
+Example 6: Creating an infrastructure and storing the statefile remotely or in the cloud (s3)  using backend 
+
+-we created a new directory called "RemoteStatefile"
+-we added all the files we created in example 4 above, (just changed the az to us-west-1b and us-west-1c.)
+-we then created a sub-directory called "remote-data-source and created "ami-datasource.tf" and "remote-ec2.tf" and then creating
+-we terraform init in the "Remotestatefile"
+-then we terraform apply --auto-approve --lock=false (we tried without unlocking(cos it is already locked), it didn't allow)
+-statfile (terraform.tfstate) is not displaying locally, it has been stored remotely = success
+
+-now we want to launch ec2 we created in the sub-directory "remote-data-source" (child directory) inside the infrastructure that is already running (in the parent RemoteStatefile directory);
+
+1-ami-datasourece:
+
+data "aws_ami" "amzlinux2" {
+  most_recent      = true
+  owners           = ["amazon"]
+  
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+
+2-remote-ec2:
+
+#Terraform Block
+terraform {
+  required_version = "~> 1.0" #any version equals to or greater than version 1
+  required_providers {
+    aws = {
+        source = "hashicorp/aws"
+        version = "~> 3.0"
+    }
+  }
+}
+
+#Provider Block
+provider "aws" {
+    region = "us-west-1"
+  #profile = "default"
+}
+
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "adetest"   #<---bucket name.  
+    key    = "terraform/terraform.tfstate"   #<---- means I am creating a folder for my terraform state file
+    region = "us-east-2"
+  }
+}
+
+
+resource "aws_instance" "ec2" {
+    ami = data.aws_ami.amzlinux2.id
+    instance_type = "t2.micro"
+tags = {
+      "Name" = "myEc2"
+    }
+}
+-next we cd into the sub-directory "cd remote-data-source" (content are ami-datasource and remote-ec2 which also contains data-source for s3 bucket)
+so we are basically using datasource to call our ami and s3 bucket in this sub-directory
+
+-next terraform init the sub-directory
+
+-next terraform apply --auto-approve
+
+-To destroy, terrafrom destroy in the sub-directory first before destroying the infrastructure (let it be the last) which is in the parent directory (don't forget to terraform destroy --auto-approve --lock=false)
+

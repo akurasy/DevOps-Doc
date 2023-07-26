@@ -1,0 +1,335 @@
+K8s WORKLOAD AND SCHEDULE CLASS 4 Nov 2
+
+Label = is a key value pair that is attached to a k8s resource e.g pod.  Labels can be attached to resources at creation time and it can also be added and modified at anytime
+
+Selector = A label selector can be used to organized K8s resources that have label.  
+-An equality based selector defines a condition for selecting resources that have specific label value. 
+e.g having 
+label:
+  app: grafana
+Then Selector must be;
+Selector:
+  app: grafana
+-A set-based selector defines a condition for selecting resoruces that have a lavbel values within the speicfied set of values. E.g
+ labels having different labels and selector selecting a specific one. that is:
+label:
+  app: grafana
+  tier: prometheus
+  acada: acadawebapp
+Then Selector must be;
+Selector:
+  tier: prometheus
+
+
+
+
+4- DEPLOYMENT: It is recommend to use Deployment because it is more advance and it encompasses all other k8 objects
+
+apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: springapp
+   namespace: dev
+ spec:
+   replicas: 3
+   selector:
+     matchLabels:
+       app: springapp
+   template:
+     metadata:
+       name: springapp
+       labels:
+         app: springapp
+     spec:
+       containers:
+       - name: springapp
+         image: acadalearning/spring-boot-mongo
+         ports:
+         - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: springapp
+spec:
+  type: NodePort
+  selector
+    app: springapp
+  ports:
+  - targetPort: 8080
+    port: 80
+    nodePort: 31400
+
+
+
+#ADDING A DATA BASE ENGINE
+
+
+TO ADD DATABASE, CREATE A POD AND SERVICE FOR THE APPLICATION.
+CREATE A POD AND SERVICE FOR THE DATA BASE AS WELL. WE ACHIEVE THIS BY DOING THE FOLLOWING ( ADDING THE ENVIRONMENTAL VARIABLES)
+
+NOTE: database name is the image name
+
+ What we did in class was to:
+
+ -make a directory and named it "springapp" = mkdir springapp
+ -using the absolute path or just CD into "spring app", we created a yml file for springapp = vi springapp.yml
+ -in the same directory, we created yml file for spring app service = vi springappsvc.yml
+ -in the same directory, we created yml file for mongo database = vi db.yml
+ -in the same directory, we  created yml file for mongo database service = vi dbsvc.yml
+ -Then we ran the directory. Alternatively, we also ran each yml file in the directory using absolute path. = kubectl apply -f springapp 
+(to run the whole directory) OR kubectl apply -f springapp.yml..., kubectl apply -f springappsvc.yml ..., kubectl apply -f db.yml ..., kubectl apply -f dbsvc.yml .  
+At this early stage, it is advisable to run each file, to know where the error is.
+
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: springapp
+   namespace: dev
+ spec:
+   selector:
+     matchLabels:
+       app: springapp
+   replicas: 3
+   template:
+     metadata:
+       name: springapp
+       labels:
+         app: springapp
+     spec:
+       containers:
+       - name: springapp
+         image: acadalearning/spring-boot-mongo
+         ports:
+         - containerPort: 8080
+         env:
+         - name: MONGO_DB_USERNAME
+           value: devdb
+         - name: MONGO_DB_PASSWORD
+           value: devdb@123
+         - name: MONGO_DB_HOSTNAME
+           value: mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: springapp
+spec:
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: NodePort
+
+
+   **FOR SPECIFIC SCHEDULING ON A PARTICULAR NODE - We can specify a node by adding "nodeName: <nodenumber>"
+ (write out the nodename or node IP as displayed) directly inline with "containers".  
+
+   kubectl get service = to see service ppties
+   kubectl get svc = to see service ppties
+   kubectl get deploy = to see the pods deployed.  NOTE: "Deployment" can create replicaset, remember bcos deployment encompasses all of the k8s objects
+
+   How do you deploy database or any other app in k8s?
+
+   Answer: We need a controller manager(Deployment recommend) to deploy any application in k8s (including database), 
+we cannot use pod to deploy because it is short lived.
+
+-Deploying database with above yml script:
+
+CREATE AN OBJECT AND POD FOR DATABASE
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodb
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      name: mongodb
+      labels:
+        app: mongodb
+    spec:
+      volumes:
+      - name: hostpathvol
+        hostPath:
+          path: /tmp/mongodbbkp
+      containers:
+      - name: mongodb
+        image: mongo
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: devdb
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: devdb@123
+        volumeMounts:
+        - name: hostpathvol
+          mountPath: /data/db
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+
+***Database port defined for cluster IP usually is the same as the database container port.  In the above example, database container port is 27017, 
+and so the cluster IP port is 2707.  We will still need to put targetPort for the service to connect with database and that is also 27017
+
+ name in volumes and name in volumeMount MUST be the same
+
+ **F = to delete everything in your namespace, NOT RECOMMENDED TO BE USED
+ kubectl delete pod --force <podname> = to force delete pod
+
+
+
+
+ 		TYPES OF DEPLOYMENT STRATEGIES
+
+ 4a-RECREATE:  This is a straregy to recreate pods. It destroys the old version of the application before deploying the new version of the application.
+Let's say we have version 1 running and we need 4 replicas for version one, and we have an update: version 2 also with 4 replicas, 
+so "RECREATE" destroys the old version before deploying the new version.
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springapp
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: springapp
+  strategy:
+    type: Recreate
+  replicas: 3
+  template:
+    metadata:
+      name: springapp
+      labels:
+        app: springapp
+    spec:
+      containers:
+      - name: springapp
+        image: acadalearning/spring-boot-mongo
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_DB_USERNAME
+          value: devdb
+        - name: MONGO_DB_PASSWORD
+          value: devdb@123
+        - name: MONGO_DB_HOSTNAME
+          value:  mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: springapp
+spec:
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: NodePort
+
+
+4b-ROLLING UPDATE: rolls in update one by one.  It replaces the pod running the old version of the application with the new version of pod, one by one without downtime.  
+
+Say we have version 1 = 4 replicas and 
+version 2 (new update) = we want to roll in 4 replicas as well.
+
+So what rolling update does in the above scenario is that, it will terminate/destroy 1 pod of version 1, and then roll in another updated pod of version 2, 
+it then goes to another pod of version 1 and destroy it, then roll in another updated version of pod2.
+
+RollingUpdate has some characteristics:
+
+-MaxUnavailable time: Use the maxUnavailable option to configure how many instances are unavailable at any time during an automated update. 
+For example, if you set maxUnavailable to 5, then only 5 instances are taken offline for updating at a time.
+
+-MaxSurge: means how many pod should the k8s roll in at the same time.  number of pods that you want the system to roll in at a time, could be 1 pod each or 2, 
+or whatever number defined.
+
+-MinReadySeconds: Once you roll in the first pod, wait for 30sec, once that pod stabilizes, then it moves to the next pod.  Once that is done too, 
+it wait 30s before moving to the next pod
+
+
+
+
+
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: springapp
+   namespace: dev
+ spec:
+   selector:
+     matchLabels:
+       app: springapp
+   strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxUnavailable: 1
+       maxSurge: 1
+   minReadySeconds: 30
+   replicas: 3
+   template:
+     metadata:
+       name: springapp
+       labels:
+         app: springapp
+     spec:
+       containers:
+       - name: springapp
+         image: acadalearning/spring-boot-mongo
+         ports:
+         - containerPort: 8080
+
+      Deployment Strategies:
+      1- Blue / Green: say you rolled in version 4 with 4 replicas  and at the same time you rolled in version 5 with 4 replicas.  
+These 2 versions must be running at the same time.  Say version 4 is the old one that is running, you name the service BLUE, 
+now say you want to roll in a newer version, "version 5", what you would do is you would create another yaml file and everything with a SERVICE called GREEN. 
+And both of them will be running at the same time, then after a while maybe after 3 months or whenever, 
+you would then roll out version 4 by simply removing the BLUE service (once service is removed, no more communication) and only version 5 will be existing... 
+ old version and new version running in parallel, this eats lot of resources, and so only the top guys usually do this.
+
+      2-RollingUpdate = this is the default kubernetes strategy.
+
+     3- Canary:  some update run by geolocation (location), it means they have used location to tie down the update. There are diffeerent classifiers for canary ,
+ you can use location, 
+      Age based:
+      youth
+      Adult
+      Children
+
+      client based (also like location:
+      Releasing 5% of appplication to asia, 
+      Africa 100%, 
+      America 0%, 
+      Europe 15%. or 
+      ONly Africa.).  This is the type of deployment strategies Neflix uses, where some movies released in North America, can not be viewed in Africa etc.
+
+
+     4- Recreate: terminates all existing pods before creating the new ones
+
+      Ramped slow rollout: It rolls out the replicas of the new version while in parallel shutting down the old replicas
+
+      Best-effort controlled rollout

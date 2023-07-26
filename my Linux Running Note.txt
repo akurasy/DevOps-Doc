@@ -1,0 +1,721 @@
+Linux Running Note 
+
+===============================================================
+
+Linux: 
+
+Linux = OS = Operating System
+
+Type of OS
+
+1.Linux
+2.Windows
+3.Mac
+4.Ubuntu (another distribution of Linux)
+5.Chrome
+6.Android
+7'solaris
+
+Kernel = hardcode that can be used to build an OS
+Linux and few others are Opensource, its Kernel can be used by anyone to build thier OS
+
+Why Linux?
+cos it is Open source
+easy to use
+easy to build on
+different version of its distribution can be created easily
+security = high level security, it is secure
+multiple users on same OS at the same time
+GUI (not all of them)
+
+What we can do on Linux?
+
+In Windows = folders
+Linux = Directory (Dir)
+
+
+
+Linux Directory structure:
+
+/= "Root Directory" = houses every other directory
+
+/home = home directory(under root) =stores all the users that we have or all the home folders or contains folders or directories for each user.
+
+for example, we have differrent users:
+efe lives in home = /home/efe  (first slash = root, the other /s are just separators)
+meke = /home/mekelmkm
+ifeoma =/home/ifeoma
+ayeni = /home/ayeni
+shola = /home/shola
+
+/bin = binary = contains programs that must be mounted in a signle user mode e.g browser like fire fox is a single user application
+
+/sbin = system binary = anything that makes the system to run
+
+/etc = contains all the configuration files
+
+/lib = contains essential shared resources, yoou find 
+
+/opt = optional add on = where you add your optional application you wanna install.
+
+/proc = process file and Kernel
+
+/dev =
+
+/tmp = temporary files
+
+/boot = boot information stored here
+
+/mnt
+
+/usr = user
+
+/var = variables
+
+/srv = service
+
+/run = to run application state file
+
+/media =where you have removable media, cd, flashdrive etc
+etc
+
+
+Setting up AWS!
+
+-Log into aws.amazon.com
+-On the console page, type "ec2" (elastic compute 2) = virtual server in the cloud"
+-EC2 console page/dashboard opens up
+-select "instances" if you don't have an already existing instance or you just want to create new virtual pc
+-the page that opens up, select "Launch instance"
+-A new instance set up page comes up
+-select Red hat, then Red hat free tier, then t2 free tier, set up security by creating new security, select SSH settings and leave the rest as is.
+-Then click save or create instance or whatever button would save it
+-then launch instance
+-it will take you back to the EC2 dashboard
+-refresh it and your newly created instance should come up
+-Once it goes from "Pending" to "running", then select Launch instance 
+-Connect to instance page opens
+-on this page, copy your "public" IP address
+-Then tab on to "SSH client"
+-Then open your "Mobaxterm"
+-on Mobaxterm, slect sessions, 
+-then select new session
+-a pop up box comes up, enter the public IP you copied as the "Remote IP"
+-check the username box and enter username as "ec-2 user"
+-at bottom of the pop up , check the "private key box" and upload your private security key
+-now you have connected your local mobaxterm to amazon network and now we are using the virtual pc or cloud computer (more succinct)
+
+SSH = seecured shell = pathway = no one is interfering = a tunnel, secured protocal that systems communicate through
+
+port = specific "room" address.  SSH port = 22
+
+GUI = Graphical user interface
+
+CLI = Command Line interface
+
+Linux command:
+
+ls = list
+
+ls -l = long list or list with long can also be written as
+
+ll = long list
+
+ls -t = list in the table format
+
+ls -lt = long list in table format
+
+ls -r = list readable format
+
+ls -a = list hidden directories
+
+ls -ltr
+
+ls -ltra
+
+above can be combined and in any format
+
+
+mkdir = to create new directory e.g mkdir efe = crreate director and name it efe
+
+cd = change directory.  To use this you do cd efe = this means change present working directory to "efe" ( remember, you have to make directory before you can change into it)
+
+cd .. = change dirctory one step backward
+
+mkdir shola wale niyi ahmed = creating multiple directories in the same path
+
+pwd = present working directory (tells you your current working directory and shows you all the path you took to get there)
+
+cd ../../.. = change directory multiple steps backward (e.g the command here shows we are moving 3 steps backward)
+
+cd efe/omotade/hafsat/meke = change directory directly to meke
+
+cd (alone + enter) -=  takes you the user directory straight
+
+cd ~ = same as above
+
+cd - = this takes you to your previous working directory
+
+clear = clear screen or
+
+ctrl + l = clear screan
+
+touch <filename.txt> = use this to create a text file. ALWAYS ADD EXTENSION TO YOUR FILE
+
+vi = write into the file eg vi acada.txt  or to open text editor (can also be used to create a file and write into it)
+
+i = to type into the text editor above
+
+esc = to exit insert mode
+
+type- ":wq! + enter" = to save the text created in the text editor ( full meaning of wq = write and quit)
+
+:q! + enter = to quit without saving in the text editor (full meaning of q = quit)
+
+shift + zz = save and quit text file
+
+cat = viewing a file without editing it
+
+
+
+
+
+key.pem - sholaibrahimkey
+
+Now I just provisioned Linux server (REDHat distribution)
+
+6/july/2022
+
+Class = Mondays at 9pm to 12am
+
+Saturdays at 8am to 11am
+
+command continues:
+
+rm <file name> = to remove a file
+
+options to spice up creating of file
+
+mkdir <directoryname> -v = the -v added is to let us know that the directoryname has been created and it is called verbose
+
+man = manual (for example we can write man mkdir = manual for making directory)
+help = for help ( use when assistance is needed) (used as  "commandname --help" example "--help mkdir)
+
+-p = to make parent directory (e.g mkdir -p albert/mary/ray)
+
+vi <filename> = to wrfrite into a file (file editior), came pre-installed
+
+vim <filename> = same as above but not preinstalled in redhat distribution
+
+nano <filename> = same as above
+
+head <filename> = display only the first 10 lines of the content of a file
+
+head -5 <filename> = this is an option of the above to only show the first 5 lines of the content of a file. we can do head -3 <filename>, head -7 <filename>
+
+tail <filename> = display only the last 10 lines of the content of a file
+
+tail -3 <filename> = this is an option of the above to only show the flast 3 lines of the content of a file. we can do tail -5 <filename>, head -7 <filename>
+
+To install package (different packages)
+
+yum install tree = installing a package called tree
+
+sudo yum install tree (-y)= installing a package called tree with an escalated super user 
+
+Absolute path and relative path
+
+relative path is to do something like cd efe, then cd albert, then cd mary then cd ray, before creating a file ( going the long distance)
+
+absolute path (shortcut): used to get to the destination very quickly without going through the long path to get there. (e.g say we are going to ray directory which is great grand directory, we can write cd efe/albert/mary/ray , once entered, we get into directory named "ray")
+absolute path is like saying, your wife is cooking in the kitchen and you want to know what she is cooking without leaving the bedroom
+(another example would be when you want to create a file directly in a great grand file e.g you want to create a file in ray we can write touch efe/albert/mary/ray/chelsea.txt.  once you hit enter, you go into directory ray, and you "ls", you would see that chelsea.txt has been created in it.)
+
+NOTE: LINUX IS CASE SENSITIVE
+
+| (pipe) = pipe takes the output of the first command and convert it into the input of the second command (cat /etc/passwd | tail -3, here we used pipe to bright two different commands, cat and tail) - this can be used in different ways
+
+cat  /etc/passwd = tells you the number of users in your linux
+
+/etc/shadow = houses the password for each user
+
+echo = to re-display what was entered 
+
+Redirect = used to write a word into a file using command "echo" (here echo doesn't redisplay) used as "echo Today is Saturday > goodluck" meaning send "Today is Saturday into a file called goodluck" - this command can be used to send log into a file (REMEMBER THIS)
+Note: if you redirect another text into goodluck ( the same file), it would overwrite the new word into the goodluck, that is it will replace the text in it.
+
+Append = the same function as Redirect however, unlike Redirect, it keeps adding text to the file instead of replacing or overweriting it like redirect
+
+Redirect and Append = can also be used to create a new file
+
+cat = used to display the content of a file without opening it, it can also be used to create a file. (used with redirect or append), once entered, it opens a cursor for you to write in the command line without really going to the editing screen.  used as "cat >> family.txt".  to exit, "enter" to a new line, and then CTRL D to exit.
+
+-------------------------------------------------------------------
+
+9th july 2022
+
+copy file / directory:
+
+cp = to copy file into folder.  (use as cp <filename> /home/ec2-user/wale (absolute path)) or cp <source> <destination>
+
+when using cp to copy directory, you need to add the option "-r" this means recursive - which means copy the folder and everything inside of the folder.
+
+to copy directory, you do something like cp -r <directoryname> /home/ec2-user/<destination>
+
+free = to check memory left, can be used with different options (free -h, free -m (to show free memory in mb))
+
+top = show all the processes that are running, and it is continuous, doesn't stop.  also gives you audit of the system.
+
+PID  (shown as part of top command)= process identity.  PID 1 is very important, and it is the first PID that runs, and it is responsible for starting up your computer, it also stops or shut down your pc
+
+q = to exit top command
+
+df = shows process too but gives you information about memory.  can be used with different options, e.g df -h (-h is human readable) (df shows memory usage, shows you the difference between the memory that you have used and the one you haven't used, where you mounted your drive)
+
+mv = to move file into folder.  (use as mv <filename> /home/ec2-user/wale (absolute path)) or cp <source> <destination> 
+
+mv = can also be used to rename, used as mv <originalfilename> <newfilename> = it changes the name of the file in the SAME path
+
+mv = can also be used to move into a directory and rename it directly, used as mv son.txt albert/child.txt
+
+rm = to remove file
+
+rm -r = to remove directory (can be used with -f to force remove) used together as rm -rf omotade (this would remove omotade recursively and forcefully)
+
+rename: we can use cp and move to rename
+
+cp to rename in the same path = cp son.txt shola.txt = this would copy and rename son.txt to shola.txt IN THE SAME PATH.  so in we would have son.txt and shola.txt in the same path
+
+
+cp to rename in another path = cp son.txt /home/ec2-user/efe/wale/shola.txt.  this would copy and rename son.txt to shola.txt in directory "wale"
+
+mv  = mv son.txt shola.txt = this would rename son.txt to shola.txt IN THE SAME PATH.  so we would have only shola.txt in the same path
+
+
+mv to rename in another path = mv son.txt /home/ec2-user/efe/wale/shola.txt.  this would move and rename son.txt to shola.txt in directory "wale"
+
+To add new user : you need to do this with admin privilege
+
+sudo = admin privilege (priviledged user) 
+
+sudo uuseradd shola =add shola as a user to home (creates user directory in home)
+
+sudo adduser moses = also adds user to home directory (in Redhat, but not might add useer to home directory in other distribution)
+
+sudo su - <user> = to switch a user to another e.g sudo su - shola
+
+
+history = a command that shows you all the command and activities you have done on a directory or file
+
+exit  = logs you out of a user account
+
+NOTE: you can't switch user if you don't have administrative pwd
+
+sudo su - root = switch to user root ( has the most administrative power more like the owner of the hotel,  ec2-user is like manager of the hotel)
+
+root user can do anything WITHOUT using sudo command and can be used as useradd jessica, to switch, we can write "su - shola"
+
+
+NOTE: NEVER USE ROOT user, be security conscious!
+
+creating password for a user:
+
+sudo passwd <user> e.g sudo passwd efe
+
+cat /etc/shadow = how you know if a user has password (if admin privileges is needed add sudo, so it becomes sudo cat /etc/shadow)
+
+sudoers = this is config file that users that can run sudo commands are stored in
+
+How to give users sudoers right
+
+sudo vi /etc/sudoers , then add shola ALL=(ALL) NOPASSWD: ALL
+
+save and quit = :wq! or shift + zz
+
+sudo userdel <user> = delete or remove user eg sudo userdel moses without home direcotry
+
+NOTE: if I don't want to be asked password for every administrative task for KC you can set it in sudo vi /etc/sudoers (under # %wheel        ALL=(ALL)       NOPASSWD: ALL, just type the samething as displayed
+)
+
+sudo rm -r <directory> = remove the user's directory (e.g since we already deleted user <moses> from the above, we can then use sudo rm -r <directorymoses> from home)
+
+sudo userdel -r <user> = remove the user with the home directory
+
+hostname -i = displays your private IP
+
+hostname = displays your full hostname
+
+curl ifconfig.co = displays public ip
+
+sudo hostname <hostname> = sudo hostname cohort8 = changing the host name to cohort8 and to see it displayed switch to youorself to the user eg. sudo su - KC 
+
+sudo userdel josh = removes the user without the home dirctory (sudo userdel -r josh = delete josh as a user and his directory on home)
+
+package management:
+
+Linux is open source: Kernel (source code)
+RedHat ----Ubuntu ----CentOs -----
+
+In linux there is PACKAGE MANAGER ( also in windows, MaCOS etc) = helps in installing OS
+
+RedHat = yum ( package manager) e.g yum install tree, yum install vim, yum install mailx, you can install anything zoom etc
+Ubuntu = apt or apt-get
+windows =choco
+MacOS = homebrew
+
+RPM = RedHat Package Manager
+
+sudo yum install unzip -y = to install directly without answering yes/no prompt.
+
+to install application from the internet
+
+wget = webget = helps download applications from the internet ( you must install first e.g sudo yum install webget -y)
+
+sudo wget <applink or applincation link copied on the internet> = use this to download any interned application e.g sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.64/bin/apache-tomcat-9.0.64.tar.gz
+to unzip application:
+
+unzip <appname> = e.g unzip apache-tomcat-9.0.64.zip
+
+to zip application:
+
+zip <appname>
+
+zip <newzipname> <originalappname>
+-------------------------------------------
+
+/etc/passwd = shows you different users information (password and all)
+
+example of what the above would show is;
+
+shola:  x:  1001:  1001:   : /home/shola /bin/bash
+  1     2    3      4    5       6          7
+
+  1 = username
+
+  2=password
+
+  3=userID (for userID, the system starts from 1 -1000 (1- 1000 userID is reserved for the system), so when you start creating user, it starts from as 1001, the next user user might have 1002 etc, we can create user with specific ID, to be discussed later)
+
+  4=GroupID (e.g what department or group are you part of)
+
+  5=userID info (though it displays only space), e.g fullname, etc
+
+  6=Home Directory
+
+  7=shell (shell is an interpreter, and we have different types, we have c shell, K shell) and in the above we are using bin/bash as interpreter for example, speaking english and wants to interprete to punjab, I would need an interpreter.We also have bourne shell, bourne again shell.  why does a computer needs interpreter, this is because, the language a computer understands is binary (zeros and 1)
+
+  bourne shell = /bin/sh
+
+  bourne again shell = /bin/bash (more advance than bourne shell)
+
+  korn shell = /bin/ksh
+
+  c-shell = /bin/csh
+
+  echo $SHELL = to know the type of shell you are running
+
+  cat /etc/passwd
+
+  ps -p $$ = to display the process ID(PID) and shell command or CMD
+
+--------------------------------------------------------------------------------------------------------------------------------
+  To escalate your privildeges you must be in "Sudoer" file
+  -------------------------------------------------------------------
+
+  July 13th, 2022
+
+Link = to create a shortcut for applications/directories etc
+2types of links: 
+Hard Link =  gives the exact interpretation of the application  (if an app is 200gb,, it gives you 200gb of the app) e.g ln acad.txt shonekanlinkhard.  using the above hardlink command, creates a clone of acad.txt (more like using copy), and when acad.txt is removed, shonekanlinkhard still remains intact.  Hardlink creates clone
+
+Soft link = gives you the reduced side of the application or file say the the application is 200gb ,soft link may give 500kb. e.g ln -s wale/user.txt softshortcutuser.  (ln = link and -s = soft).  After I created the softshortcutuser using the softlink, I was able to assess it directly from ec2-user, instead of going ito wale/user. so when I used cat softshortcutuser in ec2-user, it displayed the content, when I tried cat user.txt in ec2-user, it displayed error. Softlink points you to the where the file is
+
+
+Files and Directory Permissions
+How to recognize files or directories in your environment
+
+
+
+directory starts with "d" e.g drwxrwxr
+
+files starts with "-" e.g -rw-r--r
+
+link (hard or softlink) starts with "l" e.g lrwxrwx when you ll you see this info
+
+hidden files usually have "." in front of their name e.g .filemaker 
+
+
+d       rwx    rwx           r-x.               6                   ec2-user         ec2-user         59        Jul 9      12:57   efe
+
+File    user   Group        Others             # of links           username         user-group       size      Date       Time    File/Directory name
+type  permisn  permsn    (e.g dept)  (not owner/group)      (hard/soft)
+
+
+rwx = r = read = readable or can read
+      w = write = editable or can write into the file and save
+      x = execute = can run a file, can automate the file to run (meaning it is executable)
+      - = denied or no permission
+
+      Converting the rwx into numbers
+rwx = r = read = 4
+      w = write = 2
+      x = execute = 1
+      - = no permission = 0
+
+      therefore;  rwx = 4 + 2 + 1 = 7
+                  r-x = 4 + no permission (dash) + 1 = 5
+                  --x = 1
+                  -wx = 2 + 1 = 3
+                  r-- = 4
+
+  Default Permission level for a Directory in linux = rwx     rwx    r-x  = 7  7  5 =775 (drwxrwxr-x)
+
+  Default Permission level for a file in linux =      rw-     rw-    r-- =6   6   4 = 664 (rw-rw-r--)
+
+chmod = change mode = changes the mode / permission of a FILE/ DIRECTORY e.f chmod 757 <directory/filename>
+
+
+umask = user masking of identity  =  helps set or readjust permissions for newly created USERS or existing users.  umask  permission can be represented as
+
+0 =Read, Write,Execute
+1 =Read ,Write
+2 =Read, Execute
+3 =Read Only
+4 =Write, Execute
+5 = Write Only
+6 = Execute Only
+7 = No permission or Denied
+
+Defualt umask value = 0002 e.g to check the deault user permission just run the command "umask"
+
+therefore;
+
+0    0   0   2 (first zero means nothing)
+null rwx rwx r-x
+
+umask <value> = change the umask value.  When you umask, it only changes permission for the user and the subsequent files they create, it does not affect the old ones created
+
+sudo chown <username> <filename> = sudo chown rejeeve babooko2 = to assign a new user (rejeeve) to a file(babooko)
+
+sudo groupadd <groupname> = to create a group e.g sudo groupadd devops
+
+sudo groupadd -g <groupd ID you want to create> <group name>
+
+getent group = to see the groupID and group you created
+
+sudo chown rejeeve:deveops babooko1 or sudo chown <newowner>:<groupname> <filename>
+
+sudo chgrp <groupname> <filename/dirname> = sudo chgrp devops babooko2 = to reassign a group to a file or directory
+
+sudo chown efe:devops babooko1 = changes the file owner and group in one command
+
+When you create a user, system automatically create a group in the same user name!
+
+date  = date command
+
+cal = calendar command
+
+cal -3 = displays a month prior/ current month/ next month
+
+cal -y = displays all the month in the year
+
+sudo timedatectl set-timzone America/New_York = to set your timezone
+
+--help = help command
+
+uname = tells you the OS you are running
+
+uname -a = more information
+
+users = tells you the the default user
+
+whoami = tells you the current user
+
+grep = use to find a particular or specific command or anything, it will hightlight specific info or keyword you are looking for e.g cat /etc/passwd | grep rejeeve or cat joboffer.txt | grep multiple
+
+separator: used to run multiple commands.  there are different types of separtors and they are;
+
+";" , "&&", ";;"
+
+how to use separators e.g "mkdir bar ; cd bar" (making a new directory and changing into the directory), mkdir bar1; cd efe (make directory and change into efe direcotry), touch file1 && date (create file1 and run date command)
+
+Ping = to check if our computer is talking to webserver e.g ping facebook.com
+
+alias <alias name>="commandname" = creating an alias for a command e.g alias m="mkdir" (created temporarily for a running process except it is added to list of commands)
+
+sudo su ec2-user : to peep into another user's files without fully exiting or logging out of your current user for example; KC user can peeop into ec2-user directory using this command
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+shutdown --poweroff = to power off (usually displays failed ) and request to put wall message
+chmod -x look.txt = to remove execute permission from a file
+
+chmod +x look.txt = to add executable permission to a file
+
+cksum log.txt = will check the count of an input file (crc), shows the byte of an input file
+
+comm log.txt look.txt = to compare files...here we are comparing log.txt and look.txt
+
+env = to check all environmental variables
+
+find --help
+
+find /home/ec2-user look.txt
+
+find /home/ec2-user -name look.txt
+
+sudo find /home/ec2-user -name look.txt
+
+groups = to see the different user group
+
+groups adm = to find the admin group
+
+sudo iptables = to check incoming and outgoing networks and packets (to check iplogs/config etc)
+
+sudo iptables -L -n -v
+
+ps -ef = command to see running processes
+
+kill = command to kill a process e.g kill SIGTERM -p 1777 or terminate a process
+
+kmod list = list all your linux kernel modules
+
+wc = word count e.g wc look.txt
+
+time wc /etc/passwd
+
+wc log.txt =displays 3 17 118, these numbers mean 3 = number lines contined in the log.txt sentence, 17= number of words,  118 = number of characters
+
+watch = to keep an eye on a file/directory or anything that changes constantly in a floating way
+
+who = to tell you which user you are
+
+which who = shows you usr bin
+
+sudo dmidcode <file info> = info of the thing you are looking for, eg sudo dmidecode --type system
+
+du /home/ec2-user = du (disk space usage for a directory)
+
+tee = to append a text into a file = takes output of a command  and append it into a second command to make a file, just like pipe e.g df -h | tee log.txt
+
+free
+
+groups
+
+groups adm
+
+history
+
+sudo systemctl poweroff = to disconnect instances/power off??
+
+sudo shutdown
+
+sort <file> = same function as cat e.g sort look.txt, sort log100.txt
+
+df -h
+
+df -h | tee log100.txt
+
+cat look.txt | tee dela.py
+
+find /home/ec2-user dela.py
+
+wall "text" = to do emeergency broadcast e.g wall "please dont kill my vibe"
+
+watch -n 5 date = to watch date every 5sec, changes date every 5  secs
+
+whatis <text or anything or command> = a command that tells you the definition of command etc
+
+sudo usermod --shell /bin/sh efe = to change shell type.  to see the type of shell, you can do cat /etc/pwd , you might need sudo privileges
+
+cat file2.txt | tr [a-z] [A-Z] = to temporarily transform small letter to capital letter or vice versa, can work with other commands too, can even tee into a file.  
+
+sudo usermod -e 12/30/2022 efe = to set an expiry date for a user
+
+sudo usermod -f 5 = inactive 
+
+sudo yum install net-tool
+
+sudo yum install telnet
+
+Cat filename | tee newfile = to echo the content of filename into the new file created . 
+
+ping -c 4 acadalearning .com = to show only 4 packets after pinging
+
+telnet acadalearning .com = though needs to be used with port number
+
+netstat -tunlp = to view the listening port
+
+sudo chage -l <username> = to check account age information
+
+Kill -l = all the commands you can run with Kill
+
+Sudo systemctl powerful = showdown your server. 
+
+Sort = cat (similar)
+
+History = to check history of a user
+
+ps -ef = gives you list of all process 
+Kill -9 process ID = to kill a process 
+
+SIGKILL = used with Kill command, it will kill ssh process and everything running
+
+ps -ef = tells you processes that haave stopped running
+
+top = current runnin process, it is in a floating form
+
+zombie = is like cache memory = if it's full, make sure to clear it.
+
+
+HOW TO RESOLVE AN ISSUE IN A SCRIPT 
+1. DEBUG with the command 
+Vi into the script. 
+Edit and use set -x (upper case)
+Set -x (lowercase)
+2. Vi into the file and edit
+3. Redirect the error into another file. 
+
+
+For comment 
+Use # for single lime 
+Use <<we and ends we (to show that all words in the lines are comments)
+
+Java or groovy
+Use // for single line comment 
+
+Scripting or automation languages 
+1. Bash shell scripting 
+2. Grooving (for Jenkins)
+3. Python 
+4. Ruby
+5. Powershell
+6. Ymal (k8s, ansible, cloud formation)
+7. Json
+8. HCL (terraform)
+9. XML (html)
+10. Go and Golang
+
+Ansible is used to automate task on multiple servers 
+
+Uses of script
+Package management 
+Export SSH -keys
+User management 
+File management 
+Monitor server 
+Deploy application 
+
+
+
+
+
+
+
+
+==============================================================================================================================================================
+
+July 20th, 2022
+
+
+

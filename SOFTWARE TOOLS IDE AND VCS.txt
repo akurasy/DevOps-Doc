@@ -1,0 +1,306 @@
+SOFTWARE ENGINEERING TOOLS are set of tools that are used in writing codes, checking for error or debugging, source code repositories testing and deploying applications
+
+We shall look at an overview of what this tools are used for and the basic environment where they will be required.
+
+There are many important software engineering tools that are commonly used in the software development process.
+Here is an overview of some of the most important ones that will be used in the course of this trainning:
+
+Integrated Development Environments (IDEs): IDEs are software applications that provide a comprehensive environment for writing, testing, and debugging code.
+ Examples of popular IDEs include Eclipse, Visual Studio, and IntelliJ IDEA.
+
+Version Control Systems (VCS): VCS is a software tool that allows you to track changes to your code and collaborate with others. 
+Examples of popular VCS tools include Git, Mercurial, and SVN.
+
+Continuous Integration and Continuous Deployment (CI/CD) tools: CI/CD tools are used to automate the process of building, testing, and deploying code changes.
+ Examples of popular CI/CD tools include Jenkins, Travis CI, and CircleCI.
+
+Code Review tools: Code review tools are used to facilitate the process of reviewing and approving code changes. 
+Examples of popular code review tools include GitHub, GitLab, and Bitbucket.
+
+Testing frameworks: Testing frameworks are used to automate the testing of software applications.
+Examples of popular testing frameworks include JUnit, NUnit, and Selenium.
+
+Issue tracking tools: Issue tracking tools are used to manage and track issues or bugs in software applications.
+ Examples of popular issue tracking tools include Jira, Trello, and Asana.
+
+Build tools: Build tools are used to automate the process of building and packaging software applications. 
+Examples of popular build tools include Maven, Gradle, and Ant.
+
+Virtualization tools: Virtualization tools are used to create virtual machines or containers for testing and deploying software applications. 
+Examples of popular virtualization tools include Docker, Kubernetes, and VirtualBox.
+
+These are just a few examples of the many software engineering tools that are available to software developers.
+
+
+WE SHALL BE LOOKING AT DEPLOYING A WEB APPLICATION FOLLOWING THE FOLLOWING DEPLOYMENT STEPS
+IDE ====== VCS ======= CI/CD TOOLS========= BUILDING========CODE QUALITY CHECK ========== DEPLOYMENT
+
+
+
+VISUAL STUDIO CODE AS AN IDE
+
+At its heart, Visual Studio Code features a lightning fast source code editor, perfect for day-to-day use.
+With support for hundreds of languages, VS Code helps you be instantly productive with syntax highlighting, bracket-matching, auto-indentation, 
+box-selection, snippets, and more. 
+Intuitive keyboard shortcuts, easy customization and community-contributed keyboard shortcut mappings let you navigate your code with ease.
+
+Installation
+Download the Visual Studio Code installer for Windows. USING THE LINKL
+
+https://code.visualstudio.com/download
+
+Once it is downloaded, run the installer (VSCodeUserSetup-{version}.exe). This will only take a minute.
+By default, VS Code is installed under C:\Users\{Username}\AppData\Local\Programs\Microsoft VS Code.
+Alternatively, you can also download a Zip archive, extract it and run Code from there.
+
+
+VERSION CONTROL SYSTEM (VCS)
+As explained above, VCS is a software tool that allows you to track changes to your code and collaborate with others. 
+Examples of popular VCS tools include Git, Mercurial, and SVN.
+
+Essentialt, there are 3 types of VCS:
+
+1. Local VCS:  Here, you make changes to your file on your local system and the changes are tracked but only on your system
+
+2. Centralized VCS: Here a dev pulls out or checks out a file from the remote repository to his local repository, makes changes and pushes back to the remote repositlry (other dev that need to make changes on the code, would have to wait for the first dev to complete his changes and upload before they can work on it)
+
+3. Distributed VCS: Here, the developer can pull files from the remote repo to their local repo, make changes from diff locations, and meerge those changes to the remote repo.   Dev make changes on his code in his "WORKING DIRECTORY" then ADD to "STAGING AREA" then COMMIT to "LOCAL REPOSITORY" where he then PUSHES to REMOTE REPO where other devs can collaborate, push and pull etc.
+
+Why VCS
+-Traceability
+-Collaboration
+-Time saving
+-Logging/Tracking
+-Security
+-Snapshots of files and projects overtime
+-Quailty control
+-Manages project updates
+-Version management
+-Disaster recovery
+-Backup and recover
+-roll back to previous version
+-storage tool
+
+
+GIT AND GITHUB AS A VCS
+git and github is the most popularly used VCS
+
+**git tracks name of user that makes the change and the change itself
+
+GIT= Uses command line interface
+GITHUB  = uses the graphics interface
+
+
+WE SHALL BE LOOKING AT THE BASIC COMMANDS
+
+git --version = to check the version of git installed
+
+sudo yum install git -y = to install git
+
+whereis git = shows the path the git is in
+
+git config --global user.name "sholaibrahim" = to configure username 
+
+git config --global user.email "yinka_shola@yahoo.com" = to configure email
+
+git config user.name = to check if username is configured
+
+git config user.email = to check if email is configured
+
+always great to create a directory from where a user would be working = so mkdir fintech
+
+until a user initialize git, git cannot track
+
+git init = to initialize git (initialize directory fintect for tracking), defualt branch name is called "master"
+
+ls -al .git = to see the files in hidden directory .git
+
+git status: to show the status of the working tree
+
+git add de.txt / git add <filename> = to ADD the file to staging area ( moves the commit from wroking dirrectory to staging area)
+
+git commit -m  "created new file de.txt" / git commit -m "commit message" = moves the change from staging area to local repo
+
+git add . = this means to add the file to a present working directory
+
+git commit -am "deleted line" /  git commit -am "<commit message>"= moves directly from dir to loca rep but only use for files that are already being tracked (focus on "-a")
+
+git log = to see all the commit made so far to the local repository
+
+git log --oneline = to streamline the past commits we have made in one line, it would show just 7 passt commit (summary version of all the commits made)
+
+HEAD = points to latest commit and indicate the branch the commit is made on e.g HEAD ---> MASTER
+
+Many branches can be created from master branch to avoid tampering with vital data
+
+git log --since=year-month-day = e.g git log --since=2022-08-03 = commit made from when we started making commit to a particular set date
+
+git log --unitl=year-month-day = to show commit until present day
+
+git log -3 = to view the last 3 commits
+
+git show <commit ID> = gives details about a particular commit made
+
+git diff <Commit ID1> <commit ID2> = displays the difference between 2 commits
+
+git commit -all = 
+
+git commit --amend -m "new message" = updates the latest commit message
+==============================================================================================================================================================
+
+
+
+-if we git log (after adding multi line comment) = it would only show the first short commit message
+
+-git log --oneline = the first 7 ID shown of commit is called SHA
+
+-Pointer seen when we do git log is called "HEAD" and always point to the particular branch you workin on.
+
+-Master = major branch
+
+-you put what you want the public to see on Master = is it more like prod?
+
+-Branch = this is where you would be doing your fixing, testing etc, where you can make numerous commit and once it is good enough you can merge it to your Master (Branch can title anything e.g "Bugfix")
+
+- git merge = to merge commit on a different branch to Master branch
+
+ touch gitfile{1..3}.txt = to add multiple file like file 1 , file 2, file 3 etc
+
+ git branch = shows you the branch you are on eg. *master
+
+ git branch bugfix = creating a new branch
+
+ git branch = to see how many branches is created and see which you are working on (color green and aesterisk)
+
+git checkout <branch name> = to switch to new branch, in this case "bugfix"
+
+OR
+
+git switch <branchname> = to switch from master to a new branch
+
+doing git log --oneline after branching = shows the last commit  is now on both master and bugfix branch
+
+adding new commit now =  add to only branch and not master (until it is merged)
+
+git add . = add all the files created to the stage (not one but all the files in that pwd)
+
+git switch master = to sweitch back to master branch
+
+git merge <branch> / git merge bugfix = to merge all the changes in branch to master (update master branch). switched to master first then use the command
+
+git merge <branchname> = shows the audit of what is on branch and master
+
+git branch -d <branchname> = to delete a branch
+
+git checkout -b <branchname> = to create a new branch and switch into it immediately (checkout -b)
+
+git switch  -c <branchname> = to crerate and switch into a new branch in one go and make it present working branch (switch -c)
+
+git branch -m <newbranchname> = to change the present working branch name to a new one (to rename current branch)
+
+GITHUB
+
+Github is a collaborating tool
+
+user does a GIT push to a remote repository
+
+once user does "git push" = there is goin gto be a tracking of every push within local repository and exact replica would be created within remote repository
+
+note* = git is a tracking tool (local repo and all) and github is a collaborating tool (remote repo)
+
+git push -u origin master = to push code from git to github
+
+git fetch = to fetch changes made by another user in remote repo (github) on code into local repo (git) "tracking  branch". you don't want to merge directly to the master branch, so system fetch into tracking branch and once you see that everything is good and you can merge to master you then "PULL" or merge into your master branch
+
+git merge = to merge remote repo changes to master branch on git
+
+git pull = you can also pull directly from remote repo to your local repo using master branch
+
+-go to github.com
+
+-sign in
+
+-create new (repo)
+
+-Repository name = should be name of the project you working on
+
+-description (optional) = describe you project simply
+
+-public/private = for organization make it private, for crypto and other make it public
+
+-The rest steps are optional 
+
+-hit create
+
+-On github you can search anything so long it exists and you have access it would pull it up , you can then make a "fork" of it, meaning you careate a copy of it and you become the owner of that fork, and you can edit, modify etc
+
+
+echo "# Ticketing" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Hecksflakes/Ticketing.git
+git push -u origin main
+
+To push an existing repository from command line (copied on github)
+
+git remote add origin https://github.com/Hecksflakes/Ticketing.git = to push your local repo codes into github (remote repo)
+git branch -M main = to specify what to push into remore repo ( can also be git branch -M master)
+git push -u origin main = to do the actual push, this would ask for github username and password.  For password, you can get a token with an expirty date
+, to get a token go to settings on github
+
+token = once token is generated, and you do git branch -M main = it would ask for username again, if you enter token it would automatically populate in the command git push -u oringin main 
+
+Once you enter the above, it would push all the repo in local into remote
+
+if you go back to github and check the project e.g ticketing; and you open the appropriate file, you would see the changes
+
+Now if you change anything on github (remote repo) and make anychanges to your code or file and then you hit commit using github GUI
+
+on the Local CLI, you can do "git fetch" to fetch and "git merge" to fetch your remote repo changes into your local repo (in this case we pulled into master branch, we can pulled into a separate branch too --experiment =passed)
+
+git branch -M <branch name> = to create the same branch on local repo  on github in local CLI, will ask for username (could be proper username or token)
+
+git push -u origin  <branchname> = to push code on local repo CLI into remote repo (github) branch 
+
+Once the above changes is done, the branch is pushed into github/ remote repository and you can toggle btween different branches and master / main on github.
+
+You can edit on master or branch on discord directly on the remote(github) repo GUI and commit directly into master on local or branch on local.
+
+if code was pushed directly from master/main on local repo, you can "git fetch" and "git merge" directly to local repo from remote if you modify the file on remote repo
+
+if code was pushed from branch on local repo, you then see it on the branch on remote and a user made an edit to it,  you can "git fetch" and "git merge" to your local repo ON THE SAME BRANCH.  To then merge the changes to the MASTER/MAIN, you can git merge (or git merge <branch> (and vice versa) but ensure you switched to master branch first to do this)
+
+if code was pushed from branch on local repo to remote repo branch, and a user modifies the code, and you want to "PULL" directly from remote repo  branch to local repo Master, you can do that by usin gthe command " "
+
+git clone is used diring initialization to copy the repo to your working directory
+
+git clone "githublink"
+
+forking a repo recreates a copy of the repo in your rremote repositrory
+
+git merge origin/master = ?
+
+==========================================================================================================================================================
+
+git merge = merges differnt commit on two branches together e.g say theere are two branches, master and bug fix, each branch has different commit 1, diff commit 2, diff commits 3, diff commit 4.  git merge then merge master commit 1 with bugfix commit 1 and so on
+
+git rebase = on the other hand, pulls commit on different branches side by side, for example, we have 2 branches with diff commits 1,2,3,4 , git rebase place them side by side
+
+
+languages used in Git/hug is c++, shell etc
+
+Assignment
+
+create different commits on two different branches, then merge all the commit to master.  do several commit on dev branch and several commit on feature brannch, try git merge and git --rebase origin master etc
+
+Command to keep for git/github
+1-git pull
+2-git add .
+3-git commit
+4-git meerge
+5-git status
+6-git branch
+7-git clone
+8-git checkout

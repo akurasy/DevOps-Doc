@@ -1,0 +1,17 @@
+Enter the mac Os
+Run through command 
+chmod 400 path/to/the/key. (You can drag the key from the file explorer directly to your terminal)
+Type ssh -i path/to/the/key ec2-user@IP address.
+You can copy the path and paste before ec2-user/IP address
+(-i) is to task your key. 
+Type yes to connect. 
+
+Echo $shell = to know the shell type
+Shell is an interpreter . Example /bin/bash direct
+
+Shell types 
+Bourne shell = /bin/sh
+
+Bourne again shell = /bin/bash
+Korn shell = /bin/ksh
+C  shell = /bin/csh

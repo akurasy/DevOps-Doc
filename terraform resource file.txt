@@ -1,0 +1,25 @@
+resource "aws_instance" "first_demo" {
+  ami           = data.aws_ami.amzlinux2.id
+   instance_type = var.instance_type_list[1] 
+
+#instance_type = var.instance_type_list[1] 
+#forlist  <------calling the variable we created above to provision t2.medium. t2 medium is argument $1
+# we can pick the above for instance type or use the variable for just string (without listing, just a single instance type)
+
+
+#we can use the below for a single string
+#instance_type = var.instance_akuracy
+
+#for map, use 
+#instance_type = var.instance_type_map["stage"] for staging
+
+  key_name      = var.key_pair
+  vpc_security_group_ids = [aws_security_group.first_demo_SG.id]
+  count = 3
+  tags = {
+    "Name" = "stage-${count.index}"
+  }
+}
+
+
+#META Argument:  allows you to provision multiple instance (or resources) , using simple codeson the resource file.

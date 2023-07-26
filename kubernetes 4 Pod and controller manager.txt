@@ -1,0 +1,367 @@
+K8s Pods and Controller Managers Oct 29th class 3
+
+CONTROLLER MANAGER
+Ensures that the all scheduled pods are running as scheduled at all times.
+
+if we have 2 nodes;  node 1 and node 10.  if node1 has 2 pods called webapp and myapp with a webapp-svc clusterIP,
+ and node10 has mavenapp pod with no service. In this case they can't communicate because mavenapp on node 10 doesn't have its own mavenapp service clusterIP created. 
+ Once we create mavenapp cluster IP service, that is when it can talk to webapp cluster IP service.  
+
+Now if we have a database pod  on node 10, would it talk to mavenapp pod on the same node10 with it mavenapp service cluster ip. 
+ NO the database wouldn't talk to the mavenapp pod on the same node.  To make it communicate, the database needs its own database clusterIP service.
+ That's when they would communicate.
+
+
+kubectl run acada --image acadalearning/java-web-app = to run a pod directly imperatively without writing a yaml file.
+
+kubectl run myapp --image acadalearning/myapp --dry-run=client = to dry run an pod without running actually, but without pulling
+
+kubectl run myapp --image acadalearning/myapp --dry-run=client -o yaml = will output the above in a yaml format
+
+kubectl run myapp --image acadalearning/myapp --dry-run=client -o yaml >>  hecks.yml = to append into a file
+
+And then we can kubectl apply -f hecks.yml = to run the pod
+
+
+kubectl create = when you runn your event and output into your yaml file, it doesnt create the json anotation, and when you try to modify the yml file, it doesn't allow you to update
+
+kubectl apply --- = when use to first run the yaml file, it would create jsonn anotation in a yaml file and when you want to modify the yaml file, it allows you to modify and update
+
+FQDN = Fully Qualified Domain Name = let say we have 2 nodes, node 1 and 10.  Node 1 has 2 webapp pods and they belong to the same namespace called "PROD, if those 2 pods  want to communicate, they can use either their pod name or their IP addresses.   if there is another maavenapp pod on node 10 and "dev" namespace, and wants to talk to webapp pod on node 1 (WITHOUT USING THE CLUSTER IP SERVICE WE TALKED ABOUT), Answer: it can use the FQDN to communicate with webapp.  To do this, FQDN uses the synthax = curl -v <podname>.<NS>.svc.<cluster.local>
+
+Applying the syntax above, we shall have "curl -v webapp.prod.webappsvc.cluster.local"
+
+So basically FQDN is a strategy use to get pods on the same or different nodes AND DIFFERERENT or same namespace to communicate. It basically uses the full name to establish communication externaly (DNS)
+
+putting it together:
+
+FQDN = curl -v <podname>.<NS>.svc.<cluster.local> = curl -v webapp.prod.webappsvc.cluster.local
+
+
+Service Disscovery = This is what applications use to talk to each other in the same namespace (they use service name)
+one app on the same node talks to the clusterIp sevice first and then the service talks to the second app, in the same namespace.
+
+
+SIDECAR = we have 2 containers "myapp" and another container that myapp needs to function, "helper" container, both can be in the same pod because that is how the developer wants it. ...
+
+** kucectl scale pod <nameof pod> --replicas=4  = will come back to this
+
+Remember PODs are Ephemeral = they have short life span, can go down at anytime  Not good to schedule our container direclty on pod?
+
+READY 1/1 = means the running state of a containers and if you have READY 1/2 = it means you have 2 containers in a pod (Sidecar) and one is running. and if you have READY 2/2 after you do "kubectl get pod", it means you have 2 containers running in a pod.
+
+
+CONTROLLER MANAGER:
+
+Different types
+-Controller Managers) :Note:  These contoller Managers have different tasks.
+	ReplicationController
+	ReplicatSet
+	DaemonSet
+	Deployment
+	StatefulSets
+	Job
+
+Because pod is ephemeral, we put pod in controllers (controller managers), so that it can manage our pods, and keep it up at all time.
+
+How we write manifest file when adding controller manager e.g replicationcontroller
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp-pod
+  namespace: dev
+  labels:
+    app: webapp
+spec:
+  containers:
+  - name: webapp-c
+    image: acadalearning/java-web-app
+    ports:
+    - containerPort: 8080
+
+=========================================================================
+apiVersion: v1    <---- here t0
+kind: ReplicationController
+metadata:
+  name: webapp-RC
+  namespace: dev
+spec:
+  selector:
+    app: webapp <----- here, we are definining our controller manager
+-----------------------------------------------------------------------
+  template:  <-----here to 
+    metadata:
+      name: webapp-pod
+      labels:
+        app: webapp <------------here, we are defining pod
+-----------------------------------------------------------------------
+    spec: <-------here to 
+      containers:
+      - name: webapp-c
+        image: acadalearning/java-web-app
+        ports:
+        - containerPort: 8080 <-------here, we are defining container
+-----------------------------------------------------------------------
+
+
+putting it together
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: webapp-RC
+  namespace: dev
+spec:
+  selector:
+    app: webapp
+  template:
+    metadata:
+      name: webapp-pod
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp-c
+        image: acadalearning/java-web-app
+        ports:
+        - containerPort: 8080
+
+
+
+Pods are not scalable and can be deleted.
+
+When we ran the above yml file. we deleted the pod that was created, and it automatically re-created it self.  It sprung up immediately
+
+SCALING:
+
+you can either scale direclty in cli or you can add replica to the file.  HOWEVER ADD THE REPLICA IN YML FILE IS RECOMMENDED FOR EASIER TRACKING 
+
+- To add to the file you can add "replicas: 4" above spec, we shall have:
+
+ file name is mama.yml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: webapp-rc
+  namespace: dev
+spec:
+  replicas: 4
+  selector:
+    app: webapp
+  template:
+    metadata:
+      name: webapp-pod
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp-c
+        image: acadalearning/java-web-app
+        ports:
+        - containerPort: 8080
+
+ kubectl scale rc <nameof replicationcontroller>  = kubectl scale rc webapp-rc --replicas=8 = to scale using command line
+
+ IT IS
+
+ kubectl get rc = to see the list of replication controllers you have created
+
+ kubectl delete rc <nameofreplicationcontrollerapp> = kubectl delet rc webapp-rc
+ OR
+ Remove the replicationController from the yaml file.
+ OR
+ kubectl delete -f <file.yml> = to delete a file and its corresponding running pods and service etc
+
+
+ REPLICASET(ReplicaSet)
+
+ Replicatset is more advanced. We have here:
+
+ matchlabels = say we have an applictin running in a pod that is currently not being managed by a controller type that is already managing another pod. 
+ Match labels help connect the pod outside of the controller manager (replicaset) to the manager without actually putting the pod inside of the controller manager, 
+while still also managing its inital pod inside of it.  But it is recommended, you still put the pod outside of the controller manager inside.
+ so that that the controller manager can have its template, just in case the pod outside goes down (someway somehow), that way you don't lose the pods.
+
+ for labels/matchlabels we can have app: app or     tier: myapp  acada: devops
+
+
+file name is zee.yml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  namespace: dev
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      tier: myapp
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        tier: myapp
+    spec:
+      containers:
+      - name: myapp-c
+        image: acadalearning/myapp
+        ports:
+        - containerPort: 8080
+
+
+
+
+ADDING A SERVICE NOW
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  namespace: dev
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      tier: myapp
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        tier: myapp
+    spec:
+      containers:
+      - name: myapp-c
+        image: acadalearning/myapp
+        ports:
+        - containerPort: 8080
+---
+
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: myapp-svc
+ spec:
+   selector:
+     tier: myapp
+   ports:
+   - targetPort: 8080
+     port: 80
+     nodePort: 31300
+   type: NodePort
+
+
+   kubectl edit rs <podname -n <namespace>  =to edit pod directly without going into the yml file created.  NOTE: this wouldn't update the yml file. e.g  kubectl edit rs myapp-rs -n prod
+
+
+
+
+3- DAEMONSET:
+
+Daemonset is a type of controller manager that creates one pod per node across board
+
+Why do we use daemonset:
+-can be used for monitoring 
+-will deploy one pod on each of the nodes
+
+
+to write manifest file for Daemon set:
+
+filenme is daemonset.yml
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana-pod
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+ spec:
+   type: NodePort
+   selector:
+     app: grafana
+   ports:
+   - targetPort: 3000
+     port: 80
+
+
+
+
+
+
+MATCHING THE REPLICASET WITH DAEMON SET
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana-pod
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana
+        ports:
+        - containerPort: 3000
+---
+ apiVersion: apps/v1
+ kind: ReplicaSet
+ metadata:
+   name: myapp-rs
+ spec:
+   replicas: 6
+   selector:
+     matchLabels:
+     tier: myapp
+   template:
+     metadata:
+       name: myapp-zeepod
+       labels:
+         tier: myapp
+     spec:
+       container:
+       - name: myapp-c
+         image: acadalearning/myapp
+         ports:
+         - containerPort:8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: NodePort
+  selector:
+    app: grafana
+    tier: myapp  
+   ports:
+   - targetPort: 3000
+     port: 80
+     nodePort: 30800
+
+#if you dont include the node port, it will automatically assign a node port for you between 30000 - 32767

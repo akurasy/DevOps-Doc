@@ -1,0 +1,82 @@
+RUNNING MAVEN AS A STATEFUL APPLICATION
+
+goto aws and spin a server with following conditions
+redhat linux
+select t2 medium
+open all port for SG
+connect via ssh
+
+sudo su – 
+cd /opt
+
+sudo yum install wget nano tree unzip git-all -y
+
+sudo yum install java-11-openjdk-devel java-1.8.0-openjdk-devel -y
+java -version
+git -version
+
+#2. Install Maven.sh
+#------------------
+#Step1) Download the Maven Software
+
+sudo wget https://downloads.apache.org/maven/maven-3/3.8.7/binaries/apache-maven-3.8.7-bin.zip
+sudo unzip apache-maven-3.8.7-bin.zip 
+sudo rm -rf apache-maven-3.8.7-bin.zip
+sudo mv apache-maven-3.8.7/ maven
+
+#Step3) Set Environmental Variable  -  For Specific User
+----------------------
+sudo vi ~/.bash_profile
+export M2_HOME=/opt/maven
+export PATH=$PATH:$M2_HOME/bin
+
+#OR:
+
+#Step3b) Set Environmental Variable  For All Users
+---------------------- 
+sudo vi /etc/profile
+export M2_HOME=/opt/maven
+export PATH=$PATH:$M2_HOME/bin
+
+#step4) Activate the maven home and mvn by running the below scripts
+source ~/.bash_profile
+
+
+
+
+#Step5) Check the Maven version
+mvn -version
+#END OF INSTALLATION.
+
+TO USE THE OLD MAVEN AS A STATEFUL APP
+create a folder and cd into the folder
+run the command
+
+git clone link-to-remote-repo
+
+cd to the remote repo file cloned
+
+run maven goals (validate, compile, test, package).
+pls note you must be in the directory housing the pom.xml file to run your mvn goal
+
+Direct DEPLOYEMNT FROM MAVEN STATEFUL APPLICATION TO TOMCAT
+
+scp <app-location> <destination>
+
+scp web-app.war ec2-user@3.86.32.182:/opt/tomcat9/webapps
+
+How does deployment happens in TomCAt
+
+answer: you simply copy from that application server to Tomcat's webapp
+
+context path = the ipaddress:port/appname you are building without the ".war"
+
+scp target/*.jar = means copy anything with .jar applications in target ....* means wildcard
+scp target/*.jar ec2user@3.86.32.182:/opt/tomcat9/webapps:
+
+scp *.war ec2-user@IP/opt/tomcat/webapps
+
+
+
+
+#https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.8.6-bin.zip

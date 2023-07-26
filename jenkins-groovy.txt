@@ -1,0 +1,426 @@
+JENKINS GROOVY:
+
+
+
+Groovy is a type of Jenkins script
+
+2 types of Jenkins Groovy script:
+
+1 Scripted Groovy script :  This was the first version that was released
+2 Declarative Groovy script: They then went ahead to update and make Declarative script
+
+Interview Question: Can you write Groovy script?  Know that they are asking about Jenkins script
+
+In jenkins, there is:
+Single Line comment: // ( double forward slash)
+
+Multiline comment : **/ (newer one)  
+
+					/**
+
+NOTE: when doing this, ensure you install git on the backend in jenckins CLI
+use pipeline to build the project for scripting
+
+-Writing Scripted Groovey script: 
+
+-each stage has its own curly bracket: :See the note down below about stage
+
+-def = define (def is a command in jenkins)
+MHD = tool name = maven3.8.6
+OR
+MavenHome = tool name = maven 3.8.6 (any where you define anything, use it exactly as you have named it.  If you have added space to your tool, use space) we installed maven in jenkins as a tool and it is named "maven 3.8.6"
+$MHD or ${MHD} = calling MHD variable
+all commands and variable are stored in bin
+sh "${MHD}/bin/mvn package"
+
+-node("") = the double quotes in the bracket, we can insert the node we are building in it.  for example, if we are building master node, we can insert "master" in it, if we are building some other node, we can input that in it.  And if no node, we can leave as is
+
+//scripted starts with : 
+//scripted
+node(""){
+def MHD = tool name: "maven 3.8.6"
+stage('GitClone'){
+sh "echo this is git clone"
+git 'https://github.com/ykgithuber/web-app.git'
+}
+
+stage('Build'){
+sh "echo start of build process"
+sh "${MHD}/bin/mvn package"
+}
+
+stage('CodeQuality'){
+sh "echo performing SonarQube Test"
+sh "${MHD}/bin/mvn sonar:sonar"
+}
+
+stage('BackupArtifacts'){
+sh "echo backup to Nexus"
+sh "${MHD}/bin/mvn deploy"
+}
+stage('DeploytoTomcat'){
+sh "echo Deploy to Tomcat server"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://35.93.43.137:8080/')], contextPath: null, war: 'target/*war'
+}
+}
+	
+To deploy to tomcat you need username and password, but not secure to input a plane text, so go to jenkins ---> configure---> pipeline syntax---> deploy war/ear to a container
+	
+
+
+WHEN DOING GROOVY.  EACH MAIN PROCESS IS TAGGED STAGE
+
+
+stage('GitClone'){}
+stage('Build'){}
+stage('CodeQuality'){}
+stage('BackupArtifacts'){}
+stage('DeploytoTomcat'){}
+
+
+Efe was using the process below to expalin shell, he divided the processes in different tools into different stages as seen above
+GitClone
+build - stage 1
+Code Quality Check  - stage 2
+Backup to Nexus - stage 3 
+Deploy to tomcat - stage 4
+Email Notification  - stage 5
+
+In Nexus Disable redeploy: doesn't allow you to deploy to release, works for snapshot
+
+Allow redeploy: allows deployment to release and snapshot
+
+http://3.87.199.150:8081/repository/groovy-snapshot/
+http://3.87.199.150:8081/repository/groovy-release/
+
+
+http://34.207.164.172:8081/repository/gro-snapshot/
+http://34.207.164.172:8081/repository/gro-release/
+
+=============================================================================================================================================================
+
+Sep 17th, 2022
+
+http://3.88.225.110:8081/repository/sep17-release/
+http://3.88.225.110:8081/repository/sep17-snapshot/
+
+If any of the stage is giving you issue, and you already know how to fix it  but you don't want to waste time, you can comment it out in jenkins front end and move on.
+
+ 
+Interview = what applications have you built?
+webapp application for client
+
+Interview = Have you ever worked in production?
+Yes
+
+You can ask How many environment do they run in the company, and if asked you, you can tell them 4 and name them; Dev, Staging, UAT (user acceptance testing) and Prod and explain what happens in each environment.  With their respective approval.
+
+We are building another project titled web-app in jenkins
+
+
+This could be Dev Environment
+//scripted
+node(""){
+def mavenHome = tool name: "maven 3.8.6"
+stage('1.initiation'){
+sh "echo start of web-app application"
+}
+
+stage('2.GitClone'){
+sh " echo Start of Gitclone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'
+}
+
+stage('3.Build'){
+sh "echo Start of Build"
+sh "${mavenHome}/bin/mvn package"
+}
+
+stage('4.CodeQuality'){
+sh "echo start of SonarQube Analysis"
+sh "${mavenHome}/bin/mvn sonar:sonar"
+}
+
+stage('5.BackupArtifacts'){
+sh "echo start of Nexus"
+sh "${mavenHome}/bin/mvn deploy"
+}
+
+stage('6.DeployToTomcat'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('7.DeployToTomcat'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('8.DeployToTomcat'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+}
+
+Stage('9.Approval'){
+sh "echo Approval needed"
+}
+
+Environment:
+
+Sandbox = This is an environment that is just on its own.  This is a playground for Dev/DevOps.  This is the environment you can build in, make mistakes, perfect your build, correct all errors. 
+
+
+Dev = only limited to Dev, not other person can come to this environment
+
+Stage/Staging = this is where internal resources can also see the application you are building.  Testing for internal resources like BA, PM etc. Project usually have a timeline before it is move to the next environment To move to UAT, you need approval
+
+UAT = This is where the QA can do their own further testing. Each of the environement run its own full pipeline.  UAT and Prod are always similar, so if you are running 100 tomcats in UAT, you should be running 100 in prod. Doesn't have to be but recommended. To move to prod you need Approval
+
+Pre-prod = some companies want to have pre-prod, this is where further testing is done to all the maybe the stakeholders in the company, those important to the project and those not, to test
+
+Performance = some companies can have performance instead of Pre-prod
+
+Prod = This is the most delicate environment that public has access to.  Anybody can access this environment so long they have the URL.  for other environments, not all people have access, if they have the URL, they would be prompted for authentication.
+
+
+
+
+Dev = we can have upto 3 tomcat
+
+Staging = we can have upt 3 tomcats
+
+In UAT we can have upto 3 tomcats or more
+
+In production we can havd more than 1 (even 100) tomcat, because we want the applicaion to be highly available
+
+The above means, for each stage we have built we can deploy to muiltiple tomcat, so where we have stage 6 Deploy to tomcat, we can have stage 7 and stage 8 and all will be tomcat. So the example of the web app codes we have above, could have been done in "Dev environment" and we can have a the same full back to back pipeline in UAT and stage and Prod environment.
+
+
+For approval, you want to set a timeframe, if no approval, deploy, or don't depends on company policy.
+
+So the approval process is a manual gate and it is when deploying a web, it will build and when it gets to the approval stage, it will pause till it gets approval. Once it is approved, then it does the deployment to production stage.
+
+This is how approval script is created
+
+Stage('9.Approval'){
+sh "echo Approval needed"
+timeout(time:5, unit:"DAYS"){
+input message:'Approval for Production'
+}
+}
+
+
+Now including Approval and Email Notificaiton in the above build;
+
+//scripted
+node(""){
+def mavenHome = tool name: "maven 3.9.1"
+stage('1.initiation'){
+sh "echo start of web-app application"
+}
+
+stage('2.GitClone'){
+sh " echo Start of Gitclone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/techyplanet/Web-app.git'
+}
+
+stage('3.Build'){
+sh "echo Start of Build"
+sh "${mavenHome}/bin/mvn package"
+}
+
+stage('4.CodeQuality'){
+sh "echo start of SonarQube Analysis"
+sh "${mavenHome}/bin/mvn sonar:sonar"
+}
+
+stage('5.BackupArtifacts'){
+sh "echo start of Nexus"
+sh "${mavenHome}/bin/mvn deploy"
+}
+
+stage('6.DeployToStaging'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://34.209.155.250:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('7.ApprovaltoUAT'){
+sh "echo Approval needed"
+timeout(time:5, unit:"DAYS"){
+input message:'Approval for UAT'
+}
+}
+
+stage('8.DeployToUAT'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://34.209.155.250:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('9.Approval'){
+sh "echo Approval needed"
+timeout(time:2, unit:"DAYS"){
+input message:'Approval for Production'
+}
+}
+
+stage('10.DeployToPProduction'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://34.209.155.250:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('11.EmailNotifications'){
+sh "echo Send Email Notificaiton"
+emailext body: 'build success', recipientProviders: [developers(), buildUser()], subject: 'tomcat success alert notification', to: 'akurracy@gmail.com'
+}
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Declarative Groovy Script
+
+Declarative starts with pipeline, unlike Scripted that starts with node.  As shown below.  For stage, declarative also start with "stages" (not "stage" like scripted)
+//Declarative
+pipeline{
+agent any
+tools{
+maven "maven 3.8.6"
+}
+stages{
+stage('1.Gitclone'){
+steps{
+sh "echo Git Clone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'	
+}
+}
+stage('2.Build'){
+steps{
+sh "echo Start of Build"
+sh "mvn package"
+}	
+}
+stage('3.CodeQuality'){
+steps{
+sh "echo Start of SonarQube"
+sh "mvn sonar:sonar"
+}
+}
+stage('4.BackupArtifacts'){
+steps{
+sh "echo Start of Nexus"
+sh "mvn deploy"
+}
+}
+stage('5.DeploytoTomcat'){
+steps{
+sh "echo Start of Tomcat"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+}
+}
+}
+
+
+
+
+
+for stages - you can have a parent stages and child stages
+stages{
+stage('1.Gitclone'){
+steps{
+sh "echo Git Clone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'	
+}
+}
+
+}
+
+stages{}
+stages{}
+stages{}
+stages{}
+
+Could also be
+
+
+stages{
+stage{
+steps{
+	
+}
+}
+}
+
+
+Adding Manual Approval
+
+//Declarative
+pipeline{
+agent any
+tools{
+maven "maven 3.8.6"
+}
+stages{
+stage('1.Gitclone'){
+steps{
+sh "echo Git Clone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'	
+}
+}
+stage('2.Build'){
+steps{
+sh "echo Start of Build"
+sh "mvn package"
+}	
+}
+stage('3.CodeQuality'){
+steps{
+sh "echo Start of SonarQube"
+sh "mvn sonar:sonar"
+}
+}
+stage('4.BackupArtifacts'){
+steps{
+sh "echo Start of Nexus"
+sh "mvn deploy"
+}
+}
+stage('5.DeploytoTStage'){
+steps{
+sh "echo Start of Tomcat deployment to stage"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+}
+stage('6.ApprovalforUAT'){
+steps{
+sh "echo Approval required"
+timeout(time:2, unit:"DAYS"){
+input message:'Approval for UAT'
+}
+}
+}
+stage('7.DeploytoTUAT'){
+steps{
+sh "echo Start of Deployment to UAT"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+}
+stage('8.ApprovalforProducation'){
+steps{
+sh "echo Approval required"
+timeout(time:2, unit:"DAYS"){
+input message:'Approval for Production'
+}
+}
+}
+stage('9.DeploytoTProd'){
+steps{
+sh "echo Start of Deployment to Production"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+}
+}
+}
+
+If you are using one instances, and deploying to stage, uat and prod, give it some time before approval before you deploy to different environments.  This because we are practicing, and in real work place, they use different instances.
+

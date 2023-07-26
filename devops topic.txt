@@ -1,0 +1,37 @@
+bash scripting
+arguments on CLI
+arguments and conditions
+git
+jenkins
+jenkins-maven
+maven as a stateful app
+jenkins - tomcat
+jenkins- sonarqube
+jenkins nexus
+jenkins environment
+jenkins smtp srever
+jenkins plugins
+jenkins-groovy
+jenkins file and share library
+docker 123 ( intro and docker commands)
+docker keywords
+docker network and mongo db
+docker volume
+docker compose
+kubernetes introduction
+kubernetes pod
+kubernetes pod and object
+kubernetes controller and replicaset
+kubernetes workload and schedule
+kubernetes volume and HAproxy
+kubernetes configmap and secret
+kubernetes health check
+kubernetes aws, eks and terraform
+kubernetes nginx and helm
+kubernetes prometheus and grafana
+kuberenetes jenkins, docker and k8s integration
+terraform introduction
+terraform installation and vsccode
+terraform series
+terraform modules
+terraform backend

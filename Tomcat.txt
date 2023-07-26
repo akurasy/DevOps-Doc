@@ -1,0 +1,163 @@
+TOMCAT
+
+TOMCAT (Apache (name of the company) Tomcat):
+
+
+Introduction:
+Tomcat or apache tomcat is a light weight, open source web container used to deploy and run java-based web application. (can also be used to deploy non java based application but needs a lot of configuration, same way a cup can take some other stuff other than liquid.)
+
+It is developed by Apache software Foundation (ASF)
+container contains application that is running (a cup is a container that contains liquid synonymous to container)
+
+Webserver:
+A webserver is a program that uses HTTP (Hypertext Transfer Protocol) protocol that serves web content HTML (Hypertext markup language)
+
+Application Server:
+This is a container upon which you can build or expose business logic or processes to client through various protocols including the HTTP in an n-tier architecture.  Is the server that hosts application that exposes business logic to client.  For example TDbank.com home is hosted on application server, that is the one that is exposed to the public.
+
+Examples:
+Apache Tomcat
+JBoss/ Wildfly --RedHat
+Weblogic - Oracle
+Websphere Liberty Profile - IBM
+Websphere Liberty Application Server - IBM
+GlassFish
+
+Apache Tomcat Installation
+
+Script below
+
+#!/bin/bash
+# install Java JDK 1.8+ as a pre-requisite for tomcat to run.
+# EC2 t2micro
+
+cd /opt 
+sudo yum install unzip wget -y
+sudo yum install java-1.8.0-openjdk-devel -y
+
+# Download tomcat software and extract it.
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.72//bin/apache-tomcat-9.0.72.tar.gz
+sudo tar -xvf apache-tomcat-9.0.72.tar.gz
+sudo rm apache-tomcat-9.0.72.tar.gz
+sudo mv apache-tomcat-9.0.72 tomcat9
+sudo chmod 777 -R /opt/tomcat9                                                        
+sudo sh /opt/tomcat9/bin/startup.sh
+
+# create a soft link to start and stop tomcat
+sudo ln -s /opt/tomcat9/bin/startup.sh /usr/bin/starttomcat
+sudo ln -s /opt/tomcat9/bin/shutdown.sh /usr/bin/stoptomcat
+sudo starttomcat
+
+echo "end on tomcat installation"
+
+To know if Tomcat is running
+ps -ef | grep tomcat
+
+Tomcat default Port: 8080
+
+To access Tomcat server, copy the Public IP address and do in the web browser "PublicIP:8080"
+
+Tomcat Configuration:
+
+click on manager app on the tomcat GUI
+it will return with error message, then configure
+
+1-Enable Tomcat External Access 
+
+#TomCat Home Directory TMD = /opt/tomcat9
+
+sudo vi /opt/tomcat9/webapps/manager/META-INF/context.xml
+
+in context.xml there is multiline comment and single line comment
+
+multi line comment
+<!--
+-->
+
+comment the below value out:
+
+<!--
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />
+-->
+
+click on the manager app again. if successful, then
+
+2-Create Tomcat Username and Password
+
+vi into =  sudo vi /opt/tomcat9/conf/tomcat-users.xml
+then <user username="admin" password="<must-be-changed>" roles="manager-gui"/>
+
+change username and pasword above to user details, you can copy and paste to create different roles. make sure you scroll to the bottom and paste 
+
+<user username="akuracy" password="admin123" roles="manager-gui,manager-script,"/>
+
+THE ABOVE MUST COME BEFORE </tomcat-users>
+
+
+in tomcat, deployment happens in webapps directory, which is in tomcat directory
+
+
+#https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz
+
+Catalina.sh is the one responsble for starting and stopping tomcat
+Catalina MUST be there to start Tomcat
+
+
+3-Create password for your user (ec2-user) = sudo passwd ec2-user
+
+
+4-enable password authentication 
+do = sudo vi /etc/ssh/sshd_config and change the "no" in PasswordAuthentication to "yes"
+
+ssh = is use to connect to server
+
+Then Restart sshd.
+do = sudo service sshd restart
+or sudo systemctl restart sshd
+
+5-Change the tomcat default port from 8080 to whatever you want (custom port) and this is optional.
+
+to do this, make sure you have opened custom port on your ec2 instance
+example : open custom port for 5800 to enable you change the port fro 8080 to 5800
+
+do = vi /opt/tomcat9/conf/server.xml
+and then change the port number in
+
+-->
+    <Connector port="8080" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443" />
+    <!-- A "Connector" using the shared thread pool-->
+
+    where it says connector port="8080" to 5800 ( in my practice, I change mine to 5800)
+
+ 6-Stop tomcat using the soft link we created = sudo stoptomcat
+
+ 7-start tomcat again using the softlink we created = sudo starttomcat
+
+PLS WAIT FOR AT LEAST A MINUTE FOR TOMCAT TO START
+
+
+ Next- start your jenkins server
+ -create a project on github
+ -copy link of your project from github
+ -paste in jenkins new job source code management
+ -create credentials for github
+ -invoke top maven target
+ -enter "package" goal to package the project
+ -go to manaage jenkins
+ -go to manage plugins
+ -select "Available"
+ -search for "Deploy to Container" (remember = tomcat is an open source web container)
+ -check the box and select "install without restart" and then wait till it completes installation
+ -then edit the project created by selecting "Configure"
+ -scroll to the bottom and select "Add post-build action" under POST-build Actions
+ -select "Deploy war/ear to a container"
+ -enter "target/*war"
+ -then select "Add Containers" and select the tomcat version installed (here we used tomcat9)
+ -add tomcat credential created during tomcat installation on CLI
+ -In the "Tomcat URL", paste your tomcat url which is publicaddress:port
+ -Apply and then save.
+ -Build, if it is successful, then go to Tomcat and select Manager.  
+ -Your build should reflect, copy its link and past in next tab, it should show you the web page build on the application server

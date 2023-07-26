@@ -1,0 +1,195 @@
+k8s - HEALTH CHECK NOV 12, 2022
+
+Helth Check
+
+-Readiness probes = to check if the pod is ready.  
+-Liveness probes = to check if the pod is alive
+-startup probes = to check if the pod is in running state - it increases/reduces the expected time for delayed or slowed rsp the start up container.
+
+-readiness probe clears the system after detecting the errors by the liveness probe, so that traffic will be routed seamlessly.
+
+-startup probe increases the expected time for delayed or slow start up container.
+
+
+We grab  one of the replicaset application (replicaset.yml ) below
+
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: myapp
+  template:
+    metadata:
+      name: myapp-zeepod
+      labels:
+        tier: myapp
+    spec:
+      containers:
+      - name: myapp-c
+        image: acadalearning/myapp
+        ports:
+        - containerPort: 8080
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-svc
+spec:
+  selector:
+    tier: myapp
+  ports:
+  - targetPort: 8080
+    port: 80
+    nodePort: 31300
+  type: NodePort
+
+
+We applied the replicaset.yml and the do "kubectl get pods -o wide" to see the pods, we then exec into a pod (a pod that's replicated 
+and running 2x on a node i.e we have 2 nodes, and we replicated the apps to run on the two nodes, 1 pod is running on node1 and 2 pods 
+are running, since we have 2 apps running on node2, we remove one of the apps running on node2) 
+by removing (rm -rf web-app.war) one  of the application running in the pods
+
+we do the following
+
+kubectl exec -it pod-name -- bin/bash
+ls webapps = to see the application inside the pod
+rm -rf webapps/web-app.war and webapps.web-app = to remove the running application
+exit
+
+when we run "kubectl get pod" the 3 containers still show running.
+ v
+When we looked at it in the front end, what happens is that some people were able to view, some were not able to view.
+
+This is what happens, the loadbalancer (NodePort) we used is routing traffic to the applications in different containers, it routed the traffic to containers that 
+still have the application to those who can view it, and routed the traffic to container that the app has been deleted in to those that can't see it.  
+
+This is why we need to do Health Check.
+
+Now applying Readiness Probe, we have
+
+
+ apiVersion: apps/v1
+ kind: ReplicaSet
+ metadata:
+   name: myapp-rs
+ spec:
+   replicas: 3
+   selector:
+     matchLabels:
+       tier: myapp
+   template:
+     metadata:
+       name: myapp-zeepod
+       labels:
+         tier: myapp
+     spec:
+       containers:
+       - name: myapp-c
+         image: acadalearning/myapp
+         ports:
+         - containerPort: 8080
+         livenessProbe:
+           httpGet:
+             path: /web-app
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+         readinessProbe:
+           httpGet:
+             path: /web-app
+             port: 8080
+           initialDelaySeconds: 5
+           periodSeconds: 5
+         startupProbe:
+           httpGet:
+             path: /web-app
+             port: 8080
+           initialDelaySeconds: 30
+           periodSeconds: 10
+
+
+---
+
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: myapp-svc
+ spec:
+   selector:
+     tier: myapp
+   ports:
+   - targetPort: 8080
+     port: 80
+     nodePort: 31300
+   type: NodePort
+
+Note: initialDelaySecond:  is how long do you want it delayed before your check picks up
+
+documentation here: kubernetes.io/docs/tasks/configure-pod/configure-liveness-readiness-startup-probes/
+
+https://kubernetes.io/docs/concepts/policy/resource-quotas/
+
+
+- delete the initial pods
+-run the new pods with health check configurations
+-kubectl  get pod and exec into one of the pod
+- delete the web-app.war file in the container
+
+IT WILL EXIT YOU AUTOMATICALLY AND PUT BACK THE web-app.war file we deleted.
+- now exec into that same container again and ls webapps.
+- the web-app.war file we deleted will be back.
+
+THIS IS REFERS TO AS SELF-HEALING IN KUBERNETES
+
+
+
+-Endpoints are the number of pods that you have, so if you have 5 pods, you woould have 5 endspoints.  According to google: Endpoints in Kubernetes is a resource to track the IP addresses of the objects or pods which are dynamically assigned to it and which works as a service selector which matches a pod label by adding the IP addresses to the endpoints and these points can be viewed using software kubectl get endpoints.  To show what endpoint is on the CLI we scaled up our pods THAT WAS ITINIALLY 3 POD AND HENCE SHOWED 3 IPS (kubectl scale rs myapp-rs --replicas=5).
+
+-To show endpoint do = kubectl get ep  = this  will output the number of IPs of the Pod you are running.
+
+-As soon as we scaled our pods to 5, and do "kubectl get ep" = we saw that 5 IPs are now showing.
+
+alias k=kubectl = to create a shortcut for kubectl or any linux command, it only works for the session.  Instead of running "kubectl get pod", you can do "k get pod"
+
+NOTE at work:
+
+-YOUR POD MUST ALWAYS RUN WITH HEALTH CHECKS
+-YOUR POD MUST ALWAYS RUN WITH STRATEGY
+
+
+RESOURCE QUOTA
+
+let's assume I have node that is 200GB = host
+
+and assigned just 5mb to our application below
+
+what happens is that, the application cannot exit 5mb, once it does, it will output error.
+
+Differrent ways to apply "resource Quota";
+-you can apply as "kind" in youre...We will do more on this
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Amazon Elastic Kubernetes Services
+
+Kubernets cluster/services manages by Amazon
+
+-provision a new instances and name it EKS
+
+
+terraform init
+
+terraform validate
+
+terraform plan
+
+terraform apply
+
+terraform destroy
+
+terraform files are written in .tf

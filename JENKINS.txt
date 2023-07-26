@@ -1,0 +1,147 @@
+JENKINS
+jenkins ia a CICD tool
+CI tool = continous integration = automating, building and testing codes
+CD tool = continous deployment ( In House ) and delivery ( for client )
+
+CI TOOLS
+JENKINS
+GITLAB
+BUILDBOT
+TEAMCITY
+DRACO.NET
+TRAVIS CI
+CIRCLE CI
+BAMBOO
+BUDDY
+
+
+Jenkins is a Java-based open-source automation platform with plugins
+designed for continuous integration. It is used to continually create
+and test software projects, making it easier for developers and DevOps engineers
+to integrate changes to the project and for consumers to get a new build.
+
+Jenkins is an open source continous integration and cross-platform tool, written in Java
+
+Devops lifecycle
+planning
+coding
+building
+testing
+release
+deploy
+operation
+maintain
+
+jenkins can be applied in the following steps
+CI
+build
+test
+     cost money to build application 
+     application security
+     JUnit test - unit test = used to test the code for a pass 1+1=2 = passed. 1+1=4 = failure
+
+CD = continous deployment and delivery
+release versioning
+deploy= makes it available for use in a remote repository
+
+DOCUMENTATION TO INSTALL JENKINS
+goto jenkins.io
+click documentation
+installing jenkins
+select linux
+select redhat
+
+PROVISIONING JENKINS INSTANCE ON AWS
+goto ec2
+select t2 medium 4GIG ROM. t2 micro will slow down after some time
+set up security group
+allow port 8080
+select source anywhere IPV4  
+allow ssh on port 22
+connect to the instance via ssh machine
+
+INSTALLING JENKINS ON AWS SERVER
+#!/bin/bash
+sudo yum update -y
+sudo yum install wget git -y
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade
+#Add required dependencies for the jenkins package
+sudo yum install java-11-openjdk-devel -y
+#then
+sudo yum install jenkins -y
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+
+
+#check active jenkins with the command 
+systemctl status jenkins | grep -i "active"
+
+GOTO BROWSER
+BROWE THE PUBLIC IP AS FOLLOWS
+
+PublicIP:8080 (52.37.203.121:8080) ON YOUR BROWSER = to login to jenkins GUI
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword = to reveal login password on your CLI
+click suggested plugins
+enter signup credentials (PLS DO NOT FORGET CREDENTIALS)
+
+
+USING JENKINS
+click on newjob
+job name
+select freestyle for standalone automation
+but fOr devops, pipeline is recommended
+goto build steps and select "execute shell"
+
+run your command
+sh "echo this is my testing class"
+apply and save.
+
+JENKINS -GITHUB INTEGRATION
+Copy the file link from jenkins
+git pull file-link = to integrate from jenkins to GIT
+
+installing GIT in jenkins or configuring GIT plugins in jenkins
+in source code management tab, select GIT
+copy the remote repository url tab from github and paste in the repository url
+add/create credentials to access code in github. - username, password ID ==description
+save and apply
+click build and monitor progress in the console output to check if connection is successful 
+
+
+
+JENKINS -MAVEN INTEGRATION
+pre-requisite for maven
+maven needs JRE = java runtime enivironment
+version 1.8 above
+JDK = java development kits
+
+
+MAVEN INSTALLALATION
+maven can be installed as a stateful application
+maven can be installed as a tool in jenkins
+maven can be installed as a plug-in in jenkins
+
+installing maven as a tool in jenkins
+on jenkins, goto dashboard
+manage jenkins
+global too configuration = to install as a tool
+global plugin= to install as a plugin
+scrool dow to maven
+select version, then apply and save 
+
+IF JENKINS IS SHOWING A CRUM ERROR. PLS FOLLOW THE STEP
+
+CSRF Protection is not enable
+
+GOTO: Jenkins >
+Manage Jenkins > 
+Configure Global SecuritY
+Cross Site Request Forgery exploits. ( ENABLE PROXY COMPACIBILITY)
+
+
+
+curl -v -X GET http://jenkins-url:8080/crumbIssuer/api/json --user <username>:<password> = to stop the error crumb issues on jenkins

@@ -1,0 +1,208 @@
+Jenkins Infrastructure
+
+http://3.95.17.109:8081/repository/jenstructure-release/
+
+http://3.95.17.109:8081/repository/jenstructure-snapshot/
+
+
+Jenkins (master) talking to different other jenkins servers (nodes) building different application using one main server (master jenkins) (e.g one company with a major sever and some other clients eg, paypal, rbc, td etc, each client will be build on different nodes)
+
+The requirement for Jenkins installation is Java.  The Master nodes needs full jenkins installation, while the slave nodes ONLY require java 
+
+The other servers connected to main server are called nodes(oldname is slaves)
+
+all these other jenkins server  are on different instances, these jenkins server can be on differrent OS (Linus, window etc) which are provisioned on instances
+
+Tools needed
+
+SSH = secure shell
+TCP/IP = Transporrt control protocol/Internet protocol
+RDP = Remote Desktop Protocol.
+
+Configuring user data
+Provision your regular Jenkins (name it a node)
+Go down to Advance, click it and then go to userdata
+paste the script you need to run there ( for the class we did java script ...check your phone)
+Once done, it startup 
+
+Jenkins Slave Java Installation
+#!/bin/bash
+sudo hostname slave1
+sudo yum -y install unzip wget tree git
+sudo yum install java-11-openjdk-devel java-1.8.0-openjdk-devel -y
+
+
+NOTE: sudo alternatives --config java  = to switch java version
+
+
+Installin SSH agent on JENKINS MASTER
+
+Manage jenkins
+installed plugins
+-type ssh agent and enable( this will allow us to build and add our credentials)
+
+
+
+
+
+Now we need to get the master to talk to slaves or nodes. 
+
+Go to Jenkins front-end
+
+-Manage jenkins
+
+-Manage nodes and clouds
+
+-Add new Node (name it anythign e.g node 1 or slave 1)
+
+-click on permanent agent radio butoon
+
+-Click create
+
+
+-let's say you are building for ACADA organization, put in the description "ACADA-node"
+
+-In the number of executors (Jenkins executors = the number of prject that particular node can run), you can puut 5 here
+-Remote root directory = /home/ec2-user/node1 = once you put this it will create home directory in the backend
+
+-Labels = you can tag whatever in there or just leave it empty
+
+-usage = you can leave as is = use as much as possible
+
+-Launch method = launch agent by connectint it to controller or ssh (we selected launch via ssh in class)
+
+-Host =  here we will insert the IP address of our slave/node (Jenkins node 1)
+
+-You can add a credentials or create one if you haven't
+  - adding a cred =
+create password for ec2-user on the slave node
+configure password authentication by doing this:
+sudo vi /etc/ssh/sshd_config
+change password athentication to yes.
+
+on jenkins front end
+add credentials with username and password
+or add credentials with ssh
+
+-hot key verification strategy  = manually trusted key verification strategy
+
+-availablily = keep this agent online as much as possible
+
+
+
+
+NOW GO TO YOUR NEW NODE JENKINS BACKEND AND DO THE FOLLOWING
+THIS IS OPTIONAL JUST TO TEST YOUR SSH CONNECTION
+ssh -i "C:\Users\yinka\Desktop\DEVOPS\key\SGself.pem" ec2-user@ 54.91.74.25( IP of new node crreated in instances)
+
+-sudo yum install java-11-openjdk-devel
+-sudo vi /etc/ssh/sshd_config
+-Yes in passsword authentication
+-Now restart = sudo systemctl restart sshd
+-sudo passwd ec2-user = set password, make it same papssword as your jenkins crd for node
+-ssh ec2-user@54.91.74.25(new node Ip) to connect to the node
+-enter the passsword on your node cred in jenkin
+
+
+
+NOW lets build with executor
+
+Normal way to build in jenkins using freestyle
+-we then go back to specify node2 by configuring the project and then select "Restrict where this project can be run" and select node2 ( the one that was selected)
+
+We can specify same for pipeline project
+-just specify what node you want to use, in the script (groovy and declarative), where it says node""
+
+
+Building Node with scritped groovy 
+-If we do not specify any node, it will grab any
+//scripted
+node("node1"){
+def MHD = tool name: "maven 3.8.6"
+stage('GitClone'){
+sh "echo this is git clone"
+git 'https://github.com/ykgithuber/web-app.git'
+}
+
+stage('Build'){
+sh "echo start of build process"
+sh "${MHD}/bin/mvn package"
+}
+}
+
+Building Node with Declarative groovy
+If you dont specify the agent( you leave it as any), it will grab any of the node you have.  If you specify "agent {label 'node2'}" it will use node2 or any node specified
+
+Example 1 
+THIS WILL GRAB ANY NODE
+
+//Declarative
+pipeline{
+agent any
+tools{
+maven "maven 3.8.6"
+}
+stages{
+stage('1.Gitclone'){
+steps{
+sh "echo Git Clone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'	
+}
+}
+stage('2.Build'){
+steps{
+sh "echo Start of Build"
+sh "mvn package"
+}	
+}
+}
+}
+
+Example 2
+FOR A SPECIFIC NODE
+//Declarative
+pipeline{
+agent {label 'node1'}
+tools{
+maven "maven 3.8.6"
+}
+stages{
+stage('1.Gitclone'){
+steps{
+sh "echo Git Clone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'	
+}
+}
+stage('2.Build'){
+steps{
+sh "echo Start of Build"
+sh "mvn package"
+}	
+}
+}
+}
+
+
+
+NOTE COPIED FROM THE INTERNET
+
+Jenkins Infrastructure
+
+Jenkins uses a Master-Slave architecture to manage distributed builds. In this architecture, Master and Slave nodes communicate through TCP/IP protocol. The main Jenkins server acts as the Master node that manages slaves. A slave is a Java executable that runs on a remote machine. The diagram shows a Jenkins Master-Slave architecture.
+
+Figure 1 : Jenkins Master-Slave architecture (See Attached)
+
+
+Following are the jobs handled by the Jenkins Master’s:
+Scheduling build jobs.
+Dispatching builds to the slaves for the actual execution.
+Monitor the slaves (possibly taking them online and offline as required).
+Recording and presenting the build results.
+A Master node can also execute build jobs directly.
+Following are the characteristics of Jenkins Slaves:
+Slaves receive requests from the Jenkins Master node.
+Slaves can run on a variety of operating systems.
+The job of a Slave is to do tasks as per the requests passed from the Master node, which involves executing build jobs dispatched by the Master.
+With Master-Slave architecture, Jenkins enables administrators to distribute load across the Slave nodes through the Master node based on the resources needed for running the jobs. If the Master node goes offline due to any abnormality, the workload will not be distributed to the Slave nodes, and executors will not be assigned to run jobs on the Slave nodes. Besides, the Slave nodes will not be able to execute the jobs without executors and resources. This will adversely impact the development cycle, reduce productivity and degrade the integrity of Jenkins and user experience .
+
+Source: https://www.eginnovations.com/documentation/Jenkins/Jenkins-Nodes-Test.htm#:~:text=Jenkins%20uses%20a%20Master%2DSlave,runs%20on%20a%20remote%20machine.

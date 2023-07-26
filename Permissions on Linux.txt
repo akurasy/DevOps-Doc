@@ -1,0 +1,28 @@
+Unmask
+0 read write execute
+1 read , write
+2 read, execute
+3 read only 
+4 write and execute
+5 write only 
+6 execute only
+7 no permisson
+
+0002
+Ignore the first 0
+0.             0.           2
+rwx.        rwx.       r-x
+
+Umask to see the current permission of a user 
+
+umask (Value = 002) to assign permission to a user
+
+Sudo chown user filename= to change ownership of file. 
+
+Sudo chown user:group filename = to change owner of file to a group
+
+Sudo su -user = to see when a user logged in
+
+Sudo usermod -e 30/12/2022 user = to set expiry date for user
+
+Sudo timedatectl set-timezone america/New_york = to set your time zone

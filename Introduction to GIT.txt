@@ -1,0 +1,221 @@
+A REPOSITORY IS A PLACE WHERE THINGS ARE OR MAY BE STORED. A CENTRAL LOCATION WHERE DATA IS STORED AND MANAGED
+
+
+
+What is Git Bash? Git Bash is an application for Microsoft Windows environments which provides an emulation layer
+for a Git command line experience. Bash is an acronym for Bourne Again Shell. 
+A shell is a terminal application used to interface with an operating system through written commands.
+
+
+GIT is a version control system.
+a version control system is one in which changes to a file or group of files are being tracked such that
+those changes can be recalled at any point in time. 
+
+	THREE TYPES OF VERSION CONTROL SYSTEM
+
+1. LOCAL VCS: here you make changes to your file on your local system and the changes are tracked. But only on your system 
+
+2. CENTRALISED VCS: here, the developer pulls out a file from the remote repo to his local repo,makes changes and pushes it
+back to the remote repo. but only one developer can work on the file at a time
+
+3. DISTRIBUTED VCS:  here, the developer or developers can pull files from the remote repo to their local repo.
+makes changes from f=different locations and merge those changes to the remote repo. e.g GIT
+
+PLEASE NOT: GITHUB IS LIKE THE GUI OF DISTRIBUTED REPO. WHILE GIT IS THE CLI
+
+
+WORKING DIRECTORY ----- STAGING AREA ------ LOCAL REPO -------- GIT
+
+WHY VCS
+1. TRACEABILITY
+2. COLLABORATION
+3. TIME SAVING 
+4. LOGGING/TRACKING
+5. SECURITY
+6. SNAPSHOTS OF FILES AND PROJECTS OVER TIME
+7. QUALITY CONTROL
+8. MANAGE PROJECT UPDATES
+9. VERSION MANAGEMENT
+10. DISASTER RECOVERY
+11. BACKUP AND RECOVERY
+12. IT IS A STORAGE TOOL
+
+
+STEPS INVOLVE IN GIT OPERATION
+
+github: The developer pushes the code into the  git/github reposityory ( usually source code, build script and unit test code). 
+our job as a devops engineer starts when the developer has upoloaded the code to github
+
+maven: the devops engineer now uses the maven to pull code from the repository and maven builds the package or artifact.
+
+sonarqube: the devops use sonarqube to test the code for error
+
+nexus: the tested package is then stored in nexus. disaster is easier to pull from nexus
+
+webserver: the package is further uploaded to a webserver like TOMCAT. TOMCAT will deploy the
+package to various app servers. 
+
+
+
+GIT INSTALLATION
+sudo yum install  git -y
+whereis git = to see the location 
+git config --global user.name "akuracy" = to configure your username 
+git config --global user.email "babatundeoke123@gmail.com" = to configure your email
+git config user.name = to confirm username configuration
+git config user.email = to confirm email configuration
+create a directory and initialise GIT inside the directory
+git status = to show the status if there is any committment
+
+#Example
+mkdir fintech
+cd fintech
+git init = to initialise git for tracking. ( this is done inside the created dir. so you must cd to the dir)
+ls -al .git = to see the git files
+git status = to show the status if there is any committment
+
+#in GIT, the technical terms for any changes made is referred to as committment
+touch a file
+vi into the file and put a content 
+sudo git add filename = to add the file to the staging area
+git add . = to add from pwd to staging area
+git commit -m "comment or filename" = to commit the file from staging area to the local repo
+git commit -am "comment" = to commit directly to the local repo by bypassing the staging area
+but only used for files that are already being tracked
+
+A DEVELOPER CAN COMMIT THE FOLLOWING IN GIT
+SOURCE CODE
+UNIT TEST CASES
+BUILD SCRIPT
+
+
+git log = used to see the commitment made, who made the committment, date and time
+git log --oneline = to show the commit ID in lines are abbreviate them
+git log --since=2022-02-15 = git log --since=year-mont-date to see the time analysis of commitment
+git log --until=2022-02-15
+git log -2 to see the last two comments
+git show commit-ID = to show more details
+git diff 1st-commit-ID 2nd-commit-ID = to see the differnec between the commit ID
+git --help = to see various git commands
+git commit --amend -m "comment" = used to update the latest commit message
+git switch -c branch-name = to create a new branch
+git switch -v branchname = to check out from a branch
+git branch = to display the various branch
+git switch BRANCHNAME OR git checkout BRANCHNAME = to switch to a branch
+git branch -m newname = to chnage the current branch name
+git rebase= pull commits together seperately
+git merge= infuse them together
+git pull= pulls to the pwd
+git fetch = pulls only to the local directory
+
+
+PUSHING FILE FROM LOCAL REPO TO REMOTE REPO
+create a repo in github and copy the repo link
+
+goto your CLI
+git remote add origin https://github.com/akurasy/ticketing.git = To add the content
+git branch -M master
+git push -u origin branch-name = to specify the origin for push
+git push = to push from the present working branch
+
+before the above command, try and generate a token with the following step:
+goto settings
+click on developer setting on lower left
+click on personal token (classic)
+tick all box and enter token use details
+create token
+paste the token as your username and password when requested
+
+GIT PULL FROM REMOTE TO LOCAL REPO
+goto to your repo on github
+click on it
+click on pushed file from your local repo and edit.
+add commit comment and save
+
+on the CLI (pulling from the GUI)
+git fetch
+git merge origin/branch-name= to pull from specific branch
+git pull = to pull from current branch
+
+fork creates a copy on github
+clone creates a copy on pwd on CLI
+
+GIT clone is the first thing to do when you are being called to colaborate 
+to clone= click on the article on github. click on code and copy the link
+goto CLI and type;
+git clone copied-link-from-github
+
+git stash = enables you to keep a file you are working on to be continued later
+
+git stash filename = to stash a specific file
+
+git stash list
+it will appear as follows
+stash@{ID1}
+stash@{ID2}
+
+git stash apply stash@{ID} = to bring it back to the working area
+
+git stash drop stash@{ID}= to remove it from stashed list
+
+
+HTTP STATUS CODE:
+ERROR 400 - 499 = 	client based error
+400 Bad Request
+401 Unauthorized
+402 Payment Required
+403 Forbidden
+404 Not Found
+405 Method Not Allowed
+406 Not Acceptable
+407 Proxy Authentication Required
+408 Request Timeout
+409 Conflict
+410 Gone
+411 Length Required
+412 Precondition Failed
+413 Payload Too Large
+414 Request-URI Too Long
+415 Unsupported Media Type
+416 Requested Range Not Satisfiable
+417 Expectation Failed
+418 I’m a teapot
+421 Misdirected Request
+422 Unprocessable Entity
+423 Locked
+424 Failed Dependency
+426 Upgrade Required
+428 Precondition Required
+429 Too Many Requests
+431 Request Header Fields Too Large
+444 Connection Closed Without Response
+451 Unavailable For Legal Reasons
+499 Client Closed Request
+
+ERROR 500 -599 = server error
+500 Internal Server Error
+501 Not Implemented
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout
+505 HTTP Version Not Supported
+506 Variant Also Negotiates
+507 Insufficient Storage
+508 Loop Detected
+510 Not Extended
+511 Network Authentication Required
+599 Network Connect Timeout Error
+
+https://www.webfx.com/web-development/glossary/http-status-codes/
+
+
+
+Command to keep for git/github
+1-git pull
+2-git add .
+3-git commit
+4-git merge
+5-git status
+6-git branch
+7-git clone
+8-git checkout

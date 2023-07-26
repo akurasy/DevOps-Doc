@@ -1,0 +1,343 @@
+  DOCKER KEYWORDS: (Oct 5th, 2022)
+
+Docker keywords are those instructions and all in upper case
+
+-FROM: To pull the base image (from docker hub or other repository)
+
+-COPY = To copy files from one directory to another (used as: COPY <source> <destination> e.g COPY target/*.war /usr/local/tomcat/webapps/paypal.
+
+-MAINTAINER = to name the owner of the file e.g MAINTAINER Acada learning
+
+-COPY . . = this means copy from this current directory and paste in current directory
+
+-ADD = works like wget, it pulls  stuff from web into docker (wget pulls into linux command line, ADD is specific to docker), but you need to specify the destination.  ADD <current location> <destination>. use as 
+
+e.g ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.67/bin/apache-tomcat-9.0.67.zip /opt
+
+-RUN = is executed while BUILDING an image (RUN helps to executes our linux commands in our local environment from top to bottom) e.g RUN mkdir France (when we do "docker build", RUN will be going in the background?).  It is always good to reduce the RUN commands, using && and \ e.g  
+
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.67/bin/apache-tomcat-9.0.67.zip /opt 
+RUN mkdir show
+RUN adduser tomcat
+RUN cd /opt
+RUN sudo apt-get install unzip -y
+RUN unzip https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.67/bin/apache-tomcat-9.0.67.zip
+
+NOTE: limit the use of RUN command, in order to do that, we can do the below;
+
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.67/bin/apache-tomcat-9.0.67.zip /opt
+RUN mkdir show \
+&& adduser tomcat \
+&& cd /opt \
+&& sudo apt-get install unzip -y
+&& unzip https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.67/bin/apache-tomcat-9.0.67.zip
+
+NOTE that we added "&&" and \. \ is usually at the back of the command to show that a command still continues even if it starts on another line
+
+
+-CMD = is executed while running a CONTAINER ("docker run") - 
+
+-Syntax 2 types:
+1-Shell form = RUN/CMD can be executed in Shell form
+
+2-Executable form = RUN/CMD can also be performed as an Executable form
+
+Shell form:
+RUN <command with argument> e.g RUN mkdir shola
+
+Exectuable form:
+RUN ["command" , "Arg1" , "Arg2"]
+
+
+Example
+
+CMD java -jar springapplication.jar
+
+CMD ["java" , "-jar " , "springapplication.jar"]
+
+CMD ["ls" , "/"]
+
+CMD ["ls" , "/opt"]
+
+
+NOTE: use alpine image, they are light weight images (docker pull alpine image when needed). Alpine is a Linux distribution like redhat etc
+To see the path of any images , go to your dockerhub, find the image and click tag and select latest or the name of the images, it will show you the path and all the info you need.
+
+docker run --name nexus -d -p 7000:8081 sonatype/nexus
+
+curl -L 54.234.97.101:8081/nexus = to check if you application is working (used IP:port/nexus to check if it is working)
+curl -L IP:port/nexus
+
+
+
+
+BABATUNDE AND ONYINYE
+
+For any version of Nexus image. I put the following up on docker but no one confirmed if it worked. It worked all the time for me as long as you are 
+From Rejeeve Mohan to Everyone 09:27 PM
+can we all mute plz. its a bit noisy in background
+From Onyinye M to Everyone 09:29 PM
+I pulled the image with 1)   docker pull sonatype/nexus    on 2) 8081. I viewed the url on  3) dockerIP:8081/nexus. No need to enter the container. Please give it a go and let us know how it works for you
+https://hub.docker.com/r/sonatype/nexus
+
+
+OCt/07/2022
+
+Continuing on Docker Keywords
+
+Question: can we have a multiple CMD in a Dockerfile? 
+Answer: YES, but with an issue.  Linux usually picks the last CMD command when there are multiple CMD commands
+
+Example:
+
+CMD java -jar springapplication.jar
+
+CMD ["java" , "-jar " , "springapplication.jar"]
+
+CMD ["ls" , "/"]
+
+CMD ["ls" , "/opt"]
+
+
+ENTRYPOINT = They are instructions that will be executed while creating a CONTAINER.  also used to pass arguements
+
+example:
+
+ENTRYPOINT ["echo" , "Hello"]
+
+Hello
+
+In the above example, , Entrypoint will  send back "Hello"
+
+
+Note: When we have both CMD and ENTRYPOINT in a Dockerfile, ENTRYPOINT will take precedence. CMD will not.  However, both of them are used while running a container.
+
+if we do
+
+CMD start
+ENTRYPOINT ["sh", "catalina.sh"]
+
+If we run the above, CMD won't run, because Entrypoint will overrides CMD, so we can pass CMD as an argument, see below example:
+
+ENTRYPOINT
+docker run = sh.catalina.sh start
+sh "sonar.sh start"
+
+
+LAB SESSION FOR CMD
+
+vi Dockerfile_CMD
+
+write
+
+FROM centos
+CMD ["echo" , "From CMD Dockerfile"]
+
+next = build an image
+do = docker build -t cohort1 -f Dockerfile_CMD .
+
+Once the above is done building, do
+
+docker run cohort1 = this should echo "From CMD Dockerfile" above
+
+If we then do docker run cohort1 pwd =  running this argument will override the first CMD ("From CMD Dockerfile")
+
+if we then do docker run cohort1 ls = this will also overides the above (pwd)
+
+
+ENTRYPOINT
+
+vi Dockertfile_ENTRYPOINT
+
+write
+FROM centos
+
+ENTRYPOINT ["echo" ,"From Dockerfile"]
+
+next build an image = docker build -t cohort2 -f Dockertfile_E/NTRYPOINT .
+
+then docker run cohort2 = this should echo "From Dockerfile"
+
+if we then do docker run cohort2 pwd = this wouldn't work because, ENTRYPOINT cannot be overridden. it will only add the command "pwd" to echoed command/words i.e it will display "FROM Dockrfile pwd"
+
+CMD and ENTRYPOINT
+
+vi Dockerfile_CMDENT
+
+write 
+FROM Ubuntu
+CMD ["echo" ,"From CMD Dockerfile"]
+ENTRYPOINT ["ls", "/"]
+
+do = docker build -t cohort3 -f Dockerfile_CMDENT .
+then = docker run cohort3
+only the ENTRYPOINT command will run = i.e ls will work, it will list the root directory.  CMD will not run.  Meaning Entry point has overridden the CMD command.
+
+
+Executable form:  (Parent process)
+CMD ["ls", "/opt"]
+ENTRYPOINT ["echo" , "Hello"]
+
+OR
+
+CMD ["sh" , "sonar" , "start"]
+ENTRYPOINT ["sh" , "catalina.sh" "start"] = it is recommended to use the executabe form.  When running the Exectuable form, the process cannot be killed, except you use a graceful shutdown
+
+Shell forrm: (Child process)
+CMD java -jar springapplication.jar
+ENTRYPOINT java -jar springapplication.jar
+/bin/bash or /bin/sh
+This can be shutdown easily.
+
+Shell automatically picks any of the above shell
+
+SIGNALS
+PID 1 = process that runs when we start or shutdown a system.
+
+Question: What problem(s) did you face while executing your project?
+
+Answer: One problem I faced was when I was doing CMD and ENTRYPOINT commands, when running a dockerfile.  I put the two keywords in a dockerfile, and figured out that only the ENTRYPOINT command was running.  How I solved it was that I pass the CMD command as an arguement in the ENTRYPOINT keyword.
+
+another problem I encounterred was that I created a CMD and ENTRYPOINT commands in dockerfile using the shell form (child process), I noticed my process were short-lived, and were been killed, so what I did was that, I converted the  shell form ( which is basically sh/bash) to Executable form (parent form)
+
+Example
+vi trusty
+
+FROM ubuntu:trusty
+CMD ["/bin/ping" , "localhost"]
+
+docker build -t cohort4 -f trust .
+
+docker run cohort4
+
+The outcome is a pinging of a localhost.
+Again this is us running a container without using -d (detachable mode)
+
+
+ENV:
+for jenkins
+
+JENKINS_HOME /var/lib/jenkins
+
+- env = a command to show the environmental variable
+
+Example:
+
+vi show
+
+FROM ubuntu:trusty
+ENV name="Ade"
+ENTRYPOINT ["/bin/echo" , "Hello, $name"]
+
+:wql
+
+then do docker build -t cohort5 -f show .
+docker run cohort5
+
+Efe to get back to us on how to call varibale on the above.
+
+
+-EXPOSE: an application listens on an exposed port.  Expose is synonymous to default port number of the application.  So basically, there is container port and there is application port.  when we run an application in a container, what we are doing is, we are connecting to the container port, which in turn is talking to the application exposed port ( which is default application port number.)
+
+so when we do docker run --name hecks -d -p 700:8080 tmocat:latest (the 700:8080 is called port binding)
+
+NOTE: if running a container without putting '-d' (detachable mode), it will run the container in your command line.  
+
+
+
+-WORKDIR = this is where you set as your work directory, where you or system put your work e.g 
+WORKDIR /opt
+
+WORKDIR /opt/sonatype
+
+
+-VOLUME = is like an empty harddrive that we save data in e.g go on dockerhub and search Mongo, check the tag and find "VOLUME".  you will se VOLUME [/data/db ....]
+
+LABEL = is just like a maintainer, to write what a container is doing and other information and criteria.  Just pass label of what you are doing
+e.g LABEL name=Nexus Repository Manager.
+
+Maintainer is just to pass the owner of the image
+
+USER = to pass name of the image? e.g USER nexus
+
+ARG = used to define a parameter and its value
+
+
+Types of Dockerfile?
+
+Singlestage Dockerfile : contains only one FROM
+
+FROM ubuntu
+COPY
+ADD 
+RUN
+etc
+
+
+Multistage Dockerfile: contains a lot of FROM.  Recommended to run multistage dockerfile and the reason is 
+
+-helps to reduced the number of RUN Keyword you use
+-helps to reduce the size of image you are building e.g
+
+FROM ubuntu
+...
+...
+...
+
+FROM tomcat
+...
+...
+...
+FROM
+
+Singlestage dockerfile Example:
+
+FROM centos
+RUN yum install java -y
+RUN yum install maven -y
+RUN yum install wget git unzip zip -y
+RUN git clone https://github.com/ykgithuber/web-app.git
+WORKDIR web-app
+RUN maven clean package
+RUN wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.67/bin/apache-tomcat-9.0.67.zip
+Run unzip apache-tomcat-9.0.68.zip
+COPY target/*.war /user/local/tomcat/webapps
+CMD ["catalina.sh" , "run"]
+
+Multiplestage dockerfile example
+
+FROM alpine/git as repo
+MAINTAINER acadalearning@gmail.com
+WORKDIR /app
+RUN git clone https://github.com/ykgithuber/maven-web-app.git
+#maven
+FROM maven:3.5-jdk-8-alpine as build
+WORKDIR /app
+COPY --from=repo /app/maven-web-app /app
+RUN mvn package
+#Tomcat
+FROM tomcat:8.0.20-jre8
+#COPY /app/target/*war /usr/local/webapps/maven-web-app.war
+COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/
+
+
+
+NOTE:
+sed = command to separate words, has many use. complex a bit
+
+e.g
+read about sed bro!
+echo "Bash language" | sed 's/\(Bash\)/Learn \1 programming/'
+
+
+NOTE TO SELF: to use RUN, you need to be building an image (you pass your RUN commands when building an image). 
+To use CMD you need to be running a container (which means, you build an image first and then you run it and pass your your CMD command)
+============================================================================================================================================================
+
+
+
+
+
+
+
+

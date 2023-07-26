@@ -1,0 +1,57 @@
+ELASTIC CONTAINER REGISTRY Oct 19, 2022
+
+Pushing Docker images to Dockerhub 
+
+To push docker images to Docerhub we need username and password,
+
+We can push to 
+Azure
+ECR = Elastic containeer Registry
+GCP etc
+
+Today we will be pushing to ECR (on aws)
+
+Step 1: To do that, we need to create ECR account, 
+-search ecr on aws search box
+-Elastic container Registry will pop up, select it
+-select create repository
+-then select private ( you can decide to create public registry too)
+-click create repository
+-Once that is created, click view push commands, 
+-on your docker cli, do sudo apt install awscli
+
+Step2: creating a programmatic IAM role
+-Create your programmatic access key by going back to the console and search IAM
+-select IAM
+-create user if you don't already have one
+-select role and then select 
+-select AWS service and then check the box next to EC2, and then click next
+-On the next page, serach for "AmaxonEC2ContainerRegistry" and enter, 
+-then select AmazonEC2ContainerRegistryFull Acess
+-on the same page, search AmazonEC2ContainerService" and select AmazonEC2ContainerServiceRole" ( to read more about the policy you are attaching, you can just click on the policy name or check the box and expand it)
+-click next and give it a name and tag (optional)
+-then select "Create"
+-review.
+-Once created, you can either attach the policy to your instances or create programmatic access
+- In the class, we are attaching the policy or role.
+-Go to your instances (running instances you want to attach the role to), check its box and select actions at the top right, select seucurity and then select Modify IAM role
+-On Modify IAM role page, click the choose IAM role box and attach the role you just created.
+-Click update IAM role
+
+Step3: Configure your awscli
+- Go back to the ECR "push command for the <appname>" you want to push
+-copy the first command there  and paste in your awscli to give you acesss "aws ecr get-login-password --region..."
+-git clone your github url  first and cd into the .war or.jar app.
+-and mvn package (install maven if you don't have it already, use sudo apt install maven)
+-go back to the push command page and copy the second command to build your image "docker builg -t mave-web-app ." 
+-go back to the push command page and copy the third command ( this is basically to tag your image to give it aws ecr tag)
+-go back to the push command page and copy the fourth command ( this is basically to push the image to aws ecr.  docker push <awsimgID> )
+-Once successful, go to back to your ECR page, click on your repository name and see if your image was successfully pushed
+- to pull you do "docker pull <awsimageID>""
+
+
+NOTE: why are we creating roles and addinng policies? : this is to give ubuntu (user) the access or priviledge to perform image push task to our cloud repository.
+
+Follow view push commands screen
+
+Summary: but what we are doing is pushing our image to AWS ECR

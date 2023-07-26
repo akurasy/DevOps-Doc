@@ -1,0 +1,246 @@
+JENKINS intgration with SMTP server
+
+Go to Manage Jenkins
+Manage plugins
+then search for Extended Email Notification under available in jenkins and installed.
+Go to Manage Jenkins again
+Then go to Configure system
+
+Scroll down to Extended Email Notification
+
+In the SMTP server box: enter = smtp.gmail.com
+SMTP port = 465
+Default user email suffix = enter your email
+
+Default Content Type = Plain text (text/plain)
+List IDF= read about it
+
+Default Recipients = you can put it manually or put in as a variable e.g $email.txt
+Reply to List= enter the list
+
+Defualty subject = system would automaticlly fill in the variable of the project
+maximyujm attachment size = set it up , increase or decrease to taste
+
+Default Content = System auto put variable in it
+
+After the above setup
+
+Go baack to your project and configure by selection add post step and select email notificaiton or extended email notifiaciton
+
+command to update the date in your CLI = sudo timedatectl set-timezone America/New_York
+
+
+
+JENKINS ENVIRONMENT
+
+Discard build to show any number of build specified
+
+Disable project = helps disable a project till a time when when you are ready to build the projeect again , then you would enable the project
+
+Delete workspace before build starts = helps delete old workspace and then build.
+
+categorization of jobs/projects = this is like creating a folder and putting different things in it.
+
+Add Timestamp = add time to every action in console outpout
+
+
+Build triggers:
+
+Why build triggers?
+
+-to Automate build processes in Jenkins
+
+-
+
+1- Build Periodically = to automate jenkins to build every minute or hour or intervals set up
+
+Crontab = process that helps run our automated process periodically
+
+Cronjob = passing the cron inforamation
+
+There are 5 crontabs and they all starts with 5 stars:
+
+* * * * *
+
+ * = minutes
+* * = Hour
+* * * = days of the month
+* * * * = month
+* * * * * = day of week
+
+There is crontab Generator to make life easy. just go to 
+
+crontab-generator.org = once generated, just copy the cronjob, ignore the the commands at the back.
+
+Insert the cronjob generated in build triggers under Build Periodically
+
+
+2- Poll SCM = Poll Source Code Management = Jenkins Queries github repo at intervals to check for new commits.  If there is a new commit, Jenkins would do a build, if not new commit, Jenkins would not do a build.  We still use cron here.
+
+3- Github webhook = works like poll scm but differrent. Unlike poll scm.  So basically github webhook allows Github to notify and deliver newer commit to jenkins.  To congifure it, go to your github.  
+
+- then select settings
+
+- scroll down to webhook and selects
+
+-Add webhook
+
+-go down to payload URL and insert jenkins URL publiIP:8080/github-webook/ (http://52.207.242.56:8080/github-webhook/)  = remember to put /github-webhook/
+
+-Content type = apllication/json or whatever language
+
+-go down to which events would you like to trigger this webhook?
+
+- dont' worry about "secret" boc
+
+select "Just the push event"  or send me everything ( not smart),  you can chose individual too more like customized
+
+-save and generate the webbook.
+
+
+Now go to the project on jenkins
+
+-Then Configure
+
+-scroll down and select GitHub hook trigger for GUTscm polling
+
+4 - Build other projects = helps set the next project to build after the first is built.  basically the second project to build watches the first one to finish building before it starts automatically
+
+
+JENKINS PLUGINS
+
+Go to manage jenkins
+
+select plugin
+
+1-you can install jacoco plugin
+
+To apply it, configure your project and do post build actions, select your plugin or jacoco plugin
+
+Jacoco is like sonarqube
+
+2-safe restart = use to gracefully restart Jenkins. it will finish all builds before restarting. 
+
+3 - next build number =  helps to specify the number that needs to build next manually, instead of doing, orderly. so for example, if we are already on build 12, and the next build is 13, we can make the next build be 50, using the next build number plugin. 
+
+4 - Build Name and Description setter = instead of using build number, this plug in would allow us to give a build a name and description (in addition to the number)
+
+Assignment
+
+Terminate all your instances and re provision all
+
+Leave out your server as is and do slack notification integration
+
+=============================================================================================================================================================
+
+Plugins continue
+
+SSH Agent
+
+sonarqube scanner
+
+Audit trail= helps keep track or log of everything we do on jenkins.  Go to configure syste and scroll down to Audit trail, select loggers. and name location as audit-trail.log ( name it anything .log). set size to whatever you feel like e.g 10mb.  So what happens is that, when you are using your system and the audit trail log is filled up until 10mb, it creates another trail and continues creating till it reachs "LOG FILE COUNT" you set, then save.   Build and then go to Jenkins CLI and sudo su - jenkins, do ll and cat audit-trail.log
+
+Schedule build = to schedule a build and go to sleep lol, but you must ensure that  you test and the project passed, you can do this.
+
+Blue ocean = a beautiful interface that displays everything. you can run everything on it as well too. you need to build in jenkins too
+
+Publish over SSH = just same way we publish using maven and tomcat.
+
+ThinBackup =  is like a backup for your application, backup pipleine, backup manager.  Will be found under manage jenkins
+
+job import = to move from one jenkins instances to another
+
+convert to pipeline = convert project from e.g freestyle to pipeline
+
+maven integration = this is installing maven as a plugin
+
+NodeJS
+
+Deploy to weblogic
+
+Cloud foundry
+
+Artifactory
+
+Build with parameters = allows user to provided parameters during build e.g user name etc.  Boolean parameter e.g true/force parameter etc. credentials paramater, set credentials, if its passed the credentials parameters, that's when it builds. Once parameter is set and you apply and save.  Build now changes to Build with parameter.  This is to gate the project and get user to provide credentials as identification
+
+For RedHat
+sudo vi /etc/sysconfi/jenkins = this is where you go to change your Jenkins port 8080, Home Directory (can also be changed to something else in this file)
+
+sudo service jenkins restart = to restart jenkins
+
+For Ubuntu
+sudo vi /etc/default/jenkins
+
+change the default port
+
+sudo service jenkins restart
+
+Maintain a strong password policy
+SSO = okta, twingate, onelogin
+
+Creating a user in jenkins
+
+- Go to Manage Jenkins
+-Select Manage user
+-Create new user
+
+How to create access privilige
+
+-Go to Manage Jenkins
+-go to Configure Global Security
+-Authorization = matrix based security = Add user (give it a name) = now check the access you want to give new user
+-
+
+
+LDAP server = access management. You can provision instances and set different access on it.  different departmant security etc. So basically you can have 3 devops 2 QA 10 developers.  LDAPS would allow you to create Group permision.  So for example you have set Devops = admin, and developers = read write.  You can then assign this group permission to assign permission to maven for developers and other departments and apps.
+	
+	maven
+	jenkins
+	sonarqube
+	nexus
+	tomcat 
+	gitlab
+	kubernets
+	terraform
+
+	Saas
+	Paas
+	Iaas
+
+Jumpserver
+bastonhost
+
+Day to  day (interview)
+
+standup
+gmail
+slack
+continue my task from a day before I don't finish
+Gave a project to configure end to end pipeline, we look at the plan and infrasture, I called my team, and draw a plan of how the process would flow.
+Run end to end pipeline
+
+Break down nexus , how you configure
+
+and other servers too.
+
+
+Configuring LDAP in Jeenkins
+
+To configure Ldap in Jenkins
+
+You need to install LDAP server like how you installed Jenkins server (look for documentation to and get the script)
+
+After, go to Configure Global security
+
+Then select LDAP from the security box
+
+In the server box paste LDAP URL = <publicIPofLDAPserver:8080>
+
+
+==============================================================================================================================================
+
+PROJECT 1
+
+Build a webapp using all the tools learnt in class

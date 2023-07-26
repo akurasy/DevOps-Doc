@@ -1,0 +1,244 @@
+JENKINS SHARED LIBRARY  Sep 24, 2022
+
+JENKINS FILE
+
+- We can put pipeline script in a github to add a layer of security to it, instead of showing it plainly on jenkins front end.  We can put it in a file in github and name iit the project name and the type of Groovy script we used.
+
+-To do this Create a file in Github and paste your declarative script (usually you git ppush it into github)
+
+-Go to your jenkins front-end and create a new pipeline project if there is need to
+
+-select source code as GIT and the pipeline should be pipeline SCM
+
+-Once the above is selected, you can input your cloned URL from Jenkins of now updated repo
+
+-Then at the bottom of the page, you MUST put the declarative file name you are trying to run here, but it MUST be the same as the one in github.
+
+
+This example below can be seen as a JENKIN FILE
+
+JENKINS FILE 
+
+//scripted
+node(""){
+def mavenHome = tool name: "maven 3.8.6"
+stage('1.initiation'){
+sh "echo start of web-app application"
+}
+
+stage('2.GitClone'){
+sh " echo Start of Gitclone"
+git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'
+}
+
+stage('3.Build'){
+sh "echo Start of Build"
+sh "${mavenHome}/bin/mvn package"
+}
+
+stage('4.CodeQuality'){
+sh "echo start of SonarQube Analysis"
+sh "${mavenHome}/bin/mvn sonar:sonar"
+}
+
+stage('5.BackupArtifacts'){
+sh "echo start of Nexus"
+sh "${mavenHome}/bin/mvn deploy"
+}
+
+stage('6.DeployToStaging'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('7.ApprovaltoUAT'){
+sh "echo Approval needed"
+timeout(time:5, unit:"DAYS"){
+input message:'Approval for UAT'
+}
+}
+
+stage('8.DeployToUAT'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('9.Approval'){
+sh "echo Approval needed"
+timeout(time:2, unit:"DAYS"){
+input message:'Approval for Production'
+}
+}
+
+stage('10.DeployToPProduction'){
+sh "echo start tomcat  deployemnt"
+deploy adapters: [tomcat9(credentialsId: 'tomcat-cred', path: '', url: 'http://54.205.119.80:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
+}
+
+stage('11.EmailNotifications'){
+sh "echo Send Email Notificaiton"
+emailext body: 'Build success', recipientProviders: [developers(), buildUser()], subject: 'Build success', to: 'yinka_shola@yahoo.com'
+}
+}
+
+We write the script above and then copy and paste in a file in github.  We can write anytype of script, scripted or declarative etc.
+
+
+
+JENKINS SHARED LIBRARY:
+
+analogy, everybody sharing on book from a library
+
+sharing projects with different configuration 
+
+The projects are in a library /repo
+
+Shared library is a source of library for projects to reference
+
+Shared Librabry has 
+
+common.build
+common.nexus
+common.sonar
+
+NOTE: for example we have different projects in Jenkins, they might have tthe same source code or different code, but they all have the same process of builing, testing, artefact  and deploying them.  We can have a common library to run these processes, to reference the library to build, test, and backup etc.  This is esp useful when your company has a lot of java/maven projects e.g like 40 /50 projects, it will make the process of building or test etc faster, wouldn't make sense to do mvn package etc for each
+
+Jenkins shared library Syntax
+
+//Jenkins Shared Library
+
+@Library('nameoflibrary') _
+pipeline = if doing declarative
+
+
+
+ON YOUR JENKINS
+CREATE NEW PROJECT
+PASTE THE FOLLOWING THE PIPELINE
+
+
+//Jenkins Shared Library
+
+@Library('cohort8-sharedlibrary') _
+pipeline{
+	agent any
+	tools{
+		maven "maven3.8.6"
+	}
+stages{
+	stage("Git Clone"){
+	 steps{
+	     git credentialsId: 'ykGithub-cred', url: 'https://github.com/ykgithuber/web-app.git'
+	 }
+	}
+	
+    stage("Build"){
+        steps{
+            common("Build")
+        }
+    }
+    
+    stage("SonarQube Report"){
+        steps{
+            common("SonarQube Report")
+        }
+    }
+    
+    stage("Upload Into Nexus"){
+        steps{
+            common("Upload Into Nexus")
+        }
+    }
+}
+}
+
+
+After we create and save, we need to configure the shared library in the backend in (jenkins front end)
+
+-Go to manage jenkins
+
+-configure system
+
+-Look for Global pipeline library
+
+-Click ADD
+
+-Add your Library name = must be the same as the library name in your shared library syntax
+
+-Default version = branch you are using , in this case master
+
+-select the box Allow default version to be overriden
+
+-Include @library changes in job recent changes
+
+-Retrieval methods could be either Modern SCM or Legacy SCM = leave as is
+
+-Source Code Management = Git or Github = we selected Git (can try github too)
+
+-Project Repository = clone  and insert your github shared library url
+
+-add your github credential
+
+apply and save
+
+
+Multi pipeline
+
+This is telling Jenkins to grab from multiple branch to build our project
+
+if ${branchName}  == dev
+
+sh deploy to prod
+
+else if ${branchName} == *
+
+sh mvn package
+
+
+
+web-app: 1 URL
+
+Branch 									Environment
+dev 										Dev
+
+
+
+stages										UAT
+
+
+
+
+Main/Master									prod
+
+
+Branch = source code repository based
+
+Environment = server based, where we deployed into.
+
+
+Some companies have only one Branch : e.g MAIN/MASTER
+
+They first push their build web-app to DEv
+they then move it to UAT,, then move to Prod
+
+Some companies might have different branches
+Dev once built they move to Dev environment, once it is good, they then move to 
+
+Stage branch, then they deploy to UAT environment, they then move to Master or Main 
+
+where they would now deployed to Production environmant, of course they would need approval here
+
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About

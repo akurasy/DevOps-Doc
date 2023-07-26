@@ -1,0 +1,1693 @@
+ AWS - AMAZON WEB SERVICES
+=========================
+Why AWS? Reason for AWS selection is that 35% of market share is basically AWS related, AZURE 18% and GCP has lower than that, 
+and other cloudproviders take the rest. Most jobs are on AWS.
+
+AWS is a Cloud Service Provider:
+
+Advent of Cloud providers stem from flexibility, scalability, elasticity.  Organization want to have economy of scale.  Flexibility with Shutting
+ servers down when you don't need them anymore
+
+You do not need to have on-prem (on-premises) resources: Servers, Routers, etc
+On-prem is expensive, high maintenance.
+
+Company A (TD Bank): Before the advent of cloud services. Company A plans for on-prem resources, laptop, servers etc, so let's say
+  Time: 8am - 10am = about 1000 users are on the TD banking app (lot of people)
+        10am - 2pm = incs to 2000 users ( a lot more people)
+        2pm - 6pm = 1500 users (users dropped)
+        6pm - 11pm = 750 users (users further dropped)
+
+    In the scenario above, for an on-prem org, the max users of their app is about 2000, this means they probably designed the app for 2000 users, and 
+    then they would have servers and routers and all set up for 2000 users.  So what happen is that 
+
+  Capex(capital expenditure for company A): = very high = they spending so much money planning for 2k users and what happens when users drop to 750, it means
+  they have a lot of underutilized resources ---waste
+  OpEx(Operating expenses): = high = money for maintenance, money for employes, to cool etc. so it is quite expensive
+
+
+  This is how Cloud providers came into the picture: - eg AWS came into the picture
+  Lots of headache associated with on-prem configurations have been taken care of. (issues of (i)scalability and (ii)elasticity have been solved, 
+  (iii) Data persistency - can get your data anytime you want)
+
+
+  - (i) Autoscaling is highly achieved with cloud = with cloud, you can scale up and down as required.  
+
+Week 1: - I need 10GB of storage (on-prem you buy 10gb)
+Week 2: - I now require about 100GB of storage (following week, workload incs, now you need 100gb, so you purchased extra 100gb)
+Week 3: - I no longer require any storage(now you don't even need the storage anymore, so what happens, you find it difficult to dispose)
+
+Cloud service providers solved for the issue above.
+
+Concepts in Cloud Services:
+  1. IAAS: Infrastructure as a Service = e.g AWS gives you EC2 instance, you just click to provision and pay for what you use ( if not free tier)
+     For eg; EC2 instance, EBS, S3 buckets
+  2. PAAS: Platform as a Service
+     For eg; EKS (Elastic Kubernetes Service) - AWS manages the master node / control plane in EKS.  Note-AWS have a baremetal, a physical location they keep their stuff
+  3. SAAS: Software as a Service = no need to install, just pay and use.
+     For eg; MS 365, SonarCloud, Github, AWS Cloudwatch
+---
+  IAAC: - Infrastructure as a Code
+     For eg: Terraform, Ansible, Cloudformation
+
+AWS has:
+  - Regions: (for eg; us-east-1) = regions are basically virtual locations in aws that houses physically located areas known as availablitity zones. 
+  Some regions have 1 or 2 or mora AZs
+      - Availability Zones (AZ): For eg; us-east-1a, us-east-1b, us-east-1c
+      note: not a good practice to provison a resouce only in one AZ, is good to backup in different AZ in case one AZ goes down,you can grab another
+
+Considerations in creating resources in AWS:
+  1. Pricing = might want to check differrent regions price
+  2. Latency = low latency = high speed
+  3. Service availability = if some services are not close to you , you might consider looking into other regions /AZ
+  4. Resource type = sometimes, different regions don't have the same resources, you might want to look around to see which one has the resources you are looking for
+  5. User location = might also want to consider regions close to your customer, consider latency, service availability, pricing etc.
+  6. Security and Compliance requirement in that area = need to put this into consideration too. Each countries have their compliance requirement and laws
+
+
+Latency: This is the time/speed it takes a user to communicate with an application.
+  - High Latency: higher communication time between a user and an app, slow communication, lag etc - NOT GOOD
+  - Low Latency: <desired> = high speed - GOOD
+
+Types of Cloud Computing:
+  - Public: AWS, GCP, MS Azure, IBM, Oracle, AliBaba
+  - Private: on-prem
+  - Hybrid: Combination of public and private cloud
+  - Multi Cloud: For eg an organization utilizing the service of more than 1 cloud provider (eg AWS and GCP/MS Azure)
+
+
+AWS:
+  EC2: - Elastic Cloud Compute
+  EBS: - Elastic Block Storage = stores data in blocks and can attach to EC2 instance
+  EFS: - Elastic File System = also an expansible persistent way of storing data(files/logsetc) too but cannot attach to EC2 instance but you can mount it
+  S3 Bucket: - Simple Storage Service = the biggest storage in aws.  has globally uniqe name, it is a regional service
+  VPC: - Virtual Private Cloud;= smaller clouds in a bigger aws cloud, consist of;
+      - Subnets = can create only one in one  AZ
+      - NAT Gateway, = a resource thhat allows you internal access to IGW. NAT Gateway is mounted to public subnetw =that allows comm with internet
+      - IGW - Internet Gateway = it is mounted to your vpc
+      - Route Tables = allows traffic routing
+      - etc
+  ECR: - Elastic Container Registry
+  IAM: - Identity and Access Management
+  ELB: - Elastic Load Balancer: balances loads on nodes
+  ASG: - Auto Scaling Group: scale up and down resources based on the traffic requirement.
+  Route53: for Domain Naming Resolution, can also be used as loadbalancer (we are not talking abt this its advanced)
+  Cloudformation:
+
+DNS: - Domain Name Service
+
+172.10.12.14:80        www.facebook.com
+
+DNS: ayodeji.com
+CNAME: app.ayodeji.com ----> elb.hadcvkbiudslb.673256248498@elb:80 ----> 172.10.12.14:80
+
+
+.............................
+1-EC2: - Elastic Cloud Compute
+-----------------------------
+By default, an EC2 instance comes with an EBS volume / instance volume
+- When the instance is terminated, by default, the default EBS volume gets terminated as well
+
+If you create an EBS volume and attach it to an EC2 instance
+- When the instance is terminated, the EBS volume remains (persistent)
+
+
+Intance Pricing/Purchasing options:
+  1. On demand
+  2. Reserved
+  -------dedicated host
+  3. Spot
+    - 70% usage capacity (USED)
+    - 30% spare capacity
+      - 10% can be placed as contingency
+      - 20% goes into auction
+        - ClientX - $5,000
+        - ClientY - $9,000
+        - ClientZ - $11,000 (Bid winner)
+
+        - ClientW - $15,000 (New bid winner)
+
+AMI: - Amazon Machine Image
+
+IP Addressing:
+  1. PrivateIP
+     - This IP does not change .... it is permanent
+  2. PublicIP
+     - This changes when you terminate and restart an instance
+  3. ElasticIP
+     -  This makes the PublicIP permanent
+
+
+Download: drawio
+
+----------------------------------------------------------------------------------------------------------------------
+
+Dec-17-2022
+=====================================
+  EBS: - Elastic Block Storage
+  EFS: - Elastic File System
+  S3 Bucket: - Simple Storage Service
+
+EBS: - Elastic Block Storage:
+  - This is an AZ (Availability Zone) resilient service
+  - Allows for database backup/storage
+  - Allows for data persistency
+  - Gives room for volume expansion (expansion is done upwards only)
+  - Snapshots can be created
+    - By default, AWS stores the snapshot in an AWS managed S3 bucket
+
+Labs:
+  - Provisioned an EC2 instance in us-east-1a
+    - The default EBS volume is in us-east-1a (vol-0c6d980533c06be81)
+    - Newly created volume: c8-ebs (vol-062b987695072d373) <---Create new volume and attach it.  Prof said you always have to go through the Cli
+    to mount the volume, but I was  onlyable to attach in GUI.
+
+-We SSH into into our instances (I provisioned amazon linux)
+-then used the command "lsblk" = this shows the volume we have.  see below
+
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0   8G  0 disk
+└─xvda1 202:1    0   8G  0 part /  <----the slash means this is the current mountpoint
+xvdf    202:80   0  10G  0 disk
+
+-next we mkdir var/lib/jenkins
+
+-next in ec2user directory we checked if we have file system in the new EBS volume we aatached, to check
+we ran the command "sudo file -s /dev/xvdf" if it outputs "data", then it is empty and doesn't have a filesystem (more like formating the empty volume),
+if it however outputs things like ( /dev/xvda1: SGI XFS filesystem data (blksz 4096, inosz 512, v2 dirs), then skip the below step and move on the next one.
+
+- make a filesystem on the volume ONLY if it doesn't already have a file system = sudo mkfs -t xfs /dev/xvdf  (if xfs isn't installed in your cli install with sudo yum install xfsprogs)
+
+-Use the following command to MOUNT the volume at the directory you created in the previous step (var/lib/jenkins) = sudo mount /dev/xvdf var/lib/jenkins
+
+To confirm if you have mounted the volume in your instance = lsblk, see below;
+
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0   8G  0 disk
+└─xvda1 202:1    0   8G  0 part /
+xvdf    202:80   0  10G  0 disk /home/ec2-user/var/lib/jenkins  <---- this is the confirmation that we have mounted our EBS
+
+
+
+
+
+Key.pem: = c8-test.pem
+PubIP: 18.206.247.244
+
+
+AWS Documentation: https://docs.aws.amazon.com/index.html
+
+Mounting and EBS volume to an EC2 instance:
+  https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html
+
+
+  BELOW IS THE SAME AS I HAVE DETAILED ABOVE
+
+Format the EBS volume:
+  sudo file -s /dev/xvdf
+
+Create a file system:
+  sudo mkfs -t xfs /dev/xvdf
+
+
+if you encounter an error, refer to aws ebs documentation online.
+
+Mount the volume:
+  sudo mount /dev/xvdf /var/lib/jenkins
+
+Summary:
+  EBS:
+    1. Provisioned an EC2 instance
+    2. Created an EBS volume
+    3. Attached the EBS volume to the EC2 instance (via the console)
+    4. Formatted the EBS volume
+    5. Created a file system
+    6. Mounted the EBS volume to the EC2 instance
+
+  Creating a Snapshot:
+    1. Created a snapshot from the EBS volume in us-east-1c (doing this incase there is a disaster with AZ us-east-1c)
+    -so to create snapshot on the EBS volume we created
+    -go into volume on the aws console, select your ebs volume you want to create snapshot for
+    -click actions on the top right corner and click create Snapshot
+    -click Snapshot on the left pane to confirm the snapshot you created has truly been created
+    -The snapshot created, we can't see it, it is saved in s3 managed aws bucket
+
+    2. Created a volume from the snapshot and sent that to us-east-1b.
+    -How we did  2 is that We basically selected action at the top right on the snapshot page and click create a volume from Snapshots
+    -next page that opens we then select availability zone us-east-1b
+    -to attach us-east-1b, we need to create an instance in availability zone us-east-1b
+    -Above is us basically backing up the data from one instance in one AZ to another instance in another AZ.
+
+
+EFS - Elastic File System:
+  - Scalable: in and out
+  - Simple:
+  - Elastic:
+  - Cloud-native NFS file system:
+    - EFS: Linux based OS
+    - FSx: Windows based OS
+
+TO mount EFS, Created the servers: (us-east-1a): c8-test.pem
+  - buildServer (54.204.73.173):
+      ssh -i "c8-test.pem" ec2-user@54.204.73.173
+  - appServer (52.91.35.109):
+      ssh -i "c8-test.pem" ec2-user@52.91.35.109
+  - webServer (54.88.126.9):
+      ssh -i "c8-test.pem" ec2-user@54.88.126.9
+ 
+  Other commands: 
+    sudo hostname <>
+    sudo su - ec2-user
+
+Steps:
+  1. mkdir efs (this was carried out on all servers)
+  2. The NFS agent to be installed on all servers:
+     - sudo yum install nfs-utils nfs4-acl-tools -y
+  3. Mounting using the NFS client from the EFS console:
+    -go to efs console on AWS
+    -create a EFS
+    -Attach EFS and select Mount vid DNS, it will generate something like the command below, copy the command on your console and install in all 4 servers
+    -sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-02560823614c09798.efs.us-east-1.amazonaws.com:/ efs
+  4. cd efs (on all servers)
+  5. Create any file / directory on server1 and view these files/directories on server2 and server3 (if you create anything on server 1 it will replicate in server 2 and server 3)
+note: always remember to turn your EFS while provisiooning the EC2 instance
+
+EFS Documentation:
+  https://docs.aws.amazon.com/efs/latest/ug/installing-amazon-efs-utils.html
+
+Recommended Course:
+  Udemy / Coursera:
+    - AWS Solution Architect Associate
+    - AWS Cloud Practioner
+
+
+S3 Bucket: Simple Storage Service
+  Used for object storage
+    - Images
+    - Videos
+    - EBS Snapshots
+    - Logs from websites etc
+
+  Properties:
+    - Maximum object storage size = 5TB
+    - A maximum of 100 buckets (soft limit) can be created in an AWS account
+    - S3 bucket names must be globally unique
+    - S3 bucket allows versioning
+    - S3 bucket is a region resilient service but global in nature
+
+  S3 Bucket Payment Plans:
+    - Standard --> most expensive
+    - Infrequent Access (IA)
+    - Reduced Redundancy Storage (RRS)
+    - Glacier ---> least expensive
+
+In the Console:
+  -search for s3
+  -On the page that opens, Click "Create a bucket"
+  -insert a bucket name = has to be globally unique
+  -Select your region
+  -By defect ACL disabled
+  -leave all as is, upto your
+  -Create buckets
+
+  Some functinalities of the buckets:
+    -Click on the bucket you c related
+    -Enable versioning- once enabled, you cant disable anymore
+    -Save changes
+    -Next add tages key = name, tag = cohort8
+    -next check metrics, managemanent (create lifecycle rule; go through everything in lifecycle rule and its actions; move current versions fo objs btw storage classes selected) etc
+    -create a permission or policy (can even use policy generator).
+
+    -We can upload files and folders in s3 buckets
+    -we can upload files in the folders 
+    -The only way to view files uploaded is to be signed in to the console and click open on the top right corner.
+    -if we open the link provided on the file page in aws console, it will show access denied.
+    -if you upload same file at the different time, it will make the recent upload as the latest.
+
+
+  What AWS sees in the S3 bucket are just objects not folders:
+    - maxresdefault.jpg
+    - /test/maxresdefault.jpg
+
+===================================================================================================================================
+
+Dec 20th, 2022
+
+  Virtual Private Cloud (VPC):
+  - Regional Service in AWS
+
+Subnets:
+  - Subsets of VPCs, ie it is within a VPC
+  - You can create a maximum of 200 subnets in a VPC
+  - Subnets are AZ resilient
+
+Types of Subnets:
+  - Public Subnet:
+    - jumpServer/Bastion Host, Load Balancer, webServer/apacheServer
+  - Private Subnet:
+    - dbServer, CICDServer, appServer
+
+User ----> webServer(public) ----> appServer(private) ----> dbServer(private)
+
+SUMMARY OF VPC ARCHITECTURE
+- INSIDE A VPC CONTAINS TWO DIFFERENT SUBNETS CALLED THE PRIVATE AND PUBLIC SUBNET
+- THE SUBNETS ARE AZ RESILIENT WHILE THE VPC IS REGION RESILIENT
+- AN INTERNET GATEWAY (IGW) IS CREATED ATTACHED TO THE PUBLIC SUBNET. IGW IS RESPONSIBLE FOR COMMUNICATION BETWEEN THE VPC AND EXTERNAL RESOURCES
+- A ROUTE TABLE IS ATTACHED TO BOTH SUBNETS
+- NAT GATEWAY IS ATTACHED TO THE PUBLIC  SUBNET TO ALLOW FOR INTERNAL COMMUNICATION BETWEEN THE PUBLIC AND PRIVATE SUBNETS AND TO ALLOW INTERNET ACCESS ON THE PRIVATE SN
+
+
+Example of how webaddress works:
+
+DNS: - Domain Name Service
+
+172.10.12.14:80        www.rbc.com   
+
+DNS: rbc.com <---public facing webserver
+CNAME: www.rbc.com/login(public facing microservice) ----> elb.hadcvkbiudslb.673256248498@elb:80 ----> 172.10.12.14:80
+
+
+CIDR Block:
+  Classless Inter-Domain Routing
+  - It is a method of allocating IP addresses and routing within subnets/VPC 
+
+
+AWS CIDR Block Options:
+- 10.x.x.x/n
+- 172.x.x.x/n
+- 192.x.x.x/n
+
+Where x == 0 - 255
+
+CIDR Block Format for an IPv4:
+  xx.xx.xx.xx/n where n: = subnet prefix
+
+Number of IP addresses for a VPC: 2^(32-n)
+
+Number of IP addresses for a VPC in a use case...for having 200 servers/resources:
+if n=16, 2^(32-16) = 2^(16) = 65,536 IP addresses
+   n=23, 2^(32-23) = 2^(9) = 512 IP addresses
+   n=24, 2^(32-24) = 2^(8) = 256 IP addresses ==== This is selected for our VPC(it is selected because it is the closest to 200 resources we need and also allows for buffer).
+   n=25, 2^(32-25) = 2^(7) = 128 IP addresses
+   n=26, 2^(32-26) = 2^(6) = 64 IP addresses
+
+
+VPC CIDR Block: 10.0.0.0/24   ----> to create 200 resources (over all)
+
+NB: By default, AWS holds/keeps about 5-6 IP addresses in the backend to run other process/infrastructure
+
+
+Subnet: We want to have equal distribution of resources in the Public and Private Subnet (since total VPC resourece we want is 200, 
+so 100 in public and 100 in private, however, since we have selected subnet prefix of 24 for our vpc which gives 256 resources, this means we can do 
+128 IP addresses for public and 128 for private Subnet.  OR we use 25 as subnet prefix for private and public subnets)
+  1. Public Subnet: = 10.0.0.0/25
+                      n=25, 2^(32-25) = 2^(7) = 128 IP addresses
+                      10.0.0.0, 10.0.0.1, 10.0.0.2,......., 10.0.0.127  (128 IP addresses for public subnet starts at 0 and ends at 127 (counting 0 as the first))
+                      public-sn-c8 (us-east-1a)
+  2. Private Subnet: = 10.0.0.128/25
+                      n=25, 2^(32-25) = 2^(7) = 128 IP addresses
+                      10.0.0.128, 10.0.0.129, 10.0.0.130,....., 10.0.0.255 (Private subnet IP addresses here start continues from where public subent stops, 
+                      which means it will start from 128 and ends at 255.  (remember we counted 0 as the first))
+                      private-sn-c8 (us-east-1b)
+
+
+  LAB:
+    Create a VPC:
+    -search VPC in aws console
+    -select the vpc you see in your region, US east 1 (or whatever region you are)
+    -create vpc
+    -enter the vpc cidr block and subnet prefix you want, we entered CDR block 10.0.0.0/24 <----subnet prefix n = 24 for our cidr block
+    -leave the rest as is and create VPC
+
+    Next Create Subnet (we create public and private subnets):
+      -click subnet in your aws console
+      -click create subnet
+      -enter a name for your subnet and Select public. Create another subnet and make it private subnet again
+      -select the vpc with cidr block you created earlier
+      -enter your subnet range for your public subnet  i.e 10.0.0.0/25 (25 bcos we are dividing the resources in half) then save
+      -enter your subnet range for your private subnet too i.e 10.0.0.128/25 (128 cos public started from 0 and ended at 127, private continues from 128 and ends at 255).
+      -Save
+
+
+    Next Create Internet GatewayIIgw):
+      -click internet gateway (in aws vpc console)
+      -click create internet gateway
+      -enter the name of your internet gateway and saved
+      -make sure you attach it to your vpc (select the igw you just created, click action and then click attach to vpc)
+
+    Next Create Routetable for both public and Private subnet:
+
+      1-click route tables
+      -click create route tables
+      -enter public route table and select your vpc created earlier
+      -click create routable
+      -next edit subnet association and associate your public routable with your public subnet
+      -edit route and attach your internet gateway ONLY to the Public route table
+
+
+      2--click route tables
+      -click create route tables
+      -enter private routetable and select your vpc created earlier
+      -click create routable
+      -next edit subnet association and associate your private routable with your private subnet
+
+      NOTE: one route table can be connected/attached to multiple subnets but multiple route tables cannot be connected to a single subnet.
+  
+
+      NExt Provision a Webserver/Jumpserver/Bashton instance and attach your public subnet:
+      -Create a WebServer instance
+      -Edit the Network settings
+      -assign the new vpc you created
+      -next put it in the PUBLIC subnet you have created
+      -next Enable 'Auto Assign public IP'
+      -create a new Security Group and assign a description ( can give both same name)
+      -Launch instance
+
+      NOW try to SSH in to you Jumpserver instance:
+      jumpServer: PrivateIP: 110.0.0.115
+
+      ssh -i "SGself.pem" ec2-user@34.227.67.23 ---> it will not connect.  It worked after routing igw to our public routable. 
+to connect , goto your IGW and route it to public route table.
+
+
+      Copy the key.pem from your local to the jumpServer:
+      scp -i c8-test.pem c8-test.pem ec2-user@jumpServerIP:/home/ec2-user
+
+      scp -i c8-test.pem c8-test.pem ec2-user@54.235.235.52:/home/ec2-user
+
+
+
+
+      NExt Provision an appserver instance(private instance) and attach your private subnet:
+      -Create another instance, name it appserver1 or any name you like
+      -Edit the Network settings
+      -assign the new vpc you created
+      -next put it in the PRIVATE subnet you have created
+      -next Disable 'Auto Assign public IP'
+      -create a new Security Group and assign a description ( can give both same name)
+      -Launch instance
+
+      appServer1: 
+
+      To ssh into the appServer1 (private server), you must go through your jumpServer and you must have your Private server (appServer1) key.pem in your JumpServer cli.
+      to ssh into private server you would:
+      -copy the key.pem from your local (computer fileexplorer folder where your key.pem is ) to the jumpServer
+      -it MUST be in the home of ec2-user i.e /home/ec2-user ( if ubuntu, home of ubuntu user, which is /home/ubuntu).  See below;
+
+      scp -i SGself.pem SGself.pem ec2-user@<jumpServerIP>:/home/ec2-user  = scp -i <jumpserver key> <private servr key> ec2-user@<jumpServerIP>:/home/ec2-user
+
+      -now copy and paste this ---> scp -i SGself.pem SGself.pem ec2-user@34.227.67.237:/home/ec2-user in your JumpServer cli to get the key.pem in your jumpServer
+
+      -ssh into your jumpServer again
+
+      -ls or ll to see the key.pem that you pasted (you MUST see it there now)
+
+      -now ssh into your private server through your jumpserver cli by using the command "ssh -i "SGself.pem" ec2-user@<private server PRIVATE IP>", see below
+      ssh -i "SGself.pem" ec2-user@10.0.0.176
+
+      -Once you do the above, you would still be denied, to solve this, you'd need to downgrade the permission of the key.pem you pasted by doing the command;
+      "chmod 400 key.pem"  
+
+      -Now repeat this --> now ssh into your private server through your jumpserver cli by using the command "ssh -i "<key.pem>" ec2-user@<private server PRIVATE IP>", see below
+      ssh -i "SGself.pem" ec2-user@10.0.0. <----success! 
+
+
+
+      NOTE: in order not to repeat the last 3 steps, we can downgrade the read write permission first before we ssh into the private server.
+
+      
+      To prove we have internet connectivity on the jumpServer:
+
+      -we "exit" the private server, and we were returned to the public or jumserver (though this time it showed public server private IP)
+
+      -we did "ping google.com" on Jumpserver cli and we got alot of pings, this shows
+
+      -we ssh in to the private server and "ping google.com", it timed out and the reason for this is because we haven't open the private server to the internet
+
+      -To open it securely to the internet, we need to configure NAT Gateway (open an inbound rule to the NAT Gateway).
+
+ 
+
+      Create a NAT Gateway:
+
+      -go to vpc
+      -on the left pane, select NAT Gateway
+      -create NAT gateway
+      -enure you put it in a public subnet
+      -set "conectivity type" to "Public"
+      -ensure you allocate an elastic IP (make sure to release it when done)
+      -save 
+      -next go to your PRIVATE routable and "Edit route" and select "0.0.0.0/0" (internet from everywhere) and then attach NAT gateway you created
+      -next go back to your private server terminal
+      -and "ping google.com" <----success.
+      -Now we can do any internet related process or transactions in our private server or appServer1.
+      -to disconnect, just go back to your private routable, "Edit route" and then remove the NAT access you attached
+
+
+
+      It is wrong practice to have internet connectivity in your private subnet, how,ever if you are working on infrastructure and someone else is  working
+      on app patching and all, and the person needs to do some patching jobs, you need to make a plan and schedule a time with the app patching person, so that you
+      you can connect your private subnet for them to do their job, and once done, disconnect the internet again, to prevent malicious user from getting into your 
+      private server (database etc)
+
+
+
+			SUMMARY OF VPC SET UP ABOVE
+
+
+- create a vpc. and put the CIDR block. example 10.0.0.0/24
+
+- create two subnets and call them public and private subnets. attached the necessary CIDR block.
+for pub = 10.0.0.0/25  ;    for private = 10.0.0.128/25
+
+- create a route table for each subnets, click action after creating and edit subnet association by associating the created route table to each subnets accordingly
+
+-create internet Gateway (IGW). ATTACH to the vpc after creation.
+
+- goto your public route table, edit route and attach IGW to the public route table. to do this, follow the below:
+goto the public route table. click on action and edit route
+on destination, select 0.0.0.0/0 to allow traffic from anywhere. on target, select internet gateway and attAch the create IGW above.
+
+- spin up two instances for the public(webserver) and for private (db/app server), use same key-pair for practise only and edit network during creation.
+for public===== select the public subnet and created vpc and enable AUTO ASSIGN public IP
+for private ==== select the private subnet and created vpc but DO NOT ENABLE AUTO ASSIGN PUBLIC IP
+========= on each of the instances, allow port 22 and all traffic for practise sake only.
+
+- connect to the public instance by ssh into it.
+
+- goto your local system or powershell and cd into the folder containing the key-pair
+=== run the command below
+     scp -i mybabatkp.pem mybabatkp.pem ec2-user@54.234.12.34:/home/ec2-user   (this will copy the key-pair to the server)
+         <kp-of-pub-server> <filename> 
+
+- ssh into the private server with the cmd
+  ssh -i babatkp.pem ec2-user@private-server-IP
+    you can logout back to the public instance
+
+- ping google.com on the public instance  ==== this should respond 
+
+- login to the private server again and ping google.com ==== this will fall. follow below step to solve issue
+
+
+- goto vpc console and craete NAT Gateway. on creation, select the public subnet, leave connectivity type as 'public' and allocate elastic IP, then save.
+
+- goto private route table, edit route, on destination, select 0.0.0.0/0 to allow traffic from anywhere. On target, select NAT gateway  and attach the created NAT
+
+- Go back to your private server now and ping google.com  ==== this will work perfectly now.
+
+YOU HAVE BEEN ABLE TO SECURELY MAKE YOUR PRIVATE SUBNET TO ACCESS THE INTERNET WITH THE SET UP ABOVE. PLS NOTE TO REMOVE THE NAT GATEWAY 
+ATTACHMENT WHEN YOU DONE WORKING, BECAUSE IT IS NOT A GOOD PRACTISE TO EXPOSE YOUR PRIVATE SERVER TO THE INTERNET.
+
+RELEASE THE CREATED ELASTIC IP.
+
+
+
+
+
+
+      ----------------------------------------------------------------------------------------------------------
+      Dec 24 Dec-17-2022
+
+      VPC PEERING
+
+      Some organization wants to have another VPC (VPC 2) in another region.
+
+      Tutor did some sketches and mapping on draw.io (recommended to see the flow to understand more)
+
+      1-We Reprovisioned the VPC from the last class (above) and its resources exactly and the two instances
+
+
+
+      2-We created vpc2 in another region (us-east-2 Ohio)
+      -We created private subnet in this same region
+      -we created a private route table in this same region also
+      -We provisioned appServer4 instance
+      scp -i <jumpserver key> <private servr key> ec2-user@<jumpServerIP>:/home/ec2-user
+
+      scp -i SGself vpc2.pem ec2-user@<jumpServerIP>:/home/ec2-user  <---- to copy and paste private key in jumserver home 
+	(did this offline without connecting to instance)
+
+      scp -i SGself vpc2.pem ec2-user@18.215.241.46:/home/ec2-user
+
+      3-Create a Peering connection:
+      -Go to first region -Viginia (or VPC1 )
+      -Under Your VPCs on the left pane, find Peering connection (at the bottom left)
+      -Click create
+      -give it a name
+      -"Select a local VPC to peer with" box - select vpc1
+      -select "My Account"
+      -In "Region", select "Another region"
+      -Now select the region of your VPC2 (us-east-2 in our case)
+      -Go to VPC2 and copy its VPC ID and then paste in the box asking for "VPC ID (accepter)"" in VPC1 peering connection
+      -Save
+      -Next, go to Peering connection of VPC2, it would show pending connection, select "Actions" at the top right corner and accept connection
+
+
+      4-Connect private Routetable of vpc 2 with VPC 1:
+      -Go to VPC2 private route table
+      -click actions
+      -click Edit route
+      -enter cidr block of vpc1 (10.0.0.0/24) and select Peering connect then enter Peering connection ID
+
+
+      5-Connect public Routetable of VPC 1 with VPC 2:
+      -Go to VPC1 privateroutetable
+      -click actions
+      -click Edit route
+      -enter cidr block of vpc1 (172.0.0.0/24) and select Peering connect then enter Peering connection ID
+
+      -ssh into your jumpServer, then ssh into your private server2 using your private instance details 
+
+
+
+      For Peering 2 VPCs:
+        -Peering Connection
+
+      For peering multiple VPc:
+        -Peering Connection
+        -Transit Gateway
+
+
+        prof just explaining this ---> Create a SECURITY --> NETWORK ACLS:
+        -Network Access Control List is a REGIONAL SERVICE
+        -create a ACL (you would see it under the VPC pane)
+        -once created,  associate it with your public subnets
+        -by default the inbount rules  will be set to "DENY" , it will deny all trafic (except you edit it)
+        -set the rule number, type (traffic type)
+        -you can basically set any rules, 
+
+        ACL: ACCESS CONTROL LIST
+        -only peculiar to  s3 buckets, will be deprecated very soon
+
+
+    Load Balancer:
+
+        Server Side:
+          DevOps Engineer:
+            ssh(22)  ---> jumpServer  ---> appServer/buildServer
+
+        Client Side: End users accessing the application
+          http/https (80/443);
+          users/clients ---> loadbalancer/webServer  ---> appServer
+
+       A webServers:  self Managed
+        - apache webServer
+        -NGINX
+        -HAProxy
+
+        For NGINX:
+          1. if utilizing aws as instance, you create an EC2 instance first
+          2. you install NGINX
+          3. You then Configure NGINX
+          4-This a lot of process
+
+        Service Types:
+          1. Monolithic Services:
+            you go on amazon, you get on the Login page, Cart page, Order page.  these pages are all written in 1 source code.  They are built as 1 package.
+            You might even have 10,000 lines of code for the built package
+
+
+          2. MicroService:
+            Login Page ---> login-api
+            Cart page ---> cart-api
+            Order page ---> order-api
+            NB: Individual pages will have individual source codes.
+              They are built as independent packages
+              -you might just have about 450 lines of code for each
+              -Containerization came about Microservices.  Containers are very quick and easy to spin up. you launch when you need  and terminate when no longer in need.
+
+          B. Elastic Load Balancers (ELB): Cloud Managed
+            1. Application Load Balancers (ALB): 
+              -Allow traffic distribution to multiple target groups
+              -Traffic routing is quick
+              -supports http & https
+            2. Network Load Balancer (NLB): 
+              -Allows traffic to just 1 target group
+              -Traffic routing is very quick (quicker than ALB)
+              -Support TCP workloads
+            3. Gatewawy Load Balancer (GLB)
+            4. Classic Load Balancer (CLB)
+
+
+      https://www.simplilearn.com/tutorials/devops-tutorial/devops-interview-questions --> for interview practice
+
+ ========================================================================================================================================
+
+Dec 31, 2022
+
+Load Balancer:
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/load-balancer-types.html
+
+NB: By default, AWS requires you to select a minimum of 2 AZ and/or subnets while provisioning your LB
+
+=================================================================================
+
+CloudTrail
+AWS Config  
+
+==================================================================================
+NETWORK LOAD BALANCER, APPLICATION LOAD BALANCER AND ROUTE53
+
+Before provision or launching any infrastructure, you must have done your design first, like the cidr block calculation, how many subnet etc.
+
+#!/bin/bash
+cd /opt
+sudo apt update -y
+sudo apt install git wget -y
+sudo apt install openjdk-17-jre-headless
+sudo wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.10/bin/apache-tomcat-10.1.10.tar.gz
+sudo tar -xvf apache-tomcat-10.1.10.tar.gz
+sudo rm apache-tomcat-10.1.10.tar.gz
+sudo mv apache-tomcat-10.1.10 tomcat10
+sudo chmod 777 -R /opt/tomcat10
+sudo sh /opt/tomcat10/bin/startup.sh
+sudo ln -s /opt/tomcat10/bin/startup.sh /usr/bin/starttomcat
+sudo ln -s /opt/tomcat10/bin/shutdown.sh /usr/bin/stoptomcat
+sudo starttomcat
+
+=========================================================
+
+
+VPC - SUBNETS -ELB -SERVERS:
+  Region: us-west-2: Oregon
+
+  VPC: ==1
+    - cohort8-vpc
+  CIDR Block: 10.0.0.0/25 ; n=25, 2^(32-25) = 2^(7) = 128 IP addresses
+  Subnets: 
+    2 Public Sunbets:
+      - 10.0.0.0/27 ; n=27, 2^(32-27) = 2^(5) = 32 IP addresses
+        - public-sn-a: us-west-2a: 10.0.0.0/27: 10.0.0.0 ------ 10.0.0.31
+        - public-sn-b: us-west-2b: 10.0.0.32/27: 10.0.0.32 ------ 10.0.0.63
+    2 Private Subnets:
+      - 10.0.0.0/27 ; n=27, 2^(32-27) = 2^(5) = 32 IP addresses
+        - private-sn-a: us-west-2a: 10.0.0.64/27: 10.0.0.64 ------ 10.0.0.95
+        - private-sn-b: us-west-2b: 10.0.0.96/27: 10.0.0.96 ------ 10.0.0.127
+
+  Internet Gateway:
+    - c8-igw
+    - Attach to the VPC
+
+  Route Tables:
+    - c8-rt-public
+      - Associate with the public-sn-a and public-sn-b
+      - Add route: 
+        - Destination: 0.0.0.0/0
+        - Target: igw-c8
+    - c8-rt-private
+      - Associate with the private-sn-a and purivate-sn-b
+      - Add route: 
+        - Destination: 0.0.0.0/0
+        - Target: c8-nat  (only connect your private routetable to Nat, 
+        if you need internet connectivity to the private subnets, if you don't need it, don't attach, but it is good practice to create it and have it ready
+        in our case, we need it to install tomcat, and after we are done with installation, we can detach it from the private routable)
+ 
+  NAT Gateway:
+    - c8-nat
+    - associate with public-sn-a
+    - Allocate an elastic IP
+
+  Instances:
+    - Key.pem: c8.pem
+  
+  jumpServer: public-sn-a
+    PublicIP: 52.89.148.45
+    PrivateIP: 10.0.0.15
+
+  ssh -i "c8.pem" ec2-user@52.89.148.45
+  
+  appServer1: private-sn-a
+  appServer2: private-sn-a
+    - Had the tomcat installation script in `User Data`
+    - Opened port 8080 in the instances
+
+  appServer3: private-sn-b
+  appServer4: private-sn-b
+    - Had the tomcat installation script in `User Data`
+    - Opened port 8080 in the instances
+
+  scp -i c8.pem c8.pem ec2-user@jumpServerIP:/home/ec2-user
+
+  scp -i c8.pem c8.pem ec2-user@52.89.148.45:/home/ec2-user
+  
+  chmod 400 c8.pem
+
+
+  ssh -i "c8.pem" ec2-user@10.0.0.84
+  ssh -i "c8.pem" ec2-user@10.0.0.72
+  ssh -i "c8.pem" ec2-user@10.0.0.105
+  ssh -i "c8.pem" ec2-user@10.0.0.102
+
+  To check if the Tomcat Application is running:
+    curl -L <appServerIP>:8080  OR do sudo starttomcat
+
+  curl -L 10.0.0.84:8080
+  curl -L 10.0.0.72:8080
+  curl -L 10.0.0.105:8080
+  curl -L 10.0.0.102:8080
+
+LoadBalancers:
+
+    RECOPYING FOR EASIER ACCESS: Elastic Load Balancers (ELB): Cloud Managed
+            1. Application Load Balancers (ALB): 
+              -Allow traffic distribution to multiple target groups
+              -Traffic routing is quick
+              -supports http & https
+            2. Network Load Balancer (NLB): 
+              -Allows traffic to just 1 target group
+              -Traffic routing is very quick (quicker than ALB)
+              -Support TCP workloads
+            3. Gateway Load Balancer (GLB)
+            4. Classic Load Balancer (CLB)
+
+
+      Provisioning:
+
+       NETWORK LOAD BALANCER (handles TCP workload)
+
+        -search loadbalancer in AWS console
+        -create Network load Balancers
+        -click internet-facing and select ipv4
+        -aws will force you to create 2 balancers by asking you to select 2 availability zones and attach one public subnet (a and b) to each.  select both az.
+        note: this is where aws would use the extra buffer IPs you have created.
+        -next click and create target group( a new tab will open) = select instances in the Basic configuration. and enter "targetgroup1" in the Target group name. Leave as TCP/80, click next
+        -next we want to put appserver1 and 2 (instances) in the targetgroup1 and enter the port number (80 or 443, these are ports traffic are routed through), then click "include as pending" , then click "Create target group"
+        -now go back to the loadblancre page and in the listener section, you would see TCP (cos it is network load balancer ) and port 80, and sselect the target group you have created (you might need to refresh)
+        -Then click create load balancer
+
+        NOTE: This will only allow ytraffic to 1 target group, you can't create more
+
+        APPLICATION LOAD Balancers (handles HTTP workload) = We created 2 target groups here and named them A and B rsp
+
+
+        -search loadblancer in AWS console
+        -create Application load Balancers
+        -click internet-facing and slect ipv4
+        -aws will force you to create 2 balancers by asking you to select 2 availability zones and attach one subnet to each.  select both az.
+        -next click and create target group( a new tab will open) = select target type = instance, select health check protocol = HTTP and select your target groups 
+        -next we want to put appserver1 and 2 (instances) in the targetgroup2 (and appServer3 and appServer4 in targetgroup3?) and enter the port number (80 or 443, these are ports traffic are routed through), then click "include as pending" , 
+        then click "Create target group" we picked 80 cos picking 443 might ask us for a security certificate), then click "innlcude as pending" 
+        -now go back to the loadblance page and in the listener section, you will see HTTP/HTTPS here (not TCP like Network loadblancer) and port 443, and sselect the target group you have created (you might need to refresh)
+
+        -Then click create load balancer
+
+        NOTE: - you will need to create target group for Network and Application loadbalancers separately.
+        - sometimes when you go to the console to try and create a target group, it might not allow you, but when you create using a link from the existing target group, it workloads
+        -
+
+
+      Provisioning: (same as above, just summary)
+    Network Load Balancer (NLB):
+      - c8-nlb
+      - DNS Name: c8-nlb-e9b91a9b19185fc1.elb.us-west-2.amazonaws.com  (unfriendly to type in web browser)
+
+      Target Group:
+        - targetgroup-1
+
+      Port/Protocol: 80/TCP
+
+    Application Load Balancer (NLB):
+      - c8-alb
+      - DNS Name: c8-alb-548843357.us-west-2.elb.amazonaws.com 
+
+      Target Group:
+        - targetgroup-a
+        - targetgroup-b
+
+      Port/Protocol:
+        - http: 80
+        - https: 443
+
+
+To view details of the load balancers:
+  ssh into the jumpServer:
+    nslookup <loadbalancerDNSName>
+    nslookup c8-nlb-e9b91a9b19185fc1.elb.us-west-2.amazonaws.com
+    nslookup c8-alb-548843357.us-west-2.elb.amazonaws.com
+
+
+  After doing the above we got something like this:
+
+Server:         10.0.0.2   <----private IP (from the extra buffer)
+Address:        10.0.0.2#53 <---private address range for the nlb
+
+Non-authoritative answer:
+Name:   c8alb-1869751851.us-west-2.elb.amazonaws.com
+Address: 54.70.66.95  <---- loadbalancer public IP for each az?
+Name:   c8alb-1869751851.us-west-2.elb.amazonaws.com
+Address: 52.35.234.221   <---- 54.70.66.95  loadbalancer public IP for each az?
+
+
+loadbalancers are meant to be in the public subnet, cos traffic is routed from user via internet, to the loadbalancer
+
+user  --->   www.facebook.com   --->  <loadbalancerDNSName  ---->  targetgroup (appserver)
+
+summary:
+
+2 tier application
+user ---> hostName=elb ---> application
+
+
+3 tier application
+user ---> hostName=elb ---> application ---> database
+
+
+Route 53:
+
+-create hostname hecks.com
+-go back to dashboard and click the hostname you created
+-click crreate record
+-enter the indivual part of the page you want as your subdomain name e.g login.hecks.com
+-on the righe, select CNAME = this let you routes traffic to another domain named and to some AWS resources
+- you select ALias, but i dont have the capbility so I keep it simple (i unselelcted alias)
+-I copied and pasted the app load balancer DNS aiin the "Value box"
+-Routing policy, you can select weighted (based on weight), or geolocation (based on location of user) or latency (based on speed) etc we selecte simple routing
+-create recored
+-login.hecks.com will be created in 60 secs.
+
+Once created,  if a user goes to;
+
+login.hecks.com  ----- it points to the loadblanacer----> c8alb-1869751851.us-west-2.elb.amazonaws.com  ----> targetgroup (appserver)
+
+Read more about route 53.
+
+
+Auto Scaling Group (ASG):
+
+  -This scales in and scales out instances, IPs exactly
+  -Asummes traffic goes up, your system can autoscale in and out
+  -Self healing capabilities are ensured.
+
+
+  Concept:
+
+    There are 3 options when considering ASG;
+
+    Desired capacity = what should be running. e.g 2
+
+    Minimum Capacity = if you set desired to 2, 2 will be running and minimum to 1, 2 will still be running.  Desired capacity can never be less than minimum, , can be equal
+
+    Maximum capacity = say 5 instances running
+
+    Provisioning:
+
+    -click Auto -scaling
+    -create asg
+    -enter name "(c8asg)"
+    -you can click "switch to launch config..."  and then click "create laucnch configuration" if you don't have an existing configuration 
+    -when the launch configuration window opens, enter the launch config name,
+    -nex chose an ami or search, OR if you have an instance you have already launched, you can just create an image from it.
+    -once you created an image from your existing instance, you can then go back to the launch configuration and referesh the page, select AMI and the new image you created
+    should  be available for selection
+    -next select instance type (we selected same instance as the image or t2.small)
+    -jump to security group and either create a SG or select existing SG ( i chose existing.  ensure you use same SG as your VPC, just use existing)
+    -next select key pair (used existing key pair)
+    -akcnowlege and create
+
+    -next go back to the asg page you were working on (c8asg) and pick the ami you just created in the "Launch configuration" box  (this is called Golden AMI)
+    -attach your vpc
+    -attach your public subnets (2a and 2b)
+    -click next
+    -select "Attachh to an exisitng load balancer"
+    -select and chose from your load balancer target groups (we attached to all target groups)
+    -click next
+    -desired capacity should be morethan minimum, and max should be morethan the first two.
+    -select scaling policy ( leave as is, note: those numbers are %)
+    -skip tag, and the next page, review and create asg.
+
+    -next go to your instances, you would see that 2 instances (Desired) have been created
+    -if you terminate the asg provisioned instances, you would dee that new instances are Reprovisioned
+    -to terminate asg instances, edit the desired, minimum to zero, maximum can be any number
+
+
+    ASG scaling Plans:
+      -CPU utilizaiton
+      -Request counts etc.
+
+
+        Launch configuration/Launch Templates: 
+
+    -utilize the boostrap userdata to configure EC2 instances
+    -You can also utilize an AMI = a golden image of an ami including the boostrapped apps running on the instances
+
+
+
+===================================================================================================================
+
+Jan 4th, 2023
+
+IAM AND CLOUDFORMATION
+
+IAM (Identity and Access Management):
+
+Identity management, also known as identity and access management, is a framework of policies and technologies to 
+ensure that the right users have the appropriate access to technology resources.
+
+E.G - we have 10 Team Members;
+
+DevOps Engineers: --->  Ayo, Mary, Francisca
+  VPCFullAccess, EC2FullAccess, Route53FullAccess
+
+Developers : ---> John, Judith
+  VPCReadAccess, EC2ReadAccess, EC2CreateAccess
+
+Testers: ---> David, Patricia
+
+Permissions:  Access given to any service in AWS for e.g EC2:*
+
+Users: Membrs managing or accessing AWS resources
+
+Groups: - These are objects comprised of users
+        - Policies can be attached to groups
+        - Users in the groups inherit the policiies attached to the groups
+
+Roles: -These are policies attached to AWS resources
+
+Log into AWS:
+
+  1.  AWS Management Console Access:
+    -username-rootuser
+    -username-iamuser
+    -password
+
+  2. Programmatic acess: Access via the AWS CLI
+    -accountID   = 56701*******
+    -access key ID  =AKIAYIB*************
+    -secret access key = gdYrgbkDl0**************************
+
+
+
+  LAB:
+
+  -Search IAM in the console
+  -user
+  -add user
+  -enter username
+  -select programmatic access and password (because we want to login with both to practicalise).  Then check the custom password box.
+  -click next.
+  - for the demo user we created, we "Attach existing policies directly"  and granted amazonec2fullaccess and VPCFullAccess.
+  -next ( you can tag and that's optional, ), next again to review then click crreate user
+  -in the next page that opens, accountID, access key and secret access key will be displayed, copy and unhide everything, download the secret file too. 
+  -close.
+  -To test, open incognito and head over to to the link aws provided to you on the  access and secretkey page, (in my case https://5670******.signin.aws.amazon.com/console) and sign in as IAM using your account ID and secret access key
+  - We logged as a demo user, and demo user can create ec2, vpc, but doesn't have access to route 53
+
+
+  -Create Group and named it DevOpsEngineer, add permission (Attach exisitng policies) added VPCFullAccess,EC2FullAccess,Route53FullAccess
+  -added demo user to the group
+  -reloaded demo user route 53 page and saw that demo user now has access to route 53.
+  -soon as we kicked demo user out of route 53 access, route 53 page shows error again.
+
+
+  USING PROGRAMMATIC ACESS:
+
+  -install aws cli in your cli
+  -aws ams list-users (this command be used by a root user or user with the command permissioni)
+  -do aws configure; this will ask for access key ID and secret access key.  paste your keys and it should log in
+  -do aws s3 ls to see if you have access to s3 bucket, since demo user doesn't have s3 bucket ass, then this command will be denied.
+  -we went ahead and assign s3 full access for demo user, and aws s3 ls worked smoothly.
+
+
+AWS CLI Installation / Cheat Sheet:
+
+1.https://docs.aws.amazon.com/cli/v1/userguide/install-macos.html
+
+2.https://gist.github.com/apolloclark/b3f60c1f68aa972d324b
+
+3.https://www.bluematador.com/learn/aws-cli-cheatsheet
+
+4.https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html\
+
+5.http://docs.aws.amazon.com/cli/latest/index.html
+
+NB: A rule of thumb: Users/Groups should be granted least privileges
+
+
+
+CLOUD FORMATION (CFN)
+
+Cloud Formation is:
+- https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcom.html
+-An Infrastructure as a code (IaaC) tool owned by AWS
+-The scritping language is YAML
+-You can create resources in any region in AWS
+-Codes are reusable
+-Updates can be made to codes to provision or terminate resources in AWS
+
+Steps in deploying resources via CFN (cloudformation):
+-You have to Create a stack
+-Then deploy the resources to the stack
+
+
+**codebuild is just like jenkins but made by AWS, can be hooked up with your SCM repo.
+
+
+======================================================================
+
+Lab:
+-In the aws console, search AWSCloudFormation
+-create Stack
+-Ensure you already have a Yaml file for the resources you want to provision with CFN saved in .yaml.YML format
+-select "Template is ready"
+-Then select "Upload a Template" (this is the yaml file for the resources you want to provision)
+- Note: aws could create a link soon as you are done uploading a stack template and automatically send it to an S3 bucket as backup, in case you lose the link
+- next, give your stack a name
+-next add permissions (for sake of demo, didn't add permission), set permission, stack failure options (roll back or preserve) if you like
+-submit and it should launch if script is current.
+-you can check Event tab to get update about your stack, resoureces tab to see the resources you have created, output tab etc.
+-note: when you launch a stack for the ffirst time, you don't see any changeset, however, when you modify or change anything in the script, it will tell you the
+change set (like inform you what you have modified etc)
+
+
+-Once you modify your stack ( your yaml file), you can always update using the "update" button instead of starting all over again. 
+-Mind you, once you modify you will have a changeset, ensure you get an approval before you execute a changeset.  Very Important.
+
+**CLOUD FORMATION EC2 INSTANCE TEMPLATE YAML SCRIPT
+
+Examples:
+  
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: A sample template
+Resources:
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-0a606d8395a538502
+      InstanceType: t2.micro
+      KeyName: SGself
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdm
+          Ebs:
+            VolumeType: io1
+            Iops: 200
+            DeleteOnTermination: false   <--- this is saying to keep the Ebs volume once instance is terminated
+            VolumeSize: 20
+
+AWS CFN GITHUB REPO: 
+http://github.com/awslabs/aws-cloudformation-templates/tree/master/aws/services
+
+
+
+VPC EC2  YAML SCRIPT
+
+Description:  VPC Template + Public Instance
+Parameters:
+  LatestAmiId:
+    Description: AMI for EC2 (default is latest AmaLinux2)
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+Resources:
+# Creating the VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.16.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: c8-vpc1-cf
+  IPv6CidrBlock:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AmazonProvidedIpv6CidrBlock: true
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: c8-vpc1-cf-igw
+  InternetGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  RouteTableWeb: 
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: c8-vpc1-cf-rt-web
+  RouteTableWebDefaultIPv4: 
+    Type: 'AWS::EC2::Route'
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId:
+        Ref: RouteTableWeb
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId:
+        Ref: InternetGateway
+  RouteTableWebDefaultIPv6: 
+    Type: 'AWS::EC2::Route'
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId:
+        Ref: RouteTableWeb
+      DestinationIpv6CidrBlock: '::/0'
+      GatewayId: 
+        Ref: InternetGateway
+  RouteTableAssociationWebA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetWEBA
+      RouteTableId:
+        Ref: RouteTableWeb
+  RouteTableAssociationWebB:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetWEBB
+      RouteTableId:
+        Ref: RouteTableWeb
+  RouteTableAssociationWebC:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetWEBC
+      RouteTableId:
+        Ref: RouteTableWeb
+  SubnetReservedA:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.16.0.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '00::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-reserved-A
+  SubnetReservedB:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.16.64.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '04::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-reserved-B
+  SubnetReservedC:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: 10.16.128.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '08::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-reserved-C
+  SubnetDBA:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.16.16.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '01::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-db-A
+  SubnetDBB:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.16.80.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '05::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-db-B
+  SubnetDBC:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: 10.16.144.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '09::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-db-C
+  SubnetAPPA:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.16.32.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '02::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-app-A
+  SubnetAPPB:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.16.96.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '06::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-app-B
+  SubnetAPPC:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: 10.16.160.0/20
+      AssignIpv6AddressOnCreation: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '0A::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-app-C
+  SubnetWEBA:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.16.48.0/20
+      MapPublicIpOnLaunch: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '03::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-web-A
+  SubnetWEBB:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.16.112.0/20
+      MapPublicIpOnLaunch: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '07::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-web-B
+  SubnetWEBC:
+    Type: AWS::EC2::Subnet
+    DependsOn: IPv6CidrBlock
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs '' ]
+      CidrBlock: 10.16.176.0/20
+      MapPublicIpOnLaunch: true
+      Ipv6CidrBlock: 
+        Fn::Sub:
+          - "${VpcPart}${SubnetPart}"
+          - SubnetPart: '0B::/64'
+            VpcPart: !Select [ 0, !Split [ '00::/56', !Select [ 0, !GetAtt VPC.Ipv6CidrBlocks ]]]
+      Tags:
+        - Key: Name
+          Value: sn-web-C
+  IPv6WorkaroundSubnetWEBA:
+    Type: Custom::SubnetModify
+    Properties:
+      ServiceToken: !GetAtt IPv6WorkaroundLambda.Arn
+      SubnetId: !Ref SubnetWEBA
+  IPv6WorkaroundSubnetWEBB:
+    Type: Custom::SubnetModify
+    Properties:
+      ServiceToken: !GetAtt IPv6WorkaroundLambda.Arn
+      SubnetId: !Ref SubnetWEBB
+  IPv6WorkaroundSubnetWEBC:
+    Type: Custom::SubnetModify
+    Properties:
+      ServiceToken: !GetAtt IPv6WorkaroundLambda.Arn
+      SubnetId: !Ref SubnetWEBC
+  IPv6WorkaroundRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: !Sub "ipv6-fix-logs-${AWS::StackName}"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              Resource: arn:aws:logs:*:*:*
+        - PolicyName: !Sub "ipv6-fix-modify-${AWS::StackName}"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - ec2:ModifySubnetAttribute
+              Resource: "*"
+  IPv6WorkaroundLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: "index.lambda_handler"
+      Code: #import cfnresponse below required to send respose back to CFN
+        ZipFile:
+          Fn::Sub: |
+            import cfnresponse
+            import boto3
+      
+            def lambda_handler(event, context):
+              if event['RequestType'] is 'Delete':
+                cfnresponse.send(event, context, cfnresponse.SUCCESS)
+                return
+      
+              responseValue = event['ResourceProperties']['SubnetId']
+              ec2 = boto3.client('ec2', region_name='${AWS::Region}')
+              ec2.modify_subnet_attribute(AssignIpv6AddressOnCreation={
+                              'Value': True
+                              },
+                              SubnetId=responseValue)
+              responseData = {}
+              responseData['SubnetId'] = responseValue
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, "CustomResourcePhysicalID")
+      Runtime: python3.9
+      Role: !GetAtt IPv6WorkaroundRole.Arn
+      Timeout: 30
+  PublicEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: !Ref LatestAmiId
+      IamInstanceProfile: !Ref SessionManagerInstanceProfile
+      SubnetId: !Ref SubnetWEBA
+      SecurityGroupIds: 
+        - !Ref InstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: A4L-PublicEC2
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Enable SSH access via port 22 IPv4 & v6
+      SecurityGroupIngress:
+        - Description: 'Allow SSH IPv4 IN'
+          IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: '0.0.0.0/0'
+        - Description: 'Allow HTTP IPv4 IN'
+          IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: '0.0.0.0/0'
+        - Description: 'Allow SSH IPv6 IN'
+          IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIpv6: ::/0
+  SessionManagerRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 'ssm:DescribeAssociation'
+                  - 'ssm:GetDeployablePatchSnapshotForInstance'
+                  - 'ssm:GetDocument'
+                  - 'ssm:DescribeDocument'
+                  - 'ssm:GetManifest'
+                  - 'ssm:GetParameter'
+                  - 'ssm:GetParameters'
+                  - 'ssm:ListAssociations'
+                  - 'ssm:ListInstanceAssociations'
+                  - 'ssm:PutInventory'
+                  - 'ssm:PutComplianceItems'
+                  - 'ssm:PutConfigurePackageResult'
+                  - 'ssm:UpdateAssociationStatus'
+                  - 'ssm:UpdateInstanceAssociationStatus'
+                  - 'ssm:UpdateInstanceInformation'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'ssmmessages:CreateControlChannel'
+                  - 'ssmmessages:CreateDataChannel'
+                  - 'ssmmessages:OpenControlChannel'
+                  - 'ssmmessages:OpenDataChannel' 
+                Resource: '*'
+              - Effect: Allow
+                Action: 
+                  - 'ec2messages:AcknowledgeMessage'
+                  - 'ec2messages:DeleteMessage'
+                  - 'ec2messages:FailMessage'
+                  - 'ec2messages:GetEndpoint'
+                  - 'ec2messages:GetMessages'
+                  - 'ec2messages:SendReply'
+                Resource: '*'
+  SessionManagerInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref SessionManagerRole
+Outputs:
+  a4lvpc1:
+    Description: VPC1_ID
+    Value: !Ref VPC
+    Export: 
+      Name: c8-vpc1-cf
+  a4lvpc1subnetweba:
+    Description: VPC1 SubnetWEBA
+    Value: !Ref SubnetWEBA
+    Export:
+      Name: c8-vpc1-cf-subnet-weba
+  a4lvpc1subnetwebb:
+    Description: VPC1 SubnetWEBB
+    Value: !Ref SubnetWEBB
+    Export:
+      Name: c8-vpc1-cf-subnet-webb
+  a4lvpc1subnetwebc:
+    Description: VPC1 SubnetWEBC
+    Value: !Ref SubnetWEBC
+    Export:
+      Name: c8-vpc1-cf-subnet-webc
+  a4lvpc1subnetappa:
+    Description: VPC1 SubnetAPPA
+    Value: !Ref SubnetAPPA
+    Export:
+      Name: c8-vpc1-cf-subnet-appa
+  a4lvpc1subnetappb:
+    Description: VPC1 SubnetAPPB
+    Value: !Ref SubnetAPPB
+    Export:
+      Name: c8-vpc1-cf-subnet-appb
+  a4lvpc1subnetappc:
+    Description: VPC1 SubnetAPPC
+    Value: !Ref SubnetAPPC
+    Export:
+      Name: c8-vpc1-cf-subnet-appc
+  a4lvpc1subnetdba:
+    Description: VPC1 SubnetDBA
+    Value: !Ref SubnetDBA
+    Export:
+      Name: c8-vpc1-cf-subnet-dba
+  a4lvpc1subnetdbb:
+    Description: VPC1 SubnetDBB
+    Value: !Ref SubnetDBB
+    Export:
+      Name: c8-vpc1-cf-subnet-dbb
+  a4lvpc1subnetdbc:
+    Description: VPC1 SubnetDBC
+    Value: !Ref SubnetDBC
+    Export:
+      Name: c8-vpc1-cf-subnet-dbc
+  a4lvpc1subnetreserveda:
+    Description: VPC1 SubnetReservedA
+    Value: !Ref SubnetReservedA
+    Export:
+      Name: c8-vpc1-cf-subnet-reserveda
+  a4lvpc1subnetreservedb:
+    Description: VPC1 SubnetReservedB
+    Value: !Ref SubnetReservedB
+    Export:
+      Name: c8-vpc1-cf-subnet-reservedb
+  a4lvpc1subnetreservedc:
+    Description: VPC1 SubnetReservedC
+    Value: !Ref SubnetReservedC
+    Export:
+      Name: c8-vpc1-cf-subnet-reservedc

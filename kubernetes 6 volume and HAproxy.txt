@@ -1,0 +1,411 @@
+K8s - VOLUME 5/Oct/2022
+
+persistent volume
+persistent volume = binding database to external volume e.g NFS or EFS. Note: multiple database can be linked to a persistnet volume.
+
+Create a mount point = persistent path and bind to mount point.  just same way we did in docker (you can revisit)
+
+CONFIGURING NFS
+
+STEP1-provision a new instance to configure your NFS (we provisioned t2 micro)
+Note: Aside: RDS is fully managed by AWS
+
+-change the hostname to NFS
+
+-Update ubuntu cli = sudo apt update
+
+-install NFS = sudo apt install nfs-kernel-servery -y
+
+
+STEP2 - Create the export directory (where we can mount our mountpoint) = sudo mkdir -p /mnt/share  (this is us creating a parent directory in root called "mnt" 
+and a child directory called "share")
+
+- to see where the directory is created = ls / (list root directory)
+
+- change the ownership permission from root:root to "nobody:nogroup" = chown nobody:nogroup /mnt/share
+
+-ll /mnt to confirm permission change
+
+-change mod to increase permission level for "share" = sudo chmod 777 /mnt/share
+
+-Assign server access to client, this will show us where we can mount our data in NFS.  This contains different version, you can use any version,
+ (but we used version 4) 
+
+do = sudo vi /etc/exports
+
+-copy the version you like (in our case we copied version 4) and paste in your running note to edit to suit your created nfs directory above.  
+Copied and pasted below:  
+
+/srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check) 
+==> customizing this to below (node, you can remove anything you don't want "rw" = read write, sync = synchronize)
+
+/srv/nfs4 = /mnt/share
+
+gss/krb5i = hostname in your cli, in my case, "nfs" is my hostname (do = "hostname" in your cli to get your hostname), if your hostanme is the IP address, 
+then you can replace that with your IP address or if not sure, you can replace that with "*" 
+
+(rw,sync,fsid=0,crossmnt,no_subtree_check) = add and remove what you want from the left, (rw,sync, no_subtree_check,no_root_squash)  the above in your workplace, 
+they would usually give you, if they don't ask the database administrator what they want.  Add "no_root_squash" ( you will find this on nfs documentation)
+
+putting it together : 
+
+/mnt/share *(rw,sync,no_subtree_check,no_root_squash)
+
+-copy the above and paste in the sudo vi /etc/exports ( make sure it is uncommented out)
+
+-next, export the shared directory = sudo exportfs -a
+
+-Next, restart the nfs kernel-server = sudo systemctl restart nfs-kernel-server
+
+-next, open port 2049 in your security group (remember, you can't open all port at your place of work esp for database.)
+
+
+Step3-Configure Client Machine (Master and nodes)
+
+-INSTALL NFS ON ALL NODES AND MASTER (if installed on only one, it will only work on that one node) so that it can bind the nodes and communicate with NFS server
+
+YOU CAN ACHIEVE THE ABOVE BY SSH FROM  THE MASTER INTO ALL NODES OR YOU SIMPLY CONNECT THE NODES INDIVIDUALLY ON YOUR SSH MACHINE
+
+-NOTE: how to SSH into other nodes inside master cli or vice versa.
+
+-open your instances security key file (.pem) with "Note"
+
+-copy the key
+
+-Go to the Cli of the one you want to use to SSH into the others
+
+-create a file, name .pem (e.g ade.pem) and then paste the private key you have copied and then save
+
+-change the permission of the file.pem , do  = chmod 400 <file.pem>
+
+-next. do  = ssh -i ade.pem ubuntu@<NodePUBLICIP of the first node> e.g ssh -i sam.pem ubuntu@54.144.93.73 and enter
+
+-the above will prompt you to enter yes/no, enter yes
+
+-Once the above is done, it will give you access to operate the node from master cli (this can work either ways)
+
+-update your node cli = sudo apt update
+
+-Now install NFS = sudo apt-get install nfs-common -y  (you can run both together as sudo apt-get update && sudo apt-get install nfs-common -y)
+
+-exit the first node = "exit"
+
+-go install nfs in the other node too and master
+
+-Now write yaml file for nfs
+WATCH VIDEO
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springapp
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: springapp
+  replicas: 3
+  template:
+    metadata:
+      name: springapp
+      labels:
+        app: springapp
+    spec:
+      containers:
+      - name: springapp
+        image: acadalearning/spring-boot-mongo
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_DB_USERNAME
+          value: devdb
+        - name: MONGO_DB_PASSWORD
+          value: devdb@123
+        - name: MONGO_DB_HOSTNAME
+          value: mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: springapp
+spec:
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: NodePort
+
+---
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodbrs
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      name: mongodbpod
+      labels:
+        app: mongodb
+    spec:
+      volumes:
+      - name: nfsvol
+        nfs:
+          server: 172.31.30.26
+#the server address above is the private IP of the NFS server
+          path: /mnt/share
+      containers:
+      - name: mongodb-c
+        image: mongo
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: devdb
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: devdb@123
+        volumeMounts:
+        - name: nfsvol
+          mountPath: /data/db
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+NOTE:
+
+-After we deployed all of the above and entered some data in the front end, we saw that our data is also saved in /mnt/share in the NFS cli.
+
+- To confirm further, in our master node, we did kubectl exec -it mongodbrs-8pchj /bin/bash to enter an interactive mode, and then we did ls /data/db and saw the same data as saved in NFS.
+
+
+   ---------------------------------------------------------------------------------------------------------
+
+-PERSISTENT VOLUME PV: persistent volume is a piece of volume in a cluster that has been provisioned  by administrator or that has been dynamically provisioned.
+
+for example say we have a storage class of 5000GB and also a lifecycle that must be independent of any individual pod.  PV is a volume plugin,
+ i.e a piece of storage in a cluser.
+
+There two types of PV:
+Static = PV is the same and reduces as PVC is same
+Dynamic = PV increases as the PVC increases
+
+FOR DOCUMENTATION: kubernetes.io/docs/concepts/storage/persistent-volumes/
+
+
+
+PERSISTENT VOLUME YML
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+  namespace: dev
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: manual
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/share
+    server: 172.31.89.83
+
+
+
+-Persistent Volume Claim: PVC : this is a request by a user, request to make a claim of some part of the PV. PV is like a node and PVC is like different pods consuming
+ the resources of the nodes. 
+
+AccessMode; there is:
+ReadWriteMany: The volume can be mounted as read-write by many nodes
+
+ReadWriteOnce: The volume can be mounted as read-write by a single node.  ReadWriteOnce access mode still can allow multiple pods to access the volume when the pods are running on the same node.
+
+ReadOnlyMany: The volume can be moounted as read-only by many nodes.
+
+ReadWriteOncePod: NFS cannot take this.  The volume can be mounted as read-write by a single Pod.  Use ReadWriteOncePod access mode if you want to ensure that only one pod across whole cluster can read that PVC or write to it.  This is only supported for CSI volumes and kubernetes version 1.22+.
+
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+https://kubernetes.io/docs/concepts/storage/persistent-volumes
+
+PERSISTENT VOLUME CLAIM YML
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+spec:
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+
+
+NOW WE NEED TO ADD OUR PERSISTENT VOLUME CLAIM TO DATABASE YML
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodbrs
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      name: mongodbpod
+      labels:
+        app: mongodb
+    spec:
+      volumes:
+      - name: nfsvol
+        persistentVolumeClaim:
+          claimName: nfs-pvc  
+      containers:
+      - name: mongodb-c
+        image: mongo
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: devdb
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: devdb@123
+        volumeMounts:
+        - name: nfsvol
+          mountPath: /data/db
+
+
+NOTE: in the updated db yml, we removed the path server and path /mnt/share because we already defined it in the PV yml
+
+ once the persistent volume is applied in CLI. do;
+
+ kubectl get events = to see the pv and pvc too
+
+ kubectl get pvc = to get info about the pvc your created (pvc = persistent volume claim)
+
+ kubectl get pv = to get info about the pv you cteated (pv = persistent volume)
+
+kubectl drain <nodeName> = to drain a node, this would remove all pods running on that node and get the pods rescheduled on another node. the node coredon or drained will be unavailable for scheduling
+
+kubectl drain <nodeName> --ignore-daemonsets --force = to force drain or coredns
+
+kubectl uncordon <nodeName> = to re-schedule  node and get it back to running
+
+kubectl delete rs <podname> 
+
+
+HaProxy
+create a seperate server. (you can use t2 micro)
+
+HaProxy helps to balance load accross board, balance loads to application.
+
+HaProxy = is like a load balancer
+
+-sudo apt install haproxy -y  = installing haproxy (in class we installed on NFS server instances, we can create an instances for it too)
+
+-sudo service haproxy start = to start haproxy
+
+-vi /etc/haproxy/haproxy.cfg = to configure haproxy
+
+-Once the above opens, go to the bottom and paste the following after you have inseerted your IP and nodeport PORT:
+
+frontend haproxynode  <---- COPY and pasted from EFE's note
+    bind *:80
+    mode http
+    default_backend backendServers
+    
+backend backendServers
+    balance roundrobin
+    option forwardfor
+    http-request set-header X-Forwarded-Port %[dst_port]
+    http-request add-header X-Forwarded-Proto https if { ssl_fc }
+    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    server ip-172-31-84-73 172.31.84.73:32459 check
+    server ip-172-31-30-196 172.31.30.196:32459 check
+    #server node2 <IP>:<PORT> check   <--------  (you can either use your private IP address for each node or public IP )
+
+
+
+    Rewriting the above to fit my node server
+
+frontend haproxynode
+    bind *:80
+    mode http
+    default_backend backendServers
+    
+backend backendServers
+    balance roundrobin
+    option forwardfor
+    http-request set-header X-Forwarded-Port %[dst_port]
+    http-request add-header X-Forwarded-Proto https if { ssl_fc }
+    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    server node1 172.31.24.207:31241 check
+    server node2 172.31.30.241:31241 check
+    #server node2 <IP>:<PORT> check 
+
+-After the above is pasted in the configuration file, restart haproxy by doing the command = sudo service haproxy restart
+
+-next, get the haproxy IP generated by running the command = curl ifcongig.co
+
+-next, copy the IP address displayed in the above and paste in the web-browser that would direct you to the app site you (in class we did springapp)
+
+Summary of what we have done so far with haproxy:
+
+We loaded a loadbalancer server called haproxy and we want to view our application, instead of using ip of any of the nodes and nodePort Port, we provisioned and configured Haproxy.  Technically what we have done is we put haproxy or load balancer in between a kubeproxy and a front end actor, previously, an actor would directly interact with kubeproxy.
+
+Loadbalancer generally just view reources that's available to receive traffic and distribute the traffic to them base off their resources.
+
+    There are different types of loadbalancer
+    -nginx
+    -loadbalancer
+    -haproxy
+
+
+
+Question: If you have ImagePull backup error what is the problem?:
+
+Answer:  This means you cannot find the image (check image name in your command, command etc)
+
+
+EASY WAY TO CREATE YAML FILE in VS
+
+
+0. Install kubernettes
+
+1. Click on the extension icon in vsc on the left panel and search YAML. Click to install. 
+
+2. After it's installed, Click the setting icon by it and select "Extension Settings"
+
+3. Scroll down to "Yaml:Schemas" and click on "Edit in settings.json"
+
+4. You will see line as below, and move your cursor to the end of the line. "yaml.schemas": {
+Press enter twice and add the line just as below;
+"kubernetes": "*.yaml"
+
+5. Close the settings tab and confirm to save.
+
+6. Restart VSC, and you are good to go

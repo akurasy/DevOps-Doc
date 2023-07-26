@@ -1,0 +1,21 @@
+If you are using Ubuntu and you encounter an "apt-key deprecated" issue, it means that the apt-key command you are using is outdated and has been deprecated. 
+The new recommended method for adding a GPG key for package verification is to use the gpg command directly.
+
+To resolve this issue, you can follow these steps:
+
+Remove the old GPG key:
+
+sudo apt-key del <key-id>
+Replace <key-id> with the ID of the key that you want to remove.
+
+Download the new GPG key:
+wget -qO - <gpg-url> | sudo gpg --dearmor --yes --batch --output /etc/apt/trusted.gpg.d/<key-file>
+
+Replace <gpg-url> with the URL of the GPG key that you want to add, and <key-file> with the name of the file that you want to save the key as. 
+For example, if the URL is https://example.com/key.gpg and you want to save the key as example.gpg, you would replace <gpg-url> with https://example.com/key.gpg 
+and <key-file> with example.gpg.
+
+sudo apt-get update
+
+After completing these steps, the new GPG key should be added to the system, and you should be able to install packages without encountering the 
+"apt-key deprecated" issue.

@@ -1,0 +1,732 @@
+HELM and NGINX Dec 3rd, 2022
+
+CONTINUE FROM EKS CLUSTER CREATED
+
+HELM:
+
+Helm is a package manager for K8s.  Helm is a manager that handles k8s deployments, services, run applications for you etc.
+
+Just like other packager managers,  Helm also has a repostiory.
+
+
+Helm Architecturee
+
+Helm has a repo you can update, install , run etc. Helm develops the Helm Chart repository which contains template file, value file, deployment files, chat file etc, 
+and once you install it, you can use all those files to install your applications.
+
+Once you install your application, the app will communicate with your Kubernetes API server
+
+- we can use helm to install third party application line nginx, grafana, datadog, efk, promotheus, custom applications e.t.c
+
+
+Helm also helps to track version etc
+
+There are different types of Helm (diferrent Helm version)
+
+Helm2
+Helm3
+
+diff btw Helm2 and Heml3 is that Helm2 requires Tiller agent on the master.  Helm 3 does have that.
+
+Interview answEr: 
+
+To make my job easy, I installed helm which is just a k8 manager, we ran helm 3. helm2 requires a tiller agent on the k8s master,
+ which basically allows us to install helm2
+
+
+
+-------------------------------------------------
+HELM 3 INSTALLATION
+
+
+vi heml.sh
+#paste the command inside the file to Install Helm 3:
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+#save
+sh heml.sh
+
+OR the below ( PLS USE THE BELOW SCRIPT IF THE ABOVE DOES NOT WORK)
+---------------------
+wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz 
+tar xvf helm-v3.4.1-linux-amd64.tar.gz 
+sudo mv linux-amd64/helm /usr/local/bin 
+rm helm-v3.4.1-linux-amd64.tar.gz 
+rm -rf linux-amd64 
+helm version 
+----------------------------------------------
+
+helm show
+helm 
+helm create myapp = to create a name for "myapp" chart (directory) using helm.
+
+  
+tree myapp = to see the myapp directory created by helm and its child directories and files.  The most important file in helm "myapp" 
+is in the templates direcotry and is called "values.yml".   we can vi values.yml to see the details yaml content
+
+sudo apt install tree = to install the tree resources
+
+helm show values myapp = to show the details of values.yml in myapp
+
+helm template myapp = helm template... is just like using linux "cat" .  It gives the details of the folder templates.  check the output of the chart in fully rendered Kubernetes resource template.
+
+helm ls
+
+helm repo ls = to show the repo created in helm
+
+kubectl get pod -A -o wide
+
+helm install <appname> <Chartname> = to deploy your application using helm e.g helm install javaapp myapp (myapp here is the chartname), 
+appname can be anything, better to use same name as the chartname.
+
+
+helm uninstall <appname> = to uninstall the application just deployed.  e.g helm uninstall javapp
+
+
+
+
+myapp
+├── Chart.yaml
+├── charts
+├── templates
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+
+3 directories, 10 files
+
+##helm already prepared our app for us in yaml format.  so, we vi values.yml and change few things (repliacaCount, repository image from ingress to acadalearning...m tag to latest, Service to LoadBalancer),  below is the outcome;
+
+# Default values for myapp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 3
+
+image:
+  repository: acadalearning/java-web-app
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: LoadBalancer
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+----------------------------
+
+Next we vi into Deployment inside templates directory= vi deployment.yaml ===> we found that it automatically used variable to pull everything we defiend in values.yaml.  We just changed few thins there (changed containerPort from 80 to 8080,  livenessProbe path and readiness probe path, pls see blow):
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.fullname" . }}
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "myapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "myapp.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "myapp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /java-web-app
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /java-web-app
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+
+helm install <appName> <chartName>
+helm install javaapp myapp
+
+
+##Next we modified values.yaml and changed the image to acadalearning/maven-web-app.
+
+##We also updated the deployment.yaml file and changed the liveness and readiness probe file to maven-web-app.
+
+helm upgrade javaapp myapp  = this is to run the modified values.yaml insteady of running/applying it separately
+
+
+Next  = We want external users to be able to access the deployed app with short and sweet name.
+-To do the above, we need a domain name
+-go to aws and search for route 53
+-Register domain name (cost 12usd) (we used acadalearning.ca)
+-click hostedzones
+-click create "A" record under your reg domain. (must reg domain name first)
+-name it whatever you want, closely related to the app launched? we gave it "maven"= (it would now be maven.acadalearning.ca), on the same page select Record type=  leave as is
+-On the same page as above. Select Alias = Alias to Application and Classic Load Balancer
+-On the same page, select application load balancer region of your nodes (us-west-3)
+-next chose application load balancer, will auto pop up (must be same as what's in your CLI?)
+-can leave your routing policy as is = Simple routing
+-Click Create record, and it will save and load you back to the dashboard of route 53
+-Next we copied the url and then pasted in a web tab and added the context path. ==> maven.acadalearning.ca/maven-web-app and it worked!
+
+
+CNAME can also be used, more on this when we get to AWS
+
+
+
+Below are the exampls url we used to view our deployed apps
+
+18.118.185.70:31210/java-web-app/
+
+
+54.189.104.171:31210/java-web-app/
+
+http://abe76eb184d08492c9b9e6cf55791319-1567171424.us-west-2.elb.amazonaws.com/java-web-app/
+
+
+
+helm rollback = changes the revision from lowest number to higher number (opposit to the regular revision, 
+and the higher number being the previous version (on a norm, when you roll back a version you would get a lower version 
+e.g rollback from version 9 to version 8 is the norm. In helm, rollback from version 9 goes up to revision 10 (which is the previous version, confusing but yea)))
+helm uninstall <nameof app>  <nameofchart>
+helm upgrade <nameof app>  <nameofchart>
+
+
+-----------------------------------------------------------------------
+
+NGINX
+
+NGINX is a thirdparty load balancer.
+
+
+ingress= inbound rule
+egress = outbound rule
+
+
+deploy nginx ingress:
+The Ingress is a Kubernetes resource that lets you configure an HTTP load 
+balancer for applications running on Kubernetes, represented by one or more Services. 
+Such a load balancer is necessary to deliver those applications to clients outside of 
+the Kubernetes cluster. It also provides SSL Termination and SSL Redirect for HTTPS.
+
+FEATURES OF NGINX INGRESS:
+
+-Content-based routing:
+
+1-Host-based routing. For example, routing requests with the host header for.example.com 
+to one group of services and the host header bar.example.com to another group. e.g host:  webapp.ocdit.com or 
+
+acadalearning.com
+
+host" webapp.ocdit.com
+path: /web-web-app
+
+2-Path-based routing. For example, routing requests with the URI that starts with /serviceA 
+to service A and requests with the URI that starts with /serviceB to service B.
+See the Ingress User Guide to learn more about the Ingress resource. e.g /maven-web-app
+
+-login.acadaleearning.com
+
+-payment.acadalearning.com
+
+bringing hostbased and path based routing together will now  be maven.acadalearning.com/maven-web-app
+
+What is the Ingress Controller?:
+The Ingress controller is an application that runs in a cluster and configures an 
+HTTP load balancer according to Ingress resources. The load balancer can be a software 
+load balancer running in the cluster or a hardware or cloud load balancer running externally. 
+Different load balancers require different Ingress controller implementations.
+
+
+path /java-web-app
+
+login.acadalearning.com
+
+payment.acadalearning.com
+
+
+
+--------------------
+host: webapp.ocdit.com
+path /web-web-app
+
+
+host: java.ocdit.com
+path /web-web-app
+
+Ingress is the one routing traffic from external into your cluster, to access what is in your environment= SSH is an ingress cos you are bringing traffic in
+
+Egress is the one taking traffic outside = uses Cluster IP
+
+
+USING HELM TO DEPLOY NGINX (AN INGRESS CONTROLLER?)
+helm repo add nginx-stable https://helm.nginx.com/stable = use to add nginx repo can be gotten from helm.nginx.com
+helm  repo update = to update repo
+helm search repo nginx = to search for nginx that we added to the repo
+helm show values nginx-stable/nginx-ingress
+RBAC = role based access control
+
+
+==================================================================================
+WE ARE STILL RUNNING THIS ON OUR EKS SERVER
+
+creating ingress rule:
+
+helm repo ls = to list what you have in helm repo
+
+helm install nginx  nginx-stable/nginx-ingress = to install controller ingress (NGINX)
+
+kubectl get pod = to confirm
+
+kubectl get svc = to see our external load balancer
+
+ kubectl get ep = to get the endpoints
+
+two types of content rule:
+
+Path-based
+Host-based
+
+path based routing:
+
+
+vi ingress.yml and paste the yaml file beolw
+
+BEFORE YOU DEPLOY THE BELOW, MAKE SURE YOU ALREADY HAVE A  POD RUNNING WITH THE SERVICE NAME ON METADATA; SPRINGAPP, JAVAAPP-MYAPP, MYAPP-SVC
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-resource-1
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: acadalearning.ca   <-----must have a domain to do ingress
+    http:
+      paths:
+      - backend:
+          service: 
+            name: springapp   <----kubectl get svc
+            port: 
+              number: 80
+        path: /
+        pathType: Prefix
+      - backend:
+          service: 
+            name: javaapp-myapp 
+            port: 
+              number: 80
+        path: /maven-web-app  <---------- YOU CAN ALSO LEAVE THIS EMPTY LIKE WE DID FOR SPRINGAPP ABOVE
+        pathType: Prefix
+      - backend:
+          service: 
+            name: myapp-svc 
+            port: 
+              number: 80
+        path: /java-web-app     <------- also leave this empty as /  
+        pathType: Prefix
+
+SAVE
+
+kubectl apply -f ingress.yml
+
+What we are trying to do is that, we want to route the traffic od the 3 apps we deployed to nginx (ingress controller) (including springboot as outlined below).  
+To get the service for each of the apps deployed, we did kubectl get svc  and copied the exact service name displayed, and then exec into the app to grab the path.
+
+
+
+
+
+
+kubectl get ingress
+
+kunectl describe ingress <ingress>
+you can browse the load balancer url
+
+
+YOU CAN IGNORE THE BELOW SCRIPT SINCE YOU HAVE ALREADY BEEN GIVEN AN INSTRUCTION TO CREATE A POD WITH THE SERVICE NAME ON THE METADATA
+
+
+
+BUT YOU CAN LOOK AT THEM FOR THE PURPOSE OD CREATING THE YML FILE
+----------------------------------------------------------------------------------------------------
+ we also deployed javawebapp
+
+ output this in yaml format
+
+ apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/psp: eks.privileged
+  creationTimestamp: "2022-12-03T22:35:42Z"
+  generateName: javaapp-myapp-86b4c477cf-
+  labels:
+    app.kubernetes.io/instance: javaapp
+    app.kubernetes.io/name: myapp
+    pod-template-hash: 86b4c477cf
+  name: javaapp-myapp-86b4c477cf-bhvdt
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: javaapp-myapp-86b4c477cf
+    uid: ac0ea950-f5bc-420b-b42e-47d820fcf2b7
+  resourceVersion: "19103"
+  uid: c3fa1bc1-f032-452e-ac41-8753e01a24e3
+spec:
+  containers:
+  - image: acadalearning/maven-web-app:latest
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /maven-web-app
+        port: http
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: myapp
+    ports:
+    - containerPort: 8080
+      name: http
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /maven-web-app
+        port: http
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources: {}
+    securityContext: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-r7vrb
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: ip-192-168-51-34.us-west-2.compute.internal
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-r7vrb
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2022-12-03T22:35:42Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2022-12-03T22:36:03Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2022-12-03T22:36:03Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2022-12-03T22:35:42Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://8a2e380f5ad31c29b10da111e9d0bff73eff4d38521000b79ae1c392a8b3253c
+    image: acadalearning/maven-web-app:latest
+    imageID: docker-pullable://acadalearning/maven-web-app@sha256:4bb97060bd2fd6b5b4dc544fbb86e246b521c51f08605d9202a676a17ce2b557
+    lastState: {}
+    name: myapp
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2022-12-03T22:35:53Z"
+  hostIP: 192.168.51.34
+  phase: Running
+  podIP: 192.168.62.128
+  podIPs:
+  - ip: 192.168.62.128
+  qosClass: BestEffort
+  startTime: "2022-12-03T22:35:42Z"
+
+
+---------------------------------------------
+ We also deployed springboot
+
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: springapp
+   namespace: dev
+ spec:
+   selector:
+     matchLabels:
+       app: springapp
+   strategy:
+     type: Recreate
+   replicas: 3
+   template:
+     metadata:
+       name: springapp
+       labels:
+         app: springapp
+     spec:
+       containers:
+       - name: springapp
+         image: acadalearning/spring-boot-mongo
+         ports:
+         - containerPort: 8080
+         env:
+         - name: MONGO_DB_USERNAME
+           value: devdb
+         - name: MONGO_DB_PASSWORD
+           value: devdb@123
+         - name: MONGO_DB_HOSTNAME
+           value:  mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: springapp
+spec:
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: NodePort
+
+
+kubectl get ingress
+
+kubectl describe ingress ingress-resource-1
+------------------------------------------
+
+Apps Deployed
+
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: myapp-rs
+ spec:
+   replicas: 3
+   selector:
+     matchLabels:
+      tier: myapp
+   template:
+     metadata:
+       name: myapp-zeepod
+       labels:
+         tier: myapp
+     spec:
+       containers:
+       - name: myapp-c
+         image: acadalearning/myapp
+         ports:
+         - containerPort: 8080
+---
+
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: myapp-svc
+ spec:
+   selector:
+     tier: myapp
+   ports:
+   - targetPort: 8080
+     port: 80
+     nodePort: 31300
+   type: NodePort
+
+
+
+
+
+====================
+Rules:
+  Host              Path  Backends
+  ----              ----  --------
+  acadalearning.ca
+                    /                springapp:80 (192.168.19.28:8080,192.168.39.168:8080)
+                    /java-web-app    javawebapp:80 (<error: endpoints "javawebapp" not found>)
+                    /maven-web-app   webappsvc:80 (<error: endpoints "webappsvc" not found>)
+Annotations:        <none>
+
+
+
+
+acadalearning.ca/maven-web-app 
+
+
+
+javawebapp
+mavenapp
+
+login.acadalearning.ca
+payment.acadalearning.ca
+cart.acadalearning.ca
+registration.acadalearning.ca
+
+
+
+jenkins AG kubectl command
+
+sh "kubectl apply -f johnson.yml" 
+
+
+
+--------------------------------------------------------------------------
+
+to exec into springapp = kubectl exec -t <podnmae> /bin/sh

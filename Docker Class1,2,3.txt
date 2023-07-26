@@ -1,0 +1,512 @@
+Module 5 - DOCKER
+
+Docker is a software used to create DOCKER IMAGES and run CONTAINERIZED application.
+
+
+A container is a running instance of an application
+
+(An instance is a machine that runs application)
+
+An analogy: a waterbottle is like a container, that runs a liquid ( application).  i.e running an instance in a computer.
+
+Analogy2 : You go to the market and purchase a big bag of dispenser water, say 20L.  You got the water 20L but its too big. Let's say there is a puncture or contamination, then the water is a waster.  The dispenser is a container, and the liquid is a monolithic application.
+Now lets say we have different containers and distribute the 20l liquid in to 100 x 25cl containers, such that we can pick one at a time and use and isolate the liquid (application), now we can use the 25cl individually without contamination the rest, because they are now isolated.
+
+Monolithic application / micro-services
+
+analogically, monolithic application = 20 L of water/liquid. 
+Microservices = 100 x 25cl bottle of water.
+
+Monolithic = is the whole thing or the whole e.g Ecommerce site = Amazon.ca
+
+microservices = different smaller parts of a whole = login, payment, loan, mortgage, about, cart, shipping, signup,account, application ----These are all APIs ( microservice) and they all sum into one Monolithic application e.g Bank (e.g RBC)
+
+For example;
+
+You LOGIN first on amazon.ca before you make PAYMENT (which means payment is dependent on login)
+
+You cannot SHIP until you make PAYMENT ( meaning shipping is dependent on pPayment and that is depenedent on Login)
+
+All of this are part of Amazon
+
+Microservices: These are different services that talked to each other and when they are summed up to one main application.
+
+
+
+VIRTUALIZATION VS CONTAINERIZATION:
+
+Before virtualization and containerization: we have VMs and/or Physical Systems or Servers.  On the VMS (HOST OS) we install Linus/ Windows/Solaris/servers (macOS).
+
+For the Physical Machines/VM we need RAM (e.g 500gb), 1 tb HDD etc
+
+On VM OS we can install Hypervisor - this hypervisor can be a Virtual Box, Oracle VM= and it helps us to run several applications on several OS as if we partition the VM.  For example: we installed version 8 of RedHat (REDHat ), Ubuntu, windows server OS
+
+On this Guest Redhat above, we can say, let me take 150 gb of RAM out of the 500gb, and 100gb of HDD for RedHat (Linux OS)
+
+On the Guest Ubuntu, say we share 100gb ram and 200gb HDD
+
+On the Guest Windows Server OS, we put 50gb RAM and 200gb HDD
+
+At the backend there is an hyupersor that is running all this applications.
+
+All the above is on prem.
+
+On top of our Guest Redhat OS server, we installed Jenkins, Tomcat, SonarQube
+
+All of the above is Virtualization, so many layers that are heavy.
+
+This is where containerization comes in.
+
+
+
+Containerization
+
+We are maintaining all of the above except HYPERVISOR,and in place of hypervisor we have things like Doceker Engine/Kubernettes/Nomad etc (Eliminating Hypervisor means we are also not installing any of the operating systems.)
+
+Now on the Docker we don't need the differenet operating systems we installed in virtualiztion.
+
+Now we are just left with our applications running in container ( Jenkins, Tomcat and SonarQube).
+
+Basically, we have removed 2 laters from Virtualization process and that gives us the Containerization.
+
+We can then assign RAM and HDD to all these applications on Docker e.g Jenkins 1GB RAM, 4GB HD, Tomcat 6GB RAM, 10GB HD, SonarQube 3GB RAM 5GB HD
+
+Tomcat:
+patching
+Installation:
+
+Direct DEPLOYEMNT FROM MAVEN STATEFUL APPLICATION TO TOMCAT
+
+scp <app-location> <destination>
+
+scp web-app.war ec2-user@3.86.32.182:/opt/tomcat9/webapps
+
+How does deployment happens in TomCAt
+
+answer: you simply copy from that application server to Tomcat's webapp
+
+context path = the ipaddress:port/appname you are building without the ".war"
+
+scp target/*.jar = means copy anything with .jar applications in target ....* means wildcard
+scp target/*.jar ec2user@3.86.32.182:/opt/tomcat9/webapps:
+
+scp *.war ec2-user@IP/opt/tomcat/webapps
+
+
+What is Docker:
+
+Docker is a containerization platform which packages your app and all dependencies together in the form of containers so as to ensure that your application works seamlessly in any environment be it dev or test or prod.
+
+Docker is an open platofrm for system developer and software engineer or system admins to build, ship and run distributed applications.
+
+Docker is available in 2 editions, and they are:
+CE = Community Edition (open source)
+EE = Enterprise Edition
+
+Difference is just in more functional add-ons in EE than in CE.
+
+Docker can run across multiple platforms
+
+What are the containerized applications that are top of the markets?
+
+-Docker = takes about70% share of the market
+-CoreOS = approx 15%
+-Rocket = approx 15%
+
+Jenkinsfile = pipeline script
+
+Dockerfile = is a package that contains:
+
+1-application code = e.g rbc.war, paypal.war 
+
+2-All Dependecies (Software, Environmental variable) = e.g Tomcat ,  Wildfly or JBoss
+
+NOTE: SonarQube can be wrap around Tomcat, and can be ran as a stateful application on its own.
+
+mvn package = build, compile, test, validate and results in;
+
+app.war 
+app.ear
+app.jar
+
+Docker image = application (e.g app.war or other extension) + all dependencies ( e.g tomcat or Jboss/wildfly with Jave ( a prerequisite))
+
+Docker image= app.ear + JBoss or wildfly/Java
+
+Docker image = app.jar + Java
+
+Dockerfile = application + All dependencies
+Dockerfile app.ear + tomcat
+
+Dockerimage is then a built Docker file that is in a running state or packaged state
+
+
+
+Installing Docker as a Stateful app
+
+#!/bin/bash
+Ubuntu Server 18.04 LTS (HVM),
+sudo hostname docker
+sudo apt update -y 
+sudo apt install docker.io -y
+sudo usermod -aG docker ubuntu 
+#docker swarm init
+#to add nodes
+#docker swarm join --token SWMTKN-1-6c3ke0mcewu62k3eaf1g5y4rvqvod45elyillk0g0gogeo3vz5-99csbag2d9j39u7y9nwvfignn 172.31.16.91:2377
+
+
+#!/bin/bash
+# Run this as a script
+sudo hostname docker
+sudo apt-get update
+sudo apt install docker.io -y
+sudo usermod -aG docker ubuntu 
+
+
+# Install java as Jenkins dependency
+sudo apt install openjdk-11-jdk -y
+
+
+# install Jenkins in ubuntu:
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+
+sudo apt-get install jenkins -y
+
+sudo systemctl start jenkins
+
+echo "jenkins  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/jenkins
+
+sudo echo "jenkins:admin" | chpasswd
+
+sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+
+sudo service sshd restart
+
+sudo usermod -aG docker jenkins
+
+sudo su - ubuntu
+
+docker ps
+
+
+Docker = build docker images
+Kubernettes (K8s) = to manage containers
+
+
+
+Dockerfile ( contains docker script):
+
+FROM tomcat:8.0.20-jre8
+COPY target/*.war /usr/local/tomcat/webapps
+
+
+docker pull tomcat:10.0.26-jre11
+docker pull tomcat:10.0.26-jre11-temurin-jammy
+
+
+scp target/*.war ec2-user@54-174-165-228:/opt/tomcat/webapps
+scp <app-location> <destination>
+application = mvn package target = app.war = artifact
+app.war + tomcat (base image = tomcat that has been prebuilt)
+baseimage = tomcat:8.0.20-jre8
+deployment to tomcat occurs in webapps whether the directory changes or not
+docker 
+
+
+BUILT OUR OWN DOCKER IMAGE
+
+	1. docker ps
+
+ 	2. mkdir fintech ; cd fintech
+
+ 	3. git clone https://github.com/ykgithuber/maven-web-app.git
+
+	4. ll = to see if maven-web-app has been gitcloned
+
+    	5  cd maven-web-app/ = to change in to maven-web-app directory
+
+    	6  ll = to check if we have " target" directory, this is a proof that mave is installed
+
+    	7  sudo vi Dockerfile = this is where we put the Dockerfile ( which contains docker script):
+
+	
+	paste the following content inside our docker file: 
+
+	FROM tomcat:8.0.20-jre8
+	COPY target/*.war /usr/local/tomcat/webapps
+
+	-To get the tomcat version above, go to docker hub
+
+	-type tomcat
+	
+	- select the one that shows official Tomcat images
+
+	-select tags 
+
+	- copy the first tag or anyone you want, it looks like this : docker pull tomcat:10.0.26-jre8-temurin-jammy
+
+	-grab tomcat:10.0.26-jre8 = this will go into "FROM" and will look like this FROM tomcat:10.0.26-jre8
+
+	-add this to the script COPY target/*.war /usr/local/tomcat/webapps
+
+	-Then you have:
+
+	FROM tomcat:10.0.26-jre8
+	COPY target/*.war /usr/local/tomcat/webapps  (COPY target/acadaapp.war  = you can be specific with the the name of the app instead of using *)
+
+	-The above is the docker script
+
+	-Now do sudo vi Dockerfile = to create the Docker script
+
+	-Paste the script in the above sudo file and then save
+
+
+   8  sudo apt install maven -y = install maven
+
+   9  mvn package = then package and this will create a target directory
+  
+   10  ll target = to see the package web app
+
+   11  cat Dockerfile = to confirm the docker script created 
+   
+   12  docker build -t cohort8 . =  cohort8 is the image name. you can call it anything you like and the dot (.) means pwd. pls take note of the dot .
+	this will build dockerfile or packaged the dockerfile (app code + tomcat (all dependencies)) and title (-t) it cohort8 (can use any name of interest) = to build image
+
+   13  docker images = to confirm if the packaged app is now build and in the 
+   and see if it is ready to run
+
+   14  docker run --name app -d -p 2000:8080 cohort8 = to create a container and name the container 
+	-d = detachable mode
+	-p = specifying a preferred port 
+	name app = to specify the name of the container
+
+   where 2000 is the port number of the deployed image container in tomcat 
+
+   8080 is the exposed port number
+ck
+
+   15  docker ps
+
+   16 Context path = IP:containerPort/Appname = http://54.174.165.228:2000/maven-web-app = to show your deployed container on tomcat.  NO NEED TO PROVISION ANY INSTANCES HERE.  That's the fun of it.
+
+The result of a packaged Docker file in a running state = docker image
+
+Create a dockerhub account on hub.docker.com = this is where docker images are stored = repository for for docker image
+
+Any image you want to download in Dockerhub, you must download from OFFICIAL TOMCAT IMAGE
+
+Search Tomcat
+
+click 
+
+You need to git clone your application before you build your applicaton
+
+docker build -t cohort8 . = to build image in docker named cohort8 
+
+The "." = where I am standing is where I have my Dockerfile, the current path
+
+docker images = to show packaged artefact  (but it is not running at the moment)
+
+docker run --name app -d -p 2000:8080 cohort8 = this is to run the image created in a container named app 
+
+in the above command -p -d = is to run the images in a detachable mode
+
+8080 in the above command = port mumber for 8080
+2000 = container port number
+
+docker ps = docker processes to show all running containers
+
+if we run docker build -t cohort8 . = to build an image  ( docker build -t <imageName>:tag <dockerfileLocation> == the dot (.) is the dockerfilelocation), 
+
+Context path = IP:containerPort/Appname = http://54.174.165.228:2000/maven-web-app
+
+
+DOCKER IMAGES PULLED FROM DOCKERHUB
+
+Running sonarQube as a container
+for latest sonarqube 
+
+run the command
+ 
+docker pull sonarqube
+
+docker images = to reveal if sonarqube image has been created
+
+docker run --name sonar -d -p 5000:9000 sonarqube = where sonarqube is the image name, and sonar is the running name
+
+5000 = container port ( any random number you may think of )
+9000 = sonarqube port
+
+browse sonarqube at publicIP:5000 =new-port-assigned
+
+RUN SAME METHOD FIOR NEXUS, JENKINS AND OTHER PLUGINS
+
+Running jenkins as a container
+
+docker pull jenkins:2.60.3  ( to grab this go to dockerhub then select tag for specific version then copy it)
+
+docker pull jenkins:latest = to pull latest if you don't want to use an exact version but just use the lates.
+
+then docker images ( to see the name of the images)
+
+docker run --name jenkins -d -p 3000:8080 jenkins:2.60.3
+OR
+docker run --name jenkins -d -p 3000:8080 ae0io234dw4 = where ae0io234dw4 is the image ID 
+
+docker ps
+
+NOTE: containers are ephemeral, they can die anytime, so better to backup
+
+
+OCTOBER 1st 2022
+
+DOCKER CONTINUES
+
+docker start = to start a container
+
+docker stop
+
+
+Continuous Delivery = Manualy Gate or Manual approval or Approvoal Gate = this is what we use to deploy application to production.  Client must approve first, before deployment.
+
+
+Examples 
+
+Build --- Test --- Backup --- Deploy to (Tomcat) STAGE --- Approval Gate --- Deploy to UAT (Tomcat) --- Approval Gate --- Deploy to Production
+
+Build --- Test --- Backup --- Deploy to (Tomcat) STAGE --- Approval Gate
+
+Build --- Test --- Backup --- Deploy to (Tomcat) UAT --- Approval Gate
+
+Build --- Test --- Backup --- Deploy to (Tomcat) Prod
+
+
+Continuous Deployment = This is same as continuous delivery but it does doesn't need approval gate.  usually use for internal projects
+
+Docker Commands:
+
+docker build -t <imageName>:tag <dockerfileLocation>
+
+
+docker images
+
+if you don't tag your image, docker would assign "latest" tag to it. for example if you just do docker built -t cohort8 = this will just build the image and docker will tag it "latest" (to confirm this, you can do "docker images" - you would see images with tag "latest" this means docker auto assign to them)
+
+However, you can tag an image when you are building an image, you just add "docker build -t <imageName> :tag>"  e.g  docker build -t cohort8:1
+
+docker pull = to pull images from docker hub
+
+docker rmi <image name> = docker remove image
+
+docker run = this is another way to "docker pull an image" let's say we wanted to pull jboss/wildfly from the docker hub, see below
+
+docker run --name <jbosscontainer> -d -p preferredPORT:exposedPORT <imagename we want to pull from imagehub> = e.g docker run --name jboss -d -p 4000:8000 jboss/wildfly = --name jboss is the name we give the image, -d -p 4000:8000 is allows to assign a port of interest and default or exposed port, <name> (jboss/wildfly) is the name of the latest version of the image we want to pull
+
+docker ps = to show running images
+
+dockeer  ps -a to show all images, both running and not running
+
+docker ps -q = to show only running images ID
+
+docker ps -qa = to show all images ID both existing or not existing
+
+docker push = to push, we need to build first and specify the repository we want our image in. doing push will push it to docker hub. 
+for example we can do  (docker build -t acadalearning/cohort8:1 .)  (acadalearning here is the repository, cohort8 is the image name, to push, YOU MUST CREATE A REPOSITORY)
+
+
+docker push acadalearning/cohort8 = but you need to login, see below to login
+
+1-docker login -u <dockerhubUsername> -p <dockerhubpassword>
+
+2-docker login -u <dockeerhubusername> = if you enter this, this will request for password in encrypted text
+
+
+docker start <containerID> = to start a container
+
+docker stop <containerID> = to stop a container
+
+docker rm <containerID> = to remove a container
+
+docker rmi <imagename or imageName>:tagname = to remove an image
+
+
+docker rmi -f <imagename or imageName>:tagname = to force remove an imgage. this only force remove image, the container is still there
+
+docker rm -f <containerID> = to force remove a container
+
+docker ps = to see information about containers e.g containers ID
+
+docker images = to see nformation about images e.g image ID
+
+if docker images -qa = command to view all images ID
+THEN REMOVE ALL IMAGES BY CALLING IT AS A VARIABLE
+docker rmi -f $(docker images -qa) = to remove all images as a variable
+
+docker images prune = to remove images that are not associated with a container, don't have a root file, sitting idle, not functioning.  Basically no process is taking place = to remove dangling images
+
+docker history <image:tag>= to show all docker histtory of a particular image name
+
+docker tag <currentname:tag> <newname:newtag
+
+REMEBER IMAGE ID IS DIFFERENT FROM CONTAINER ID
+
+docker login -u <username> -p <password> IP:port = to login into external IP addrress OR
+
+docker login -u IP:port = same as above but will ask you to enter password
+
+docker images ls = to list all your images
+
+docker inspect <image:tag> = to instpect image, get more information about the image, to check the environmental variable , to see where deployment happens, etc
+
+docker create <imagename:tag> <containername> = creating a non runing container from an image
+
+docker logs <containername> or docker logs <dontainerID>
+
+docker ps -a -f "status=running" = to see the floating running container
+
+docker log -f <containerID> = gives the floating log of a container, non stopping
+
+docker kill  <containerID> = will kill a container without prompting you
+
+docker start $(docker ps -qa) = to start all containers
+
+docker restart <containerID> = to restart container 
+
+docker rm -f <containID1> <containID2> <containID3> = to delete multiple containers
+
+docker cp <currentlocation> <----
+
+docker exec <containerID> ls = to view activities in a container
+
+docker exec <containerID> pwd = to see present working directory of the activies in the container
+
+docker create --name container_name -p port:port image_name
+
+docker exec -it <containerID> COMMAND: interactive mode
+
+docker exec -it <containerID/name /bin/bash = this gets you into interactive mode where you will be in your container activities  as a root user.  and then you can do our settings.xml, conf etc (to might need to install an editing tool, apt-get install vim).  to exit do "exit"), as a root user in you rcontainer's activities, you can use our regular linus command
+
+docker rename <containerID> <newname> = to rename a container (this will only rename the container not the container ID)
+
+docker commit <containerID> <newimagename you want to create> = eg. docker commit a422e47ec10c mymama
+
+docker pause <containerID> = to pause a container
+
+docker unpause <containerID> = to play the container or activate again.
+
+docker system prune = delete all stopped immages, containers, network etc
+
+docker logout = logs you out
+
+Docker's limitation: when you spin up a container with one name and port number, you can't spin up another container with the same name or port number , you have to change those two, this is where docker orchestrators come into play.  Dockers orchestrator include, Docker swarm, norman and Kubernettes, they help us to create containers with same name/port, and so we don't have to give our customers different IP address everytime.
+
+Assignment
+
+Run a full pipeline using docker. DON'T use jenkins

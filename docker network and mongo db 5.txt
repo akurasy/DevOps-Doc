@@ -1,0 +1,253 @@
+Oct 12, 2022 (vid5 Module5)
+
+Best Practice:
+*Use Linux lightweight alpine images where applicable
+*Reduce the number of layers by minimizing the numbers of run instructions, these affects the performance of containers
+*Use only official images in docker hub for base image
+*Avoid downloading unnecessary software or packages
+*Scan your docker images (docker scan ?)
+*Use Multistage Dockerfile where applicable
+*Use the executable shell or parent process when applicable
+
+RDB and NON-RDB
+
+Relational database: data are stored in rows and columns (Table format)
+SN 			Name		Class			Age
+1 			Efe			DevOps			16
+2 			Ifeoma 		Platform		14
+
+Non -Relational database (noRDB): data are stored in JSON format e.g.
+
+{
+	name: 'Efe'
+	SN;	   '1'
+	age:  '16'
+	Class: 'DevOps'
+}
+
+
+{
+	name: 'Ifeoma'
+	SN;	   '2'
+	age:  '14'
+	Class: 'Platform'
+}
+
+
+
+Relational DataBase(RDB)                                    Non-Relational Database (noRDB)
+mySQL														MongoDB
+MariaDB														dynamoDB
+ProstgreSQL													graphDB
+RabitMQ														REDSHIFT
+aurora														noSQL
+															Casandra
+
+
+How to install Database
+1. Create an EC2 instance (aws) or virtual machine
+2. Install a database engine (DB Engine) 
+
+To create Database, you need 
+- Username : e.g admin 
+- Password : e.g admin123
+- Hostname : e.g mongo ( could be name of any of the dababase mentioned)
+
+
+-Self Manage DB: You are the one running the environment and managing the database.  
+-Managed DB: a database being managed by cloud service provider e.g (aws, azure, gcp). RDS (Relational database service) is a service provided by cloud provider, e.g aws to manage database
+
+all of the database mentioned have both self manage and managed databases
+
+
+==================================================================================================================
+THIS LINE BELOW IS A SUMMARY OF WHAT DOCKER IS ALL ABOUT
+
+Docker Networking: Is used to group applications in a cluster so that they can talk to each other
+
+Docker: containerization engine/ Software / tool
+
+Dockerfile: A file that contains list of docker instructions
+
+Docker image: built docker image artifacts that is used to run docker container (dependencies + app code)
+
+Docker container: Running instance of a docker image
+
+Docker Registry: Central storage for docker images
+
+Dcoker command: check "Module 5 - Docker"
+===============================================================================================================
+
+
+
+Docker Networking: Is used to group applications in a cluster so that they can talk to each other
+
+docker network ls = gives the different network in our environment, do this, will give the following by DEFAULT;
+
+f63103a30157   bridge    bridge    local
+aba57d33e844   host      host      local
+db1043ac874a   none      null      local
+
+nOTE: we cannot ping a container that is not in the same network using the container ID
+
+docker inspect = to inspect the container and see the IP of the container
+
+docker exec -it <containerID>  ping <IP>
+
+you can also ping by doing the following
+
+docker exec -it <container ID> /bin/bash = to go into a container
+ping IP = to ping the other container using the IP
+exit = to leave the container
+
+
+TO COMMUNICATE USING THE CONTAINER ID OR CONTAINER NAME, WE NEED TO CREATE A NETWORK
+
+
+There are 3 types of Docker network
+
+1- Bridge Network: this is the Default bridge network and it contains, containers that communicate using containers IP only.  NOTE: When you launch a container it is launched using the bridge network by default.
+
+2-Host Network:  anything or any containers launched on the host network, will not have IP address.  Containers will be created in the system network
+
+3-None Network: This is the CUSTOM BRIDGE network.  You can create other bridge network out of "NONE" network.  Here containers communicate with both IP and Hostname
+
+4-Overlay Network: link Orchestrator tools together?
+
+
+How to create a network?
+ 
+Custom Network: to create we do;
+
+to get drivernetwork. run the command= docker network ls
+
+then create network:  
+
+1-docker network create -d <drivernetwork> <networkName>
+
+OR
+
+2-docker network create <networkName>
+
+example 1
+
+docker network create -d bridge pinging
+
+8f62c68ca7568d960b9e9b4d086c2e08353b46bfd277f0f2461864700b3ee201
+
+ubuntu@ip-172-31-23-130:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+f63103a30157   bridge    bridge    local
+8f62c68ca756   fintech   bridge    local
+aba57d33e844   host      host      local
+db1043ac874a   none      null      local
+
+example 2
+
+docker network create td
+
+61692ba310957cfae3bbcf99cbde3b83a0e6002c05d80ea2bc8e3decd779514a
+
+ubuntu@ip-172-31-23-130:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+f63103a30157   bridge    bridge    local
+8f62c68ca756   fintech   bridge    local
+aba57d33e844   host      host      local
+db1043ac874a   none      null      local
+61692ba31095   td        bridge    local
+
+
+
+============================================================================================================================
+
+BUILDING THE DATA BASE APPLICATION (SPRINGBOOT)
+goto docker hub website and pull the image. 
+
+docker pull acadalearning/spring-boot-mongo:latest (this is an already built image. kindly do a research on how to build yours)
+
+run the image;
+docker run --name acada -d -p 4500:8080 <image name or image ID>
+
+check the running port on your browser //localhost:4500
+
+IT WILL OPEN THE WEBSITE BUT WILL NOT BE ABLE TO RECEIVE INPUT DETAILS BECAUSE THERE IS NO DATABASE INSTALL. TO DO THIS:
+
+
+LETS INSTALL A DATABASE CALLED MONGODB
+
+In creating a DB, you need the following
+
+a. username = input any value
+b. password = input any value
+c. hostname = mongo  (by default, name = mongo)
+
+#NOTE: containers have their own IP address.  Containers have IP address to talk to themselves.
+
+basically, to make containers talk to one another, they must be in the same network
+
+if we don't want to publish database to the public, you can restrict them to their private IP. or remove "-p" or don't do port publishing e.g
+
+To run database (e.g Mongo) on private network you can do:
+
+1 mongo database application (no need to expose the port number) : 
+
+#remember we created a network call pingning. attach moongo to the network (SAY MONGO DESIRED NAME = MONGO26)
+
+docker run -d --name mongo26 --network pinging \
+-e MONGO_INITDB_ROOT_USERNAME=uatdb -e MONGO_INITDB_ROOT_PASSWORD=uatdb123 mongo 
+
+Note: In mongo, there are environmental variables. to pass them, we use "-e".  MONGO_INITDB_USERNAME=uatdb -e MONGO_INITDB_PASSWORD = : this is how MONGO syntax works for username and password.
+
+Note: to use a database, you would need username (uatdb), password(uatdb123) and hostname (mongo) and container name (mongo26)
+
+now bind the above database with our application:
+
+2-springbootmong application( we need to expose the port number) :
+
+ docker run -d -p 8002:8080 --name springapp27 -e MONGO_DB_HOSTNAME=mongo26 \
+-e MONGO_DB_USERNAME=uatdb -e MONGO_DB_PASSWORD=uatdb123 --network pinging \
+acadalearning/spring-boot-mongo
+
+
+CREATE A SCRIPT FOR 1 AND 2 TO RUN THEM TOGETHER.
+
+vi uat.sh
+paste the content of 1 and 2 above 
+
+docker run -d --name mongo26 --network pinging \
+-e MONGO_INITDB_ROOT_USERNAME=uatdb -e MONGO_INITDB_ROOT_PASSWORD=uatdb123 mongo
+
+docker run -d -p 8002:8080 --name springapp27 -e MONGO_DB_HOSTNAME=mongo26 \
+-e MONGO_DB_USERNAME=uatdb -e MONGO_DB_PASSWORD=uatdb123 --network pinging \
+acadalearning/spring-boot-mongo
+
+save.
+run the application with the command:
+sh.uat.sh
+
+
+3- To confirm that the application app is talking to the DB, do : docker exec <appcontainername> ping <DBcontainername or DBhostname> e.g docker exec springapp27 ping mongo26
+
+In the above, we can see that we are able to use apps name to ping app name, this means we now have them in a custom bridged network
+
+
+Explanation:
+When we go to amazon.com, the first page we hit is the log in page,or signup page.  When we sign up, we are directly talking to the amazon web app by filling in our information,
+what happens then is that our information is being saved to the database, how this works is that, while we are filling the registration page, and hit submit, 
+the system is interacting with the a database application in the back-end to create our record.  The database is not published to the public, for security reasons, 
+and this is why we don't have a direct access to it.
+
+N-tier Architecture: In N-tier archi there is Load Balancer---> Application Server -----> and Database (DB). 
+In N-tier archi, there is external traffic trying to access the application (could be login container, reg container, payment container etc).
+
+Load balancer (e.g webserver or Nginx) reduces traffic for application access, by reducing and directing traffic to different route but to the same application server (e.g springapp, maven-web-app, web-app)
+
+
+
+
+
+
+
+
+
+

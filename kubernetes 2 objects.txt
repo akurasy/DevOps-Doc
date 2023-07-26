@@ -1,0 +1,273 @@
+KUBERNETES CLASS 2 OCT 26.2022
+
+Kubernets Objects are persistent entities in the k8s system.  K8s uses these entities to rep the state of your cluster
+
+Pods are scheduled on the  node
+Pods are ephemerial, they have short life span
+A Pod is the smallest building block or basic unit of scheduling in kubernetes
+In a K8s cluster, a pod represents a running process
+Inside a Pod, you can have one or more containers.  Those containers all share a unique network IP, storage , network and any other specification applied to the pod. 
+( all the containers will share a single IP adrress of a pod)
+-POD is a group of one or more containers which will be running on some node.
+-Pods abstract network and storage away from the underlying container
+-This lets you move containers around the cluster more easily.
+-Each Pod has its unique IP address within the cluster.
+-Any data saved inside the pod will disappear without a peristent storage
+
+Is it possible to run more than one containers in a POD?
+-Yes, it is very possible but not advisable.  
+-A pod that runs morethan one container is called a SIDECAR
+
+
+Kubernetes Objects
+
+Pod Lifecycle
+
+Make a Pod request to APl server using a local pod definition file
+The API server saves the info for the pod in ETCD
+The scheduler finds the unscheduled pod and shedules it to node.
+Kubelet running on the node, containerd
+Containerd runs the container
+The entire lifecycle state of the pod is stored in ETCD
+
+Pod Concepts
+
+Pod is ephemeral(lasting for a very short time) and won't be rescheduled to a
+new node once it dies
+You should not directly create/use Pod for deployment, Kubernetes have
+controllers like Replica Sets, Deployment, Deamon sets to keep pod alive.
+
+
+POD MODEL TYPES
+
+Most often, when you deploy a pod to a Kubernetes cluster, it'll contain a container. But there are instances when
+you might need to deploy a pod with multiple containers. There are two model types of pod you can create:
+
+1-One-container-per-pod: This model is the most popular. POD is the "wrapper for a single container. Since pod is the 
+smallest object that K8S recognizes, it manages the pods instead of directly managing the containers.
+
+2-Multi-container-pod or Sidecar containers: In this model, a pod can hold multiple co-located containers; i.e primary
+container And utility container that helps, or enhances how an application functions (examples of sidecar containers are log shippers/watchers
+and monitoring agents).
+
+
+STATIC PODS
+Static Pods are managed directly by the kubelet and the APi server does not have any control over these pods. The kubelet is responsible to watch each static Pod and restart it if it crashes. The static Pods running on a node are visible on the API server but cannot be controlled by the API Server. Static Pod does not have any associated replication controller, kubelet service itseif watches it and restarts it when it crashes. There is no health check for static pods.
+The main use for static Pods is to run a self -hosted control plane: in other words, using the kubelet to supervise the individual control plane. components.
+Static Pods are ahways bound to one Kubelet on a specific node
+
+
+Kubernetes Labels and Selectors
+
+Labels
+When One thing needs tO find another thing in k8S, it uses labels.
+Labels are key/value pairs attached to Object
+You can make your own and apply it.
+it's like tag things in kubernetes
+
+For e.g
+labels:
+app: nginx
+role: web
+env: dev
+
+Selectors
+Selectors use the label key to find a collection of objects matched with same value
+i's like Filter, Conditions and query to your labels
+For e.g.
+
+Selectors
+env: dev
+app !=db
+release in (1.3,14)
+Labels and Selectors are used in many places like Services, Deployment and we will see now in Replicasets.
+
+
+Manifest file in K8s must contain the following.
+
+first it is .yml file
+
+4 basic components of all K8s manifest file
+
+apiVersion
+Kind
+metadata
+spec
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp-pod
+  namespace: dev
+  labels:
+    app: webapp
+spec:
+  containers:
+  - name: webapp-c
+    image: acadalearning/java-web-app
+    ports:
+    - containerPort: 8080
+
+apiVersion = you must get your pod version to do this, do kubectl api-resources | grep pod = to get your api version
+
+kind = is where you specify your k8s object e.g Pod, Daemonset, Replicat set etc
+
+metadata = is the data of data e.g name (given to the object, in this case name given to the Pod), labels (the app (container name that is running inside), image, namespace (if not defined, it will go into "default namespace")
+
+spec: that is where we define the container. inside container, name (of container), image, ports (container port) (remember docker run --name webapp -d -p 80:8080 acadalearning/java-web-app).
+
+note: if you do kubectl get pod = it will show you the the running pod.
+
+kubectl get deploy = to see deployed pods
+
+kubectl delete deploy <deployedPodname>
+
+kubectl get pod --namespace=dev = to see the running app in the pod in dev namespace
+
+kubectl config set-context --current --namespace=dev = To change the default or current namespace to the one you have in your .yml file, in this case dev (as also defined in the command)
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-pod
+  namespace: dev
+  labels:
+    app: hello
+spec:
+  containers:
+  - name: hello-c
+    images: joveluro/helloworld
+    ports:
+    - containerPort: 80
+
+    kubectl get event 
+
+kubectl apply -f hello.yml --dry-run=client = to see it without running (to see if our  .yml file we created is free of error)
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: 
+
+kubectl get pod -o wide = to get all pods in wide mode (wide depth)
+
+kubectl get pod -o yaml = to outpout it in yaml format
+
+curl -v 10.32.0.4:8080/java-web-app  = to connect or talk to the application java-web-app, internally.  we can only talk to the app internally with IP cos we don't have service
+
+kubectl delete pod webapp = to delete pod
+
+NOTE: the running application won't publish externally in the front end until SVC (service) is  connected.
+
+CREATING SERVICE
+
+We need to write another yml file to run service so that the application can talk to each other
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-svc
+  namespace: dev
+spec:
+  type: ClusterIP
+  selector:
+    app: webapp
+  ports:
+  - port: 80
+    targetPort: 8080
+
+
+
+
+  NOte: cluster IP = is under service and it is used for interanl traffiic
+  nodeport and LoadBalancer = is under service, but is used of external traffic
+ selector = to make SERVICE talk to the app (webapp), selector will select labels here which will 
+ Service also needs to have a port, that will talk to the webapp with the yml file below
+ Once the service is configured on the app, it will allow the pod on one node can talk to another pod on another node or the same node
+ targetPort = to bind to the application port
+ type = type of service if we are configuring for service. note: if we don't specify type, it will by default put "ClusterIp"
+
+
+
+apiVersion: v1
+Kind: Pod
+metadata:
+  name: webapp
+  namespace: dev
+  labels:
+    app: webapp
+spec:
+  containers:
+  - name: webapp-c
+    images: acadalearning/java-web-app
+    ports:
+    - containerPort: 8080
+
+
+kubectl get ep -o wide = 
+kubectl exec -t webapp /bin/bash = to run the app in interactive mode
+curl -v clusterIP:8080/java-web-app = now we can talk to the pods internallaly with cluster Ip
+kubectl describe pod webapp = to see details description of the pod
+
+NODEPORT SERVICE AND LOADBALANCER SERVICE
+
+NodePort and LoadBalance have a port range: 30000 to 32767  (MEMORIZE)
+
+if you don't assign a port when creating Nodeport and loadbalancer service, k8s will automatically assing a port within the above range
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-svc
+  namespace: dev
+spec:
+  type: NodePort
+  selector:
+    app: webapp
+  ports:
+  - targetPort: 8080
+    port: 80
+    nodePort: 31000
+
+    
+
+    Now we have 3 3ports
+
+   NodePort exposed port: 31000 = so the actor that is sending a traffic gets it traffic to nodeport 31000, this in turn goes to svc
+   svc exposed port : 80 = svc then opens the door and receive the traffic and then send to the specific app
+    app exposed port : 8080 = app then opens the door and receive the traffic, and the application is exposed (hits the application and application is initiated).
+    
+    Kubernetes node respo
+    A = if you change hostname before installaing k8s, you would have some issues (NOT REEADY issue) = solution is to keep it at that hostname at all time.  to do this, you can do the following steps: 
+    i - sudo vi/etc/cloud/cloud.cfg
+    once you are in, find 
+    "#preserve_hostname: false" , change it to true.
+    then, "save".
+
+    2 - Then do sudo vi /etc/hostname
+		change the "IP" you see to "master".  save it (do the same for your worker nodes)
+
+
+    3 - then reboot all the nodes in your aws(just stop and start)
+
+    B = if you don't change the hostname before installing k8s, you wouldn't have the NOT READY issue, cos you would have the IP
+
+
+    TROUBLESHOTTING BY AYODEJI THAT WORKED FOR ME.
+
+Hello People,
+If your nodes STATUS is showing "NotReady", do the following.
+On your master node, type the command <kubectl get nodes>. Note how the name of that node is written exactly.
+ssh into the instance of that node. since you just restarted the instance, it will be displaying your IP address after the ubuntu.  use sudo hostname <hostname> to change that hostname to what you saw in your master.
+
+For example, say after running that command in number 1 above, your node is named ....node-1, then when you ssh into the instance of that node, type the command < sudo hostname node-1 to change your hostname to node-1. you can then run the command sudo su - ubuntu, so you can see the change.
+4:45
+3. on both the master node and the worker node, run the command systemctl restart kubelet
+
+4. run the weave command on the master node
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+5. run kubectl get nodes on the master. it should solve the problem if it is the kubelet that is causing your nodes not to be ready
+
+A Container contains wrapped application and a base image

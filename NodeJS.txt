@@ -1,0 +1,191 @@
+
+NodeJS application:
+
+What is Node.js?
+
+* Node.js is an open source server environment
+* Node.js is free
+* Node.js runs on various platforms (Windows, Linux, Unix, Mac OS X, etc.)
+* Node.js uses JavaScript on the server
+
+Why Node.js?
+
+Node.js uses asynchronous programming!
+
+A common task for a web server can be to open a file on the server and return the content to the client.
+
+Here is how PHP or ASP handles a file request:
+
+Sends the task to the computer's file system.
+Waits while the file system opens and reads the file.
+Returns the content to the client.
+Ready to handle the next request.
+
+
+Here is how Node.js handles a file request:
+
+Sends the task to the computer's file system.
+Ready to handle the next request.
+When the file system has opened and read the file, the server returns the content to the client.
+Node.js eliminates the waiting, and simply continues with the next request.
+
+Node.js runs single-threaded, non-blocking, asynchronous programming, which is very memory efficient.
+
+What Can Node.js Do?
+Node.js can generate dynamic page content
+Node.js can create, open, read, write, delete, and close files on the server
+Node.js can collect form data
+Node.js can add, delete, modify data in your database
+
+
+What is a Node.js File?
+Node.js files contain tasks that will be executed on certain events
+A typical event is someone trying to access a port on the server
+Node.js files must be initiated on the server before having any effect
+Node.js files have extension ".js"
+
+
+mvn package
+mvn sonar:sonar
+mvn deploy
+mvn clean
+mvn compile
+mvn test
+
+
+npm install
+npm test
+npm run sonar
+npm publish
+
+CLU: NodeJs  == npm 
+
+Step 0: NodeJS Installation:
+sudo yum install nodejs npm -y
+npm --version
+
+
+nodejs application versus Java application
+
+Goal                               NodeJS                              Maven
+Build                              npm install                         mvn package
+Test                               npm test                            mvn test
+CodeQuality                        npm run sonar                       mvn sonar:sonar
+Uppload to Nexus                   npm publish                         mvn deploy
+For Deployment 
+to Tomcat/hos                      npm start  (tomccat/ host)          scp (tomccat/ host)
+Build script                       package.json                        pom.xml
+Tool				   maven			       npm (node pcakage manager)
+Outcome of
+nodejs                             .js, .node, or .json                .war, .ear, or jar
+                                    file extension.
+
+
+Step1
+-Added nodejs as a plug in jenkins (manage plugins and check available or installed, search nodejs plugin)
+-saved a version in Globaal tool configuration in jenkins
+-We open SonarQube in the front end, logged in and then go to "My account" then "security" to generate a token and copied it.
+-After the above, we went to nodejs application repostiory in github and  open "sonar project.js" file (this is where we will put our sonarqube url specifically under serverurl tag)
+(find a nodejs application that contains build script named package.json in its github (this is equivalent to pom.xml for maven/java application))
+-we pasted the SonarQube https address (http://IP:port) 
+-we also pasted the token generated in SonarQube (right infront of sonarlogin) and then save the file
+
+Step2
+-Open Nexus
+-create a new rep.  select npm hosted and create the repo and copy your nexus URL link
+-go to github and fined "package.json" in nodejs application repo, open it and paste it in registry that is under "publish", then commit
+-next, go to nexus cli and use the command "echo -n 'admin:admin123' | openssl base64" to generate nexus token for nexus username and password
+-you can alsio encode by doing the following:
+goto base64encode.org  ===== input the details you want to encode like this   admin:admin123  representing your nexus username and password
+-copy the nexus token and go to '.npmrc' file in github nodejs application and then paste it after the "=". Commit and go back to jenkins to create a project
+
+
+node(''){
+  stage('1.initiation'){
+    sh "echo start of Acada Build application"
+  }
+  stage('2.GitClone'){
+    sh "echo Git clone begins"
+    sh "echo cloning into jenkins"
+    git 'https://github.com/akurasy/nodejs-application.git'
+  }
+  stage('3.Build'){
+    sh "echo build package"
+    sh "npm install"
+  }
+  stage('4.Codequality'){
+    sh "echo Codequality"
+    sh "npm run sonar"
+  }
+  stage('5.backupNexus'){
+    sh "echo Backup nexus"
+    //sh "npm publish"
+  }
+  stage("Deploy"){
+  sh "echo deploy artifact"
+  sh "npm start"
+}
+}
+
+
+clcik the log for deploy and copy the localhost of your jenkins url to browse the content. local host = publicIP
+http://localhost/acadalearning = http://35.89.61.244:9981/acadalearning
+
+
+
+
+On Jenkins CLI
+sudo yum install nodejs npm -y  
+
+
+node(''){
+  stage('1.initiation'){
+    sh "echo start of Acada Build application"
+  }
+  stage('2.GitClone'){
+    sh "echo Git clone begins"
+    sh "echo cloning into jenkins"
+    git 'https://github.com/acadalearning/nodejs-application.git'
+  }
+  stage('3.Build'){
+    sh "echo build package"
+    sh "npm -version"
+    sh "mkdir /home/ec2-user/opt"
+    sh "cd /home/ec2-user/good.sh"
+    sh " /home/ec2-user/good.sh"
+    sh "sudo yum install nodejs npm -y"
+    sh "npm install"
+    sh "cd -"  
+  }
+  stage('4.Codequality'){
+    sh "echo Codequality"
+    sh "npm run sonar"
+  }
+  stage('5.backupNexus'){
+    sh "echo Backup nexus"
+    sh "npm publish"
+  }
+  stage("Deploy"){
+  sh "echo deploy artifact"
+  sh "npm start"
+}
+}
+ m
+The below is not part of the Script - Take a look
+linux:
+node {
+  env.NODEJS_HOME = "${tool 'nodejs18'}"
+}
+
+WINDOWS:
+node {
+  env.PATH="${env.NODEJS_HOME}/bin:${env.PATH}"
+}
+
+
+
+npm install @quickstart/PACKAGE = 
+
+
+yarn publish = same as below, just used for bigger files (publish to nexus?)
+npm publish

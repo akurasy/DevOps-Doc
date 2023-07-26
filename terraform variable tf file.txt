@@ -1,0 +1,53 @@
+variable "instance_akuracy" {
+  description = "The aws instance type"
+  type        = string
+  default     = "t2.micro"
+}
+
+/*variable "my_ami" {
+  description = "My machine ami"
+  type        = string
+  default     = "ami-00aa0673b34e3c150"
+}*/
+
+
+variable "my_region" {
+  description = "my aws region"
+  type        = string
+  default     = "us-west-2"
+}
+
+
+variable "key_pair" {
+  description = "my ec2 key pair"
+  type        = string
+  default     = "awskp"
+}
+
+variable "ingressrules" {
+  type = list(number)
+  default = [80,443,8080]
+}
+
+variable "egressrules" {
+  type = list(number)
+  default = [80,443,25,53,8080,3306]
+}
+
+variable "instance_type_list"{
+  description = "EC2 instance type"
+  type = list(string)
+  default = ["t2.micro", "t2.medium", "t3.large"]
+}
+
+
+variable "instance_type_map" {
+  description = "EC2 instance type"
+  type        = map(string) 
+  default     = {
+    "dev"     = "t2.mciro"
+    "stage"   = "t2.medium"
+    "prod"    = "t2.large"
+  }
+}
+

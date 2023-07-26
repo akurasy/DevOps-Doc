@@ -1,0 +1,95 @@
+SonarQube installation on Linux/Redhat | sonarqube postgresql setup | sonarqube postgresql setup Linux |  sonarqube installation on linux redhat 8 | redhat install sonarqube | sonarqube redhat | install sonarqube redhat 8 | install sonarqube red hat | sonarqube installation steps | install sonarqube amazon linux | install sonarqube amazon linux
+
+Hello Guys, 
+Thanks for watching this video.
+Please find all commands below.
+
+Update the linux package:
+$ sudo yum update -y
+
+Install Dependency:
+$ sudo yum install wget unzip -y
+$ sudo yum install java-1.8.0-openjdk-devel
+
+INSTALL POSTGRESQL:
+$ sudo yum module list | grep postgresql
+$ sudo yum install @postgresql:10
+$ sudo systemctl start postgresql
+$ sudo systemctl enable postgresql
+
+RUN BELOW COMMAND:
+$ sudo su - postgres
+$ createuser sonar
+$ psql
+CREATE USER sonar WITH ENCRYPTED PASSWORD 'sonar'
+CREATE DATABASE sonarqube;
+GRANT ALL PRIVILEGES ON DATABASE sonarqube to sonar;
+\q
+$ exit
+
+MODIFY BELOW FILE:
+$ sudo vi /var/lib/pgsql/data/pg_hba.conf
+local all sonar md5
+
+INSTALL SONARQUBE:
+$ cd /opt/
+$ sudo wget https://binaries.sonarsource.com/Dist...
+$ unzip sonarqube-7.0.zip
+$ sudo mv sonarqube-7.0 sonarqube
+$ sudo groupadd sonar 
+$ sudo chown sonar:sonar /opt/sonarqube -R
+
+MODIFY BELOW FILE:
+$ sudo vi /opt/sonarqube/bin/linux-x86–64/sonar.sh
+RUN_AS_USER=sonar
+
+ADD ALL BELOW LINE TO BELOW FILE:
+$ sudo vi /etc/systemd/system/sonar.service
+
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+
+User=sonar
+Group=sonar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+ 
+RESTART SERVER
+$ systemctl daemon-reload
+
+MODIFY BELOW FILE:
+$ /opt/sonarqube/conf/sonar.properties
+sonar.jdbc.username=sonar
+sonar.jdbc.password=sonar
+sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube
+
+
+$ sudo systemctl start sonar
+$ sudo systemctl enable sonar
+$ sudo systemctl status sonar
+Similar Commands:
+$ sudo systemctl start sonar.service
+$ sudo systemctl status sonar.service
+$ tail -f /opt/sonarqube/logs/sonar.log
+
+MODIFY BELOW FILE
+$ sudo yum install nginx
+$ sudo vi /etc/nginx/nginx.conf
+location \ {
+ proxy_pass "http://URL:9000";
+ proxy_http_version 1.1;
+ proxy_set_header Upgrade $http_upgrade;
+ proxy_set_header Connection 'upgrade';
+ proxy_set_header Host $host;
+ proxy_cache_bypass $http_upgrade;
+}
+$ sudo systemctl restart nginx

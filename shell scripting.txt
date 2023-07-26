@@ -1,0 +1,181 @@
+shell scripting is used to automate a long line of command or to run two or more commmands in a single script
+a shell command is an interpreter. the computer needs an interpreter because the only language a computer understands is binary (0,1)
+
+types of shell
+bourne shell = /bin/sh
+bourne again shell = /bin/bash
+c-shell = /bin/csh
+k-shell= /bin/ksh
+
+HOW TO RESOLVE AN ISSUE IN A SCRIPT 
+1. DEBUG with the command 
+Vi into the script. 
+Edit and use set -x (upper case)
+Set -x (lowercase)
+2. Vi into the file and edit
+3. Redirect the error into another file. 
+
+
+For comment 
+Use # for single lime 
+Use <<we and ends we (to show that all words in the lines are comments)
+
+Java or groovy
+Use // for single line comment 
+
+Scripting or automation languages 
+1. Bash shell scripting 
+2. Grooving (for Jenkins)
+3. Python 
+4. Ruby
+5. Powershell
+6. Ymal (k8s, ansible, cloud formation)
+7. Json
+8. HCL (terraform)
+9. XML (html)
+10. Go and Golang
+
+Ansible is used to automate task on multiple servers 
+
+Uses of script
+Package management 
+Export SSH -keys
+User management 
+File management 
+Monitor server 
+Deploy application 
+
+ echo $SHELL = to know the type of shell you are running
+
+VARIABLES
+A variable is a character of strings attached to a value,.
+variables helps you reduce the amount of words to type
+e.g name=tunde
+school="myakuracy learning"
+
+types of variables in linux shell
+1. system defined variables = default variables defined by the system 
+example PWD, SHELL, USER, HISTSIZE (MOST VAARIABLES ARE UPPER CASE)
+2. user defined variable (use lower case)
+3. environmental variables (env)
+env = displays all environmental variables
+echo $string = to display value of a string
+name=paul (name = string, paul = value)
+
+HOW TO MODIFY HISTORY SIZE (HISTSIZE)
+session or user
+vi into the file = sudo vi /etc/bashrc
+edit and type at the bottom
+HISTSIZE=VALUE
+# EXAMPLE
+HISTSIZE=2000
+save
+source /etc/bashrc = refresh
+
+for all users
+sudo vi /etc/profile or cahnge to sudo user (sudo su)
+export HISTSIZE=value
+save
+source /etc/profile
+env = to see if the history size has changed
+history = to check your command history
+
+use the $ sign to call a variable on linux
+
+./ is used when the file is in the current directory
+bash can be use when you are working on any direcotry and wants to exceute a bash
+
+#!/bin/bash
+name=tunde
+school="myakuracy solutions ltd"
+course="devops master program"
+echo $name
+echo $school
+echo $course
+echo course
+echo ${name}
+echo ${school}
+echo ${course}
+
+
+name=tunde
+school="myakuracy solutions ltd"
+course="devops engineering"
+echo my name is $name and the school i attend is $school and we are learning $course 
+hard coding is passing a specific value for the variable. example " name=tunde "
+in hardcoding, the script cannot be edited
+
+dynamic coding can be used by another users using the input value from users. example is using the read command
+ACCEPTING INPUTS
+read command is used in accepting inputs and can also be used as a variable
+example
+#!/bin/bash
+school="myakuracy solutions"
+echo this is $school
+echo "please enter your name?"
+read username
+echo "hello $username"
+echo please enter your phone number
+read phone
+echo is this your number $phone ?
+read
+echo thanks for signing up
+
+
+bank=first
+echo welcome to $bank bank
+echo please slot in your card details
+echo pls enter your pin
+read pin
+echo the pin you entered is $pin ?
+echo is this correct
+read
+echo you have successfully login!
+
+
+to encrypt password or pin or encrypt the read output
+use the command = read -s variable
+
+
+creating a username and password using the pipe |
+
+echo pls enter your username
+read username
+sudo useradd $username 
+#you can also pipe with (echo $username | sudo useradd $username)
+echo pls enter your password
+read -s password
+echo $password | sudo passwd $username --stdin
+#standard inputs = --stdin
+tail -2 /etc/passwd = to see the last two users
+#pls note : tail only works for file and not directories. so tail -2 /home will not work (not run)
+
+creating a user without piping
+
+echo pls enter your username
+read username
+sudo useradd $username
+sudo passwd $username
+
+ASSIGNMENT
+TOUCH A FILE, COPY IT, PIPE IT AND CHANGE OWNERSHIP OF THE FILE TO ANOTHER USER
+
+ANSWER
+echo create a username
+read username
+sudo useradd $username
+echo pls enter your password
+sudo passwd $username
+#echo pls create your file
+echo enter your file name
+read file
+touch $file
+echo changing ownership of file
+echo enter new user
+read username
+sudo chown $username $file
+echo "you have successfully changed the $file file ownership to $username"
+
+
+
+ 

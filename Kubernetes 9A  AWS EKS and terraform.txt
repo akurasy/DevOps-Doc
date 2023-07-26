@@ -1,0 +1,376 @@
+
+1) EKS SETUP VIA TERRAFORM SETUP DEC 7th
+
+
+-provision a new instances and name it EKS
+-notice that we only provisioned one instance
+-we are not provisioning master or control plane, becasue that is being managed by AWS (for amazon)
+-the only thing we are managing are the nodes, (still partly controlled by AWS??)
+-The one instance that we provisioned is just a gate way to allow us use EKS cluster, where we will create our nodes
+
+
+Required IAM permissions – The IAM security principal that you're using must have 
+permissions to work with Amazon EKS IAM roles and service linked roles, AWS CloudFormation, 
+and a VPC and related resources. For more information, see Actions, resources, and condition 
+keys for Amazon Elastic Container Service for Kubernetes and Using service-linked roles 
+in the IAM User Guide. You must complete all steps in this guide as the same user.
+
+Create these IAM roles and attach it to your instance: 
+Search for  AmazonEC2FullAccess, AmazonVPCFullAccess,  AmazonS3FullAccess, -----click Next ---- Role Name: EKS ---- click Create
+Note: for teaching purpose attach AdminstratorsAccess (do this in while adding all the access)
+-----------
+on your instance,
+Select your Instances 
+Click Action ---- Click Security ----- Modify IAM role ---- select the role created and save.
+
+ssh into your server
+
+we git cloned eks-terraform-setup in github
+
+git clone https://github.com/acadalearning/eks-terraform-setup.git
+
+Terrform named their files as ".tf"
+
+when cd into eks-terraform-setup and ls you see different files
+
+Some of the files definition.  we cat all the files below;
+
+providers.tf = tells us where our resources should be provisioned, this can be changed to another region depending on the location you are,
+ but ensure you change it in the provides.tf file
+
+vpc.tf = telling us that it will create virtual private network for us witth the IP block in it (under resource), the name of the tag (eks-ACADA node) , 
+we can change the name tag and cider block etc.
+
+
+variables.tf = varibalbe contains default key name, "eskey". we must create this particular key when we provison an instance in the region in providers.tf.
+ You can change the name of the key too, but you must ensure you change the one attached to your instances as well (note you don;t need this key to login to your cli).
+  Variables.tf also contain the information of the type of instances we want to provision, which is t2 medium
+
+
+Next, we installed terraform with our github script
+
+To install, ensure you are in the terraform directory in your repo, run the script that "terraform-install.sh" with the command
+
+sh terraform-install.sh
+
+next:
+
+terraform init = terraform must be initialized in the directory in its directory before anything terraofrm can work, need to prepare the directory for terraofrm
+
+terraform --help
+
+terraform validate = to validate you resources
+
+Terraform plan = "terraform plan" to see any changes that are required for your infrastructure.   will tell us the resources that would be created.
+ Anything you see on green plus (+), will  be created, anything red , will be removed, anything yellow means it will be modified.
+
+terraform apply = to apply all the resoureces shown in terraform plan, and you would need to type "yes" in full to approve or "no"  to end it
+
+terraform apply --auto-approve = same as approve but will bypass the "yes" step, it will automatically approve.
+
+terraform apply 
+
+terraform destroy
+
+Once the terraform eks finishes installation, it will output some certificates token in a yaml format, copy the long yaml format.
+
+#Next create the kubeconfig file  
+$ mkdir ~/.kube/ 
+$ vi ~/.kube/config
+## Copy the apiserver key (yaml file after you do terraform apply --auto-approve)and paste in the config file created above. The key should look like 
+
+(copy after kubeconfig =
+
+to
+
+terraform eks-demo)
+
+apiVersion: v1
+clusters:
+- cluster:
+    server: https://71DB3446453A7ECEF9C5E5BC34463832.sk1.us-west-1.eks.amazonaws.com
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMvakNDQWVhZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1USXhNakl5TVRnMU4xb1hEVE15TVRJd09USXlNVGcxTjFvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTDVkCk40UlRDcmZOMlMwdW1KTm02T1VKUnBKWWlNeS9kdEdBUXBjaWtLdGxUcitNTVl4aUxDQ3JaMGpZaGJjaVhnSm8KNEZndCtvYUlNanQwWmU2SmtBYWZuTStrODdNV2xqM0IyRkNQaDY5bnZSRE15QWIzRWNKRUQ0dHpmMmpBZC9BagpuK0tPOGRmVUhoYVBTR2wycGhlYmxJZjVHWUVnTXluR2VNZ1lXMHBnaU55bTBtWGI1Yy9pRURLa3ZFWk5HMlhNCkJ1UkJQd1NXUUIyaWc0VkFkcVdZRlJVMW1NV0I5TXIwRGtqcU5BTXNrUDhHV2VxUXdhN2t6MmpsQ0RxQnoza2oKTWwzLy84dkFSSXgxYWx2WHFQNE04SjZNNHl1cjZGaFd5Y3NLbEFoTm1OVktTTUdpSmk2TkMrR1hFWTlDUGJTRApQRVZIeUdPaGE5RmM1WnA5KzhrQ0F3RUFBYU5aTUZjd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZBaEo4M21oakdkTzQzUEgxQ2p1MnY3RlZFZGxNQlVHQTFVZEVRUU8KTUF5Q0NtdDFZbVZ5Ym1WMFpYTXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBS0FjVjhhUTByQUJaT1V1R2E2Zgo0dko0WjdQK0FSTk1EY1ZITHJrNDYvRlNaZDIxOVZkS1hPNWhJcGU2a2trTHRWUGJQK3pFeUtLcVhlVnlRaGVMCmJlZFRhNUNYZStTOEtKMmd0TCtpOUJyQWg0cjVLbDUrUDY1YWpVVUpVay8xdU8yYU5SS2FqUFIvLzdMKyt6MmQKeU0yZ1RVcVJlc2YrNkIzR2t6Y2x5M1BtQU1PWHR3c3hTd05abjlmNjBMMnJLWlhLT0VZM1dCL1hvK0YxSDBOcworZ0xlWDBCZ2pkd0FnQmRMMUxlb2ZnVFY3MVRZTjJvZ0hCdlF0cjRrZXVmT1hQRUVLbUR5c2IwS3ZNcmFHSCtsCnpkc0NwYXB5QlZOODREcUxMTS9YM2c3bjZXeXNvaVZydmZEMEEwRFZJZ3oxQ1BZeHV2bmJud0RvZkpFclg3L24Kc3I0PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: aws
+  name: aws
+current-context: aws
+kind: Config
+preferences: {}
+users:
+- name: aws
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      command: aws-iam-authenticator
+      args:
+        - "token"
+        - "-i"
+        - "terraform-eks-demo"
+
+#Next created kubeclt using the scritp below
+
+Installing kubectl:  PLS NOTE THE REGION IS SET TO THE INSTANCE PROVISIONED AND NOT THE ONE PROVISIONED BY TERRAFORM
+curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.22.6/2022-03-09/bin/linux/amd64/kubectl  <---note the region you provisioned ypur ec2 (here = us west 2)
+openssl sha1 -sha256 kubectl
+chmod +x ./kubectl
+mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+kubectl version --short --client
+
+# to use kubectl get pod, you need to also execute aws iam-authenticator script in your gitcloned terraform directory (must be in your directory)
+#!/bin/bash 
+$ sh iam-authenticator.sh 
+
+#next run kucectl get pod
+$ kubectl get pod
+
+#After the above, we went back to our aws instances and saw that 2 brand new t2-medium instances have been provisioned with eskey.pem key automatically
+
+#We then went into amazon elastick kubernetes service (you can simply search in aws) and saw that terraform-eks-demo has been provisoned too
+
+## deploy cluster auto scaler to scale our nodes, the yaml file is already prepared as "clusterautoscaler.yaml"
+$ kubectl apply -f clusterautoscaler.yml
+
+
+#To see everything you have created go on aws and search VPC, it will tell you everything you have created
+
+##  Destroy Infrastructure . pls ensure you destroy after practising because you cannot manually track the resurces you provisioned. 
+
+-$ terraform destroy --auto-approve 
+-terraform destroy
+
+terraform destroy --target <paste resource you want to destory>
+
+
+#NOTE: if you have your aws provisioned in another region, you MUST create a key.pem in that region, if you apply the key in another region to your new instances, 
+it wouldn't work.
+
+how to query a server from your linux environment
+
+nslookup <option> = e.g nslookup google.com 
+
+
+deploy the application below and create a load balancer service
+---------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springapp
+spec:
+  selector:
+    matchLabels:
+      app: springapp
+  replicas: 3
+  template:
+    metadata:
+      name: springapp
+      labels:
+        app: springapp
+    spec:
+      containers:
+      - name: springapp
+        image: acadalearning/spring-boot-mongo
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_DB_USERNAME
+          value: devdb
+        - name: MONGO_DB_PASSWORD
+          value: devdb@123
+        - name: MONGO_DB_HOSTNAME
+          value: mongo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: springapp
+spec:
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer
+
+---
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodbrs
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      name: mongodbpod
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb-c
+        image: mongo
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: devdb
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: devdb@123
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+------------------------------------------------------------------------------
+ do kubectl get all and copy the load balancer address to route traffic to your domain name
+create record
+put record name
+cname
+paste the LB dns as end point and create record
+browse your alias.dnsname on the end point 
+this is used for micro servicing
+
+------------------------------------------------------------------------------------
+
+
+
+
+AWS-EKS SETUP documentation
+
+docs.aws.amazon.com/eks/latest/userguide/install-eksctl.html
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) EKS SETUP VIA AWS SCRIPT - DEC 3, 2022
+
+Amazon Elastic Kubernetes Services
+
+Kubernetes:
+kubeadm: Self managed
+EKS: Cloud Managed
+GKE: Cloud Managed
+AKS: Cloud Managed
+
+
+Kops: 
+minikube:
+
+
+vpc
+subnent
+security
+IGW
+route
+
+terraform init
+terraform validate
+terraform plan
+terraform apply
+terraform destroy
+terraform files are written in .tf
+
+IaC infrastructure as a code
+---------------------------------------------------------------------------------------------------
+ 
+WE ARE PROVISIONING EKS USING THE BELOW SCRIPT NOT USING TERRAFORM.
+
+Amazon Elastic Kubernetes Services
+
+Kubernets cluster/services manages by Amazon
+
+-provision a new instances and name it EKS
+-notice that we only provisioned one instance
+-we are not provisioning master or control plane, becasue that is being managed by AWS (for amazon)
+-the only thing we are managing are the nodes, (still partly controlled by AWS??)
+-The one instance that we provisioned is just a gate way to allow us use EKS cluster, where we will create our nodes
+
+
+
+Getting started with Amazon EKS – eksctl:
+
+Prerequisites:
+
+Installing kubectl:
+curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.22.6/2022-03-09/bin/linux/amd64/kubectl  <-----note the region you provisioned (here = us west 2)
+openssl sha1 -sha256 kubectl
+chmod +x ./kubectl
+mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+kubectl version --short --client
+
+
+Installing eksctl:
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
+
+Required IAM permissions – The IAM security principal that you're using must have 
+permissions to work with Amazon EKS IAM roles and service linked roles, AWS CloudFormation, 
+and a VPC and related resources. For more information, see Actions, resources, and condition 
+keys for Amazon Elastic Container Service for Kubernetes and Using service-linked roles 
+in the IAM User Guide. You must complete all steps in this guide as the same user.
+
+Create these IAM roles and attach it to your instance: 
+Select your Instances 
+Click Action ---- Click Security ----- Modify IAM role ---- create new role --- EC2
+Search for AmazonEC2FullAccess, AmazonVPCFullAccess,  AmazonS3FullAccess, -----click Next ---- Role Name: EKS ---- click Create
+Attach the role to the instance
+Note: for teaching purpose attach AdminstratorsAccess (do this in while adding all the access)
+
+
+Create your Amazon EKS cluster and nodes:
+#eksctl create cluster --name my-cluster --region region-code --fargate
+eksctl create cluster --name eks --region us-west-2 
+
+
+Installing aws-iam-authenticator:
+curl -o aws-iam-authenticator https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
+openssl sha1 -sha256 aws-iam-authenticator
+chmod +x ./aws-iam-authenticator
+mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+aws-iam-authenticator help
+
+
+View Kubernetes resources:
+kubectl get nodes -o wide
+kubectl get pods -A -o wide
+
+To Destroy the above created EKS cluster
+eksctl delete cluster --name eks --region us-west-2 
+
+
+OTHER WAYS TO CREATE YOUR EKS CLUSTER
+
+-You can create EKS cluster using script  (this is what we did above)
+-using ansible
+-using terraform
+-using aws Kubernetes gui.  = just search kubernetes and click on the kubernetes result it brings, and created your cluster. 
+ you can confirm any method in this place too. (for this class, since we launced everything on us west 2 region, 
+the nodes and aws k8s will be running in this region, hence you'd need to switch to uswest2)
+
+
+wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz 
+tar xvf helm-v3.4.1-linux-amd64.tar.gz 
+sudo mv linux-amd64/helm /usr/local/bin 
+rm helm-v3.4.1-linux-amd64.tar.gz 
+rm -rf linux-amd64 
+helm version
+

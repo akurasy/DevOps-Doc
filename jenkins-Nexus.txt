@@ -1,0 +1,178 @@
+NEXUS
+
+NEXUS:
+
+"Nexus is a repository manager.  It allows you to proxy (Maven-remote repo"
+
+
+We store BUILD artefact in NEXUS. e.g ear,jar, war applications or package. anything package you build is called artefact.  Liken this to google drive where you store all your finished pictures, or a big box where you store your photo album, and inside the photo album are old and new photos with their respective name.  The big box can be seen as NEXUS.
+
+NEXUS is a repository where you put all the directories that contain your built artefacts.
+
+#Nexus port:8081
+
+#Nexus Default Username: admin Password: admin123
+As a good security practice, is not advised to run nexus service as a root user,
+# so create a new user called nexus and grant sudo access to manage nexus services as follows.
+# Nexus will run on 4G of RAM
+
+NEXUS INSTALLATION
+
+sudo hostname nexus
+sudo useradd nexus
+# Grand sudo access to nexus user
+sudo echo "nexus ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/nexus
+sudo su - nexus
+
+
+cd /opt
+sudo yum install wget git nano unzip -y
+sudo yum install java-11-openjdk-devel java-1.8.0-openjdk-devel -y
+
+
+#sudo wget http://download.sonatype.com/nexus/3/nexus-3.37.2-02-unix.tar.gz
+#sudo tar -zxvf nexus-3.37.2-02-unix.tar.gz
+sudo wget http://download.sonatype.com/nexus/3/nexus-3.15.2-01-unix.tar.gz
+sudo tar -zxvf nexus-3.15.2-01-unix.tar.gz
+sudo mv /opt/nexus-3.15.2-01 /opt/nexus
+
+
+# Change the owner and group permissions to /opt/nexus and /opt/sonatype-work directories.
+sudo chown -R nexus:nexus /opt/nexus
+sudo chown -R nexus:nexus /opt/sonatype-work
+sudo chmod -R 775 /opt/nexus
+sudo chmod -R 775 /opt/sonatype-work
+
+
+vi /opt/nexus/bin/nexus.rc
+#remove comment(#)and add nexus
+#Run-As-User=nexus
+
+sudo ln -s /opt/nexus/bin/nexus /etc/init.d/nexus
+
+#Enable and start the nexus services
+sudo systemctl enable nexus
+sudo systemctl start nexus
+sudo systemctl status nexus
+echo "end of nexus installation"
+
+
+To access NEXUS:
+
+<publicIP>:8081
+
+To login= type a username and a password or (default: admin as username and pwd = admin123)
+You can add user in "user" and select "create user" at the top left, pass the permision you want and save
+
+Creating Repository
+
+-Select Repository >> Repositories >> select "maven2 host".
+
+ass-release =http://54.172.28.151:8081/repository/ass-Release/
+ass-snapshot =http://54.172.28.151:8081/repository/ass-Snapshot/
+
+rbc-snapshot = http://3.83.67.8:8081/repository/rbs-snapshot/
+
+rbs-release = http://3.83.67.8:8081/repository/rbc-release/
+
+(practice url snapshot = http://54.91.222.46:8081/repository/shola-snapshot/ )
+(practice url release = http://54.91.222.46:8081/repository/shola-Release/ )
+
+Snapshot = So basically, snapshot is a build which can be replaced by another (all the photos taken for later selections). Snapshot = Gallery pictures (while trying to find profile pic for whatsapp)
+
+release = the final build which does not change (the photos you selected out of many pictures for edit is called release).  Release = Selected picture for whatsapp
+
+WHY NEXUS:
+
+version control
+disaster management
+downtime
+reduce redundancies
+rollback
+add a layer of security
+use to track progress of the project
+
+
+*if we do mvn deploy in the backend or "deploy" (using top maven target, and then deploy") in jenkins without configuring nexus in jenkins server backend, it will fail
+
+CONFIGURING NEXUS IN JENKINS SERVER ( WHAT IS DONE TODAY)
+
+1 -Go to ll /var/lib/jenkins/tools  ( this is where Nexus config info is in)
+
+Note: Home of maven inside jenkins is hudson.tasks.Maven_MavenInstallation (this is home because is a tool in jenkins, will be different when mavens is installed as stateful applicaiton)
+
+ll /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven3.8.5/conf/settings.xml
+
+sudo vi /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven3.8.5/conf/settings.xml
+
+Look for the server tag
+<server>
+	<id>deploymentRepo</id>
+	<username>repouser</username> 
+	<password>repouser</password>
+</server>
+
+Remember to uncomment out or just copy and paste then modify
+
+In the above, 
+change the deploymentRepo to= nexus
+change repouser to = admin or whatever username you used
+change repouser password = admin123 or whatever password you used
+
+
+2- Go to  POM.xml file on github and edit
+
+i- <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>com.mt</groupId>
+	<artifactId>maven-web-application</artifactId>
+	<packaging>war</packaging>
+	<version>2.0.6-SNAPSHOT</version>   = THIS WILL ONLY TAKE SNAPSHOT. PLS CHANGE SNAPSHOP TO RELEASE IF YOU WANT TO RELEASE THE ARTIFACT
+
+	The last line of the above, you can change the version from 2.0.6 to 2.0.7 to track the version control of snapshot (depends on your company) = if you sending to nexus snapshot repo
+
+	OR you can change the last line to the version and SNAPSHOT to RELEASE - if you are deploying to release repo.
+
+ii- <distributionManagement>
+	    <repository>
+	      <id>nexus</id>
+	      <name>ACADA Learning Releases Nexus Repository</name>
+	      <url>http://172.31.86.108:8081/repository/rbc-app-release/</url>
+	    </repository>
+
+	-edit
+	-go to <distributionManagement>
+	-make sure you have created a repo url on nexus, and it is above (here i am copying the rbc release and rbc snapshot)
+	-insert these URLs in release url and snapshot url in pom.xml
+
+Now go to Jenkins and configure your project, use maven, and goal should be "mvn deploy" or "deploy"
+
+	
+
+CONFIGURING NEXUS IN MAVEN (AS IT WAS DONE 15 YEARS AGO)
+
+-It is done through maven server
+-make a new directory e.g nex-app 
+-git clone your repo in this new direcotry
+-ll to see if you would see pom.xml
+-if found, vi into it and do the following:
+	-find the distributionManagement:
+		-paste your snapshot repo url you created in Nexus
+		-paste your release repo url you created in Nexus and save.
+-Then do sudo vi /opt/maven/conf/settings.xml and do the following:
+	Look for the server tag, then uncomment or copy and paste the below in another line
+<server>
+	<id>deploymentRepo</id>
+	<username>repouser</username>
+	<password>repouser</password>
+</server>
+
+In the above, change the deploymentRepo to nexus
+change repouser to = admin or whatever username you used
+change repouser password = admin123 or whatever password you used
+
+Assignment to myself
+-Create another user for nexus other than admin. = done 
+-find the difference between read only, deploy, undeploy etc

@@ -1,0 +1,19 @@
+#install docker and all prequisite
+docker image ls = to see list of images
+#pulling the image below
+docker pull acadalearning/java-web-app
+#create a container with the command
+docker run -it -d imagename
+docker run -it -d acadalearning/java-web-app
+#lets do a commit
+#docker commit container-ID username/name-of-repo
+docker commit 65ed6eaoui76 akurasy/java-web-app
+docker image ls = to see if the above image has been create
+
+now push to dockerhub
+#first login with the command
+docker login
+login with username and password
+
+then do,
+docker push akurasy/java-web-app

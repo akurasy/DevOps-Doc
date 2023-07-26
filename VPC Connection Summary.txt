@@ -1,0 +1,47 @@
+SUMMARY OF VPC SET UP ABOVE
+
+
+- create a vpc. and put the CIDR block. example 10.0.0.0/24
+
+- create two subnets and call them public and private subnets. attached the necessary CIDR block.
+for pub = 10.0.0.0/25  ;    for private = 10.0.0.128/25
+
+- create a route table for each subnets, click action after creating and edit subnet association by associating the created route table to each subnets accordingly
+
+-create internet Gateway (IGW). ATTACH to the vpc after creation.
+
+- goto your public route table, edit route and attach IGW to the public route table. to do this, follow the below:
+goto the public route table. click on action and edit route
+on destination, select 0.0.0.0/0 to allow traffic from anywhere. on target, select internet gateway and attAch the create IGW above.
+
+- spin up two instances for the public(webserver) and for private (db/app server), use same key-pair for practise only and edit network during creation.
+for public===== select the public subnet and created vpc and enable AUTO ASSIGN public IP
+for private ==== select the private subnet and created vpc but DO NOT ENABLE AUTO ASSIGN PUBLIC IP
+========= on each of the instances, allow port 22 and all traffic for practise sake only.
+
+- connect to the public instance by ssh into it.
+
+- goto your local system or powershell and cd into the folder containing the key-pair
+=== run the command below
+     scp -i mybabatkp.pem mybabatkp.pem ec2-user@54.234.12.34:/home/ec2-user   (this will copy the key-pair to the server)
+          <kp-of-pub-server> <filename> 
+
+- ssh into the private server with the cmd
+  ssh -i babatkp.pem ec2-user@private-server-IP
+    you can logout back to the public instance
+
+- ping google.com on the public instance  ==== this should respond 
+
+- login to the private server again and ping google.com ==== this will fall. follow below step to solve issue
+
+
+- goto vpc console and craete NAT Gateway. on creation, select the public subnet, leave connectivity type as 'public' and allocate elastic IP, then save.
+
+- goto private route table, edit route, on destination, select 0.0.0.0/0 to allow traffic from anywhere. On target, select NAT gateway  and attach the created NAT
+
+- Go back to your private server now and ping google.com  ==== this will work perfectly now.
+
+YOU HAVE BEEN ABLE TO SECURELY MAKE YOUR PRIVATE SUBNET TO ACCESS THE INTERNET WITH THE SET UP ABOVE. PLS NOTE TO REMOVE THE NAT GATEWAY 
+ATTACHMENT WHEN YOU DONE WORKING, BECAUSE IT IS NOT A GOOD PRACTISE TO EXPOSE YOUR PRIVATE SERVER TO THE INTERNET.
+
+RELEASE THE CREATED ELASTIC IP.

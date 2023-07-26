@@ -1,0 +1,185 @@
+SONARQUBE:
+
+Aug 31,2022
+
+So
+
+
+
+Sonarqube is used for 
+
+-quality checks
+-Automated testing
+-used to test our application to see if they are running or if it is good
+
+SonarQube: Code Quality Check
+
+Why Code Quality Check:
+
+-Makes code readable
+-Easy to maintain code in future
+-Detect Bugs at early stage
+
+
+Code Quality Check tools (Other Tools that can be used:
+
+-SonarQube
+-Sonar Cloud
+-Selenium
+-Codacy
+-Checkmark
+-CodeBeat
+-Cypress
+-Synk
+
+some of the above also have security scanning feature
+
+SonarQube Features:
+-It gives a snapshot (meaning give updated report of the code at an instant of time)of your code quality at a given time or intervals
+-It provides us with code quality metrics to help us in decision making
+-it addresses:
+	- coding rules : steps that the developers are supposed to take
+	-test coverage. Devs need Source code, Build script and Unit test cases e.g say you have 1000 lines of code, and you want to test 80% of the lines codes, if this passed, it means the unit test cases passed. So basically SonarQube will be used to test it, this is called test coverage
+	-code duplication: helps check complexity
+	-complexity and architecture providing all the details in a dashboard
+
+	NOTE not significant just for knowledge: Sonarqube was initially developed for java, but now it supports over 20 languages, mysql, python, c+, groovy etc
+	Sonarqube can track comment and potential bugs
+
+	SonarQube Installation And Setup In AWS EC2 Redhat Instance.
+Prerequisite
+  • AWS Account.
+  • Create Redhat EC2 T2.medium Instance with 4GB RAM.
+  • Create Security Group and open Required ports.
+    ○ 9000 = default port of SonarQube..etc
+  • Attach Security Group to EC2 Instance.
+  • Install java openJDK 1.8+ for SonarQube version 7.8
+
+SonarQube Installation in ubuntu 16.04 t2 medium
+#Use apt-get to install the required packages.
+sudo apt-get update
+sudo apt-get install unzip software-properties-common wget default-jdk
+#Install the PostgreSQL database service.
+sudo apt-get install postgresql postgresql-contrib
+#Access the Postgres database service command-line.
+sudo su - postgres
+psql
+#Create a Postgres user named sonarqube,Create a Postgres database named sonarqube. Give the PostgreSQL user named sonarqube permission over the database named sonarqube
+CREATE USER sonarqube WITH PASSWORD 'password';
+CREATE DATABASE sonarqube OWNER sonarqube;
+#GRANT ALL PRIVILEGES ON DATABASE sonarqube TO sonarqube;
+\q
+exit
+
+#Download the Sonarqube package and move it to the OPT directory.
+sudo mkdir /downloads/sonarqube -p
+cd /downloads/sonarqube
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.9.1.zip
+sudo unzip sonarqube-7.9.1.zip
+sudo mv sonarqube-7.9.1 /opt/sonarqube
+#Create a new Linux account named sonarqube, Set the correct file permission on the sonarqube directory.
+sudo adduser --system --no-create-home --group --disabled-login sonarqube
+sudo chown -R sonarqube:sonarqube /opt/sonarqube
+#Edit the sonar.sh configuration file.
+sudo vi /opt/sonarqube/bin/linux-x86-64/sonar.sh
+#paste the following syntax:
+RUN_AS_USER=sonarqube
+Edit the sonar.properties configuration file.
+sudo vi /opt/sonarqube/conf/sonar.properties
+#paste the following syntax:
+  sonar.jdbc.username=sonarqube
+  sonar.jdbc.password=password
+  sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube
+  sonar.web.javaAdditionalOpts=-server
+  sonar.web.host=0.0.0.0
+
+
+
+#Create a Linux configuration file named 99-sonarqube.conf
+sudo vi /etc/security/limits.d/99-sonarqube.conf
+#paste the content into the 99-sonarqube.conf file.
+sonarqube   -   nofile   65536
+sonarqube   -   nproc    4096
+
+
+
+#Edit the sysctl.conf configuration file.
+sudo vi /etc/sysctl.conf
+#Add the following lines at the end of the sysctl.conf file.
+vm.max_map_count=262144
+fs.file-max=65536
+
+
+Reboot your computer to enable the new configuration
+sudo reboot
+Start the Sonarqube service.
+sudo /opt/sonarqube/bin/linux-x86-64/sonar.sh start
+Use the following command to monitor the SonarQube log.
+sudo tail -f /opt/sonarqube/logs/sonar.log
+
+check configuration
+htttps://localhost:9000
+
+default user = admin
+password = admin
+
+goto administration to create user
+change user to sonar admin
+
+ 
+
+In sonarqube, there are some quality gate you have to pass through
+
+-Quality profiles are collections of rules to apply during an analysis (project). analogy, visitor comes to your house, house rules to visitors, we wake up, brush teeth, pray, exercise and workout.  These are rules we are passing.  
+Sonar way  = standard quality profile rules created by sonarqube to apply to a project.
+
+Rules tab = Rules tab all different laguage rules. Developers use thise more, Devops role here is just to help them configure it.  These set of rules are combined to form a quality profile.  users can use rules tab to set their own quality profile if they dont'w want to use sonar way.
+
+
+if we do mvn package: it validates, compiles, test, package
+
+-Now if we want to send our application to sonar, we do
+ sonar:sonar in jenkins
+if doing in maven we do "mvn sonar:sonar" to send our application to sonarqube ( in jenkins just type sonar:sonar in goals box instead of "package")(here we are using the same steps as maven steps in jenkin, the only thing changing is the sonar:sonar goal. so do package first, then do sonar:sonar apply and save, if it passes, edit and add tomcat steps to it)
+
+-before we run it on jekins, we need to do sonar server configuration in the backend
+
+-To configure, go to pom.xml of the application you are testing in github and look for where heading says PROPERTIES, says <sonar.host.url>http://private-IP:9000/</sonar.host.url>
+on getting there, only change the ip address and port. that's it
+
+http://172.23.170.157:9000/
+
+Also change the <sonar.login>admin</sonar.login>
+		<sonar.password>admin</sonar.password>
+
+Now go back to Jenkins and build again
+
+Then go back to sonarqube site and refersh .
+
+if we try to deploy .jar application on jenkins, it would fail.  because tomcat can't deploy .jar.  we can try to force it in the backend, the CLI but it wouldn't still open in tomcat, but it will be deployed.
+
+
+HOW TO SEND APPLICATION TO SONARQUBE WITHOUT USING JENKINS I.E FROM MAVEN TO SONARQUBE, AND THEN FROM MAVEN TO TOMCAT
+
+-create a new dirrectory e.g mkdir sonarapp
+-cd in to the dir eg cd sonarapp
+-git clone the url of your application
+-cd in the application path e.g cd maven app
+-ll till you see pom.xml
+-now do vi pom.xml and look for Properties tag and change the ipaddress and port, username and password e,g 52.23.170.157:9000 and admin= username and admin=username
+-save the pom.xml file
+-then do mvn package = to build
+-do mvn sonar:sonar = to send to sonarqube
+
+
+How to change sonarqube default port IN SONARQUBE
+
+-sudo vi /opt/sonarqube/conf/sonar.properties
+
+-look for : sonar.web.port=9000
+
+- uncomment and then change the port value from 9000 to port number of your chosen
+
+-save and exit
+	
+-Then restart sonarqube

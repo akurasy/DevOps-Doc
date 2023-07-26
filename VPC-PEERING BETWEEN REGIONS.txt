@@ -1,0 +1,58 @@
+		VPC PEERING
+- Create a vpc in one region for public  by following the steps in vpc connection and put only public subnet, IGW and attach to vpc, ROUTE TABLE and edit subnet association,
+	edit route and add 0.0.0.0/0 and target= IGW and select te created IGW
+
+- create another vpc for private in another region. put private subnet and route table alone. edit subnet association
+
+- create an ec2 in public subnet region and call it jumpserver. we used mybabatkp as the keypair
+
+- craete another ec2 in private subnet region and call it appserver. we used kachikp as the keypair
+
+from your local, copy the keypair of the appserver to the jumpserver
+
+from your powershell;
+
+scp -i devopkp.pem mybabatkp.pem ec2-user@jumpServer-IP:/home/ec2-user
+
+scp -i devopkp.pem mybabatkp.pem ec2-user@54.205.55.86:/home/ec2-user
+
+ssh into the jumpserver
+
+ssh into the appserver via your jumpserver CLI   
+
+ssh -i appserver-keypair ec2-user@appserver-private-IP ======== this will not work unless your do peering
+
+
+
+	PEERING THE VPC
+goto vpc console on the public vpc. goto peering connection on the left pan
+
+create connection, on the requester select the public vpc ID, on the acceptor, goto the private VPC and copy the ID of the VPC . the create connection
+
+
+it will show pending acceptance. now goto the private vpc and click on peering connection. the connection we created on the public vpc will appear here but will be pending.
+
+click on the vpc, click on action and accept connection.
+
+=========================================================
+
+goto your public ec2 CLI and try to ssh into the private server again. it will still fail.
+
+next open an inbound rule on your route table. goto the route table of your private vpc
+click on edit route,
+copy the CIDR block of the public vpc (10.0.0.0/24) and paste in the destination, select "peering connection" as target
+save chnages.
+
+do the same thing for your public route table, edit route and add the CIDR block of the private vpc (172.0.0.0/24) in destination, select peering connection as target
+ save changes
+
+
+ssh again into the private ec2 from your public CLI
+ssh -i devopkp.pem ec2-user@172.0.0.19   === this will work now and ypu will ssh into your private server.
+
+
+
+
+
+
+

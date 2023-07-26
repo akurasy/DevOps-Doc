@@ -1,0 +1,410 @@
+KUBERNETES OCT 22, 2022
+
+Kubernetes is an orchestration engine and open-source platform for managing containerized applictions (in K8 we call them PODs and these are files you have already written docker files for). PODs contain containers
+
+Responsibilities include;
+-container deployment
+-automated scaling and descaling of containers
+-container load balancing ( when there is a lot of traffic coming from public, K8 can be used to load balance an application to take care of the traffic by replicating many more of the app)
+-container management and orchestration
+-open source
+-horizontal scaling
+-optimizing cost
+-self healing
+-cloud migrationn
+
+Kubernetes is  not a replacement for Docker, but Kubernetes can be considered as a replacement for Docker Swarm, Kubernetes is significantly more complex than Swarm, and requires more work to deploy.
+
+-Born in Google, written in Go/Golang.  Donated to CNCF (Cloud native computing foundation ) in 2014.
+-Kubernetes v1.0 was released on July 21, 2015.
+-Current stable release v1.17.0
+
+
+Kubernetes Feature
+
+-Automated Scheduling : Kubernetes provides advanced scheduler to launch container on cluster nodes based on their resource requirments and other constraints, while not sacrificing availabilility.
+
+-Self Healing capabilities : Kubernetes allows to replaces and reschedules containers wen nodes die. It also kills containers that don't respond to user-defined health check and doesnt advertise them to clients until they are ready to serve
+
+-Automated rollouts and rollback : Kubernetes rolls our changes to application or its configuration while monitoring application health to ensure it doesn't kill all your instances at the same time.  If something goes wrong,  with Kubernetes you can rollback the change
+
+-Horizontal Scaling and Load Balancing : Kubernetes can scale up and scale down the application as per the requirements with a simple command, using a UI, or automatically based on CPU usage
+
+-Service Discovery and Load balancing : With Kubernetes, there is no need to worry about networking and communication becos Kubernetes will automatically assign IP addresses to  containers and a single DNS name for a s set of containers, that can load-balance traffic inside the cluster.  Containers get their own IP so you can put a set of containers behind a ssingle DNS name for load balancing.
+
+-Storage Orchestration :  With Kubernets, you can mount the storgae system of your choice.  You can either opt for local storage, or chosse a public cloud provider such as GCP or AWS, or perhaps use a shared network storage system such as NFS, iSCSI, etc
+
+
+KUBERNETTES CLUSTER ARCHITECTURE
+
+In Kubernetes we have master and worker nodes (slaves).  Say we have 15 worker nodes, labelled 1 to 15 and a Master(or Control Plane) 
+and because they all are talking to themselves, the set up is called Kubernetes Cluster or (K8s).  Now say we have 2 people (Actors) in the backend, 
+that want to make API (Application Programming Interface) calls, meaning they want to talk to the Master either via CLI or GUI
+
+When these actors are making their calls, the request hits to the API-SERVER and what that does is it tracks the state of everything in the cluster
+ (basically gather information about the Master and worker nodes in the cluster), once it tracks the state, it would then send the information 
+or back up the information in "ETCD", it constantly updates etcd (stores key and value in the kep-pair store) .  
+ETCD is like a long template file or more like a library or database for the cluster and it gets updated at any API calls, and it keeps the current state.  
+After we finish backing up, there is another one called SCHEDULER. NOTE: all this is happening in the Master or Control Plane. 
+What the Scheduler does is it will go into the etcd and get the work update and schedules or distributes the UNSCHEDULED workload across
+ different worker node according to their avaialable resources.  Next is CONTROLLER-MANAGER, and what this does is to ensure all the running nodes are in running mode
+ AT ALL TIME (runing what the scheduler already scheduled).
+
+In the worker nodes Note, when the task or information gets to the worker nodes, there are 3 things to consider; 
+1-Container Runtime : this Runtime implements the CRI (container runtime interface), this enables the open container initiative (compactable runtime).g
+ CONTAINERD and DOCKER (powers the workernode cluster and they ensure all the available resources we want to run is implemented on the workernode cluster )
+-Light weight container Runtime for K8s: design for optimization for K8s stateful or stable committed to passing K8s test.
+
+
+2-Kubelet agent: connects, controls the pod, ensures the pods are up and running, for example, if 3 pods are scheduled for worker node 15, it wwill ensure the pods are scheduled.  If a new action is now sent to the API-server, and the controller manager passes the information, Kubelet agent ensures they are scheduled 
+
+ 
+3-Kube-Proxy (access, controls network and connect the pod):  In the front-end, there is an external person (public person) trying to access Acadalearning.com (say its located in app2 - our example app pod), and when a user wants to access the application, it means they are sending traffic out via an IP .  The traffic hits the Kube-Proxy (which runs on every node) first, the kube-proxy then takes the traffic and send it(route) to what we called SERVICE(svc), and this service must be a specific service controlling an app (e.g app2 in the screenshot, say we have app 15 , app 2 etc, the Specific service will control app2 (app2Service)in, even if it is availabe in different nodes (node 1 and node 15), there is a different Service for app 15 etc).  So basically Kube-Proxy is not a load balance.  It just resolves domain name and directs it to the right app/pods within the node,  and the actor in the front end is able to access the site they are trying to get on.  
+
+In the above, we say the Kubeproxy is doing SERVICE DISCOVERY
+
+NOTE: containers are in Pods, each workernode contains a lot of pods.
+
+
+KUBEERNETES COMPONENTS
+
+Kubectl : Kubectl is a command line configuration tool (CLI) for kubernetes used to interact with master node of kubernetes. Kubectl has a config file called kubeconfig, this file has the information about server and authentication
+
+
+Different types of Kubernetes:
+
+Minikube : self managed.  this is a light weight kubernetes
+
+Kubeadm : self managed. 
+
+Google Kubernetes Engine (GKE) : cloud managed
+
+Amazon EKS : cloud managed
+
+Azure Kubernetes Service (AKS) : cloud managed
+
+
+Command Line utility:
+
+for Docker  [docker] e.g docker build
+for maven [mvn] e.g mvn package
+for k8s [kubectl] kubectl apply
+
+CONTROL PLANE/MASTER:
+API server
+etcd
+scheduler
+controller manager
+
+WORKER NODES:
+*Container Runtime
+Kubelet
+Kube-proxy
+
+Kubernetes components
+
+cluster ---> worker Nodes ---> pods ---> containers ---> images ---> Application and Base image
+
+KUBERNETES OBJECTS: 
+
+-Controller Managers) :
+	ReplicationController
+	ReplicatSet
+	DaemonSet
+	Deployment
+	StatefulSets
+	Job
+
+Note:  These contoller Managers have different tasks.
+
+Service:
+ClusterIP: for internal coommunication
+Service:
+	NodePort: for external communication
+	LoadBalancer: for external communication
+ExternalName
+
+https://labs.play-with-k8s.com/
+
+Installation of K8S:
+1.  Self managed : You manage the control plane
+2.Managed / Cloud Managed : Cloud provider is managing the control plane
+
+1 Self managed:
+minikube --- single node cluster
+kubeadm --- we can setup multiple nodes within a cluster
+
+2. Managed/Cloud Managed
+
+	EKS
+	AKS
+	GKE
+
+	KOPS : not deprecated, types of K8s that runs, but not so much in use
+
+How do we deploy in docker:
+1-Imperative --command (running commands in the CLI)
+docker run/create
+docker server create etc
+
+2-Declarative  --- Files + command
+docker-compose up
+docker-compose down
+docker stack deploy --docker-compose-file web.yml
+
+How to  deploy in K8s:
+1-Imperative --Command
+kubectl create namespace test
+kubectl
+
+
+INSTALLING K8S
+
+Kubernetes Installtion:
+#!/bin/bash
+# t2 Medium
+# Common stages for both master and worker nodes
+# This can be use as user data in launch template or launch configutions
+sudo -i
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+sudo apt update -y
+sudo apt install -y apt-transport-https -y
+
+sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+#PLS KINDLY USE A LOWER VERSION OF UBUNTU TO PREVENT APT-KEY DEPRECATED ISSUE
+
+sudo cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+
+#When running a command with end of file (EOF) pls wait for some seconds before hitting the enter button
+sudo apt update -y
+sudo apt install -y kubelet kubeadm containerd kubectl
+
+# apt-mark hold will prevent the package from being automatically upgraded or removed.
+sudo apt-mark hold kubelet kubeadm kubectl containerd
+
+sudo cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+sudo cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+sudo sysctl --system
+
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml
+sudo systemctl restart containerd
+
+# Enable and start kubelet service
+sudo systemctl daemon-reload
+sudo systemctl start kubelet
+sudo systemctl enable kubelet.service
+
+#step2
+#need to do this to make the first k8 installation a MASTER - CONTROL PLANE
+kubeadm init 
+
+#step3
+THE BELOW WAS GENERATED FROM THE KUBEADM INIT :
+
+Your Kubernetes control-plane has initialized successfully!
+
+*To start using your cluster, you need to run the following as a regular user - switch to ubuntu user (we did this in class):
+
+  exit (root user)
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+*OR Alternatively, if you are the root user, you can run: (we didn't run this)
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+sudo kubeadm join 172.31.11.95:6443 --token rlcs3k.ycs2lqk8grn06kce \
+        --discovery-token-ca-cert-hash sha256:939b135a4bfde6435060e179fa289839632306d4ec65e92cdff940b38efc65e9
+
+
+NOTE: WHEN PROVISIONING AND INSTALLING YOUR NODE
+
+-DO NOT COPY "kubeadm init", but you can copy every other thing above it in the script
+
+
+kubectl get nodes  = to check master and nodes status ( to see if READY OR NOT READY)
+
+
+#step4
+#= this is to flip the k8s "NOT READY status to READY" (you can run this after you provision your nodes.)
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+
+
+installing node in CLI or put in userdata when provisioning instances
+
+sudo hostname node1
+sudo -i
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+sudo apt update -y
+sudo apt install -y apt-transport-https -y
+
+sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+sudo cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+sudo apt update -y
+sudo apt install -y kubelet kubeadm  containerd kubectl
+# apt-mark hold will prevent the package from being automatically upgraded or removed.
+
+sudo apt-mark hold kubelet kubeadm kubectl containerd
+
+sudo cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+sudo cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+sudo sysctl --system
+
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml
+sudo systemctl restart containerd
+
+# Enable and start kubelet service
+sudo systemctl daemon-reload
+sudo systemctl start kubelet
+sudo systemctl enable kubelet.service
+sudo kubeadm join 172.31.16.53:6443 --token c0pajn.5z45jf79kvqoit43 \
+        --discovery-token-ca-cert-hash sha256:ef4a8566540319db04f63b2a436bbea5d77228c570fd8faef34d7a09e9e6a511
+
+
+Creating namespace using Declarative file (Manifest
+
+)
+
+
+Namespaces:
+Is a virtual cluster within your cluster
+It is use to isolate your environment/projects/teams
+used for securing k8s
+
+namespaces or --namespace = ns
+
+kubectl get nodes = to get master and nodes status
+
+kubectl get ns = to check namespaces created
+
+kubectl create ns <nameofnamespace> = e.g kubectl create ns test = to create a namespace or network for master nodes 
+
+how we deploy in k8s:
+*Imperative 
+kubectl get ns
+
+kubectl create ns test
+kubectl get ns = to see the ns created
+
+*Declarative
+we deploy using Manifest files .yml
+
+YML FILE TO CREATE NAMESPACE CALLED PROD
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+
+
+
+vi ns.yml = to create and write in a .yml file called ns
+
+kubectl apply -f ns.yml = to run the ns.yml file (like running a container)
+
+kubectl apply -f ns.yml -v=7 = to output the ns.yml file.  This is like verbosing, with specificity of number of output.
+
+kubectl api-resources = gives you all the resources in k8s environment, to see all the API version for differernt deoployment tool, base of the type of resources you want to apply.
+
+kubectl api-resources | grep -i Namespaces = to get the apiVersion of Namespace directly without going through the humoungous list
+
+kubectl api-resources | grep po = to get api version for pod,
+
+kubectl delete -f <podname> = to remove or delete pod
+
+kubectl apply -f ns.yml --dry-run=client = to check if everything in ns.yml file is ok (this would not apply it or run it proper).  It is like test running but not actually running it.
+
+If you don't name where to deploy your ns application, it will deploy in the "defualt" namespace .  Good practice is to name your your namespace
+
+cat .kube/config = carries the configuration file for your cluster.  Everything that would make cluster function well is housed in this file.
+
+kubectl get svc = to get cluser IP.  Cluster IP is used for internal communication.
+
+kubectl get namespaces dev = to see dev namespace created
+
+kubectl get all -n kube-system =to see what is running k8 Kubesystem.  k8s use to manage running k8s processes
+
+coredns = to add a node to a cluster
+uncoredns = to remove node from a cluster or drain the node from the cluster
+
+kubedns = is what we use to communicate internally and externally
+
+weave-net
+
+kube-proxy
+
+kubectl get all = to get all the resources running
+
+kubectl get all -n default =to see the cluster running in default namespace
+
+kubectl get pod = if no pod is running yet, you get "No resources found in default namespace". You can get this even if a pod is running in a namespace other than the "default" namespace.  You might need to change to that namespace that is running a pod using "kubetctl----context... 
+
+*What is Default namespace in K8s, 
+Answer = it is "default"
+if you deploy an application without specificying the namespace, it will run on the default namespace
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp-pod
+  namespace: dev
+  labels: 
+	app: webapp
+spec:
+  containers:
+  - name: webapp
+    image: acadalearning/java-web-app
+	ports:
+	- containerPort: 8080
+
+kubectl get po = to see running pods
+
+kubectl get pod = same as above
+
+kubectl get po -n dev = to see running pod named "dev"
+ 
+kubectl config set-context --current --namespace=dev = to change the default running namespace to dev (from initial "default" namespace running)

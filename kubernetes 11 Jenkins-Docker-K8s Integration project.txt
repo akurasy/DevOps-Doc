@@ -1,0 +1,276 @@
+Jenkins-Docker-K8 Integration
+
+
+
+IN THIS CLASS, EVERYTHING WE HAVE BEEN DOING FOR THE PAST 5MONTHS WILL BE DEPLOYED IN ONE HOUR=== SO SEAT BACK AND ENJOY THE AUTOMATION.
+
+Steps to follow:
+
+1- git clone in jenkins to get the repo you want to build in Jenkins
+2- maven clean package = to clean and build our application all at once
+3- docker build = to build our image with docker. i.e wrap our application with docker image, to build it into a containerized environment
+4- docker push = to push our image into dockerhub, which means we would have a docker registry where we would backup our built image using jenkins to push
+5- Deployment = deploy our image into k8 cluster. And what do we have in k8 cluser, we'll have in our cluster that is housing our k8s objects, house all our containerized application.  
+    in the cluser we'd have master, and worker node (depends on the number of worker node you want to have, for this practice we'd dploy into just one cluster).  How is our image getting to this cluster?k8s-version
+    K8s is talking to the github to pull the image, but everything is being automated from jenkins, so jenkins is the one talking to k8s and dockerhub and doing all the deployment.
+    This can be any enviroment, could be dev, could be production etc. we can even put a manual gate etc., you can as  well deploy to nexus and all  etc.
+
+
+Now provision an instance:
+
+We provisioned 3 instances:
+1 Jenkins t2-medium
+1 k8s t2 t2-medium
+2 workernode t2-micro 
+
+Install Jenkins:
+sudo apt-get install git wget -y
+
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+sudo apt install openjdk-11-jre
+sudo apt-get install jenkins
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+
+Install Docker in Jenkins:
+
+  1. Install Docker
+curl -fsSL get.docker.com | /bin/bash  
+
+  2. Add Jenkins User to docker group  
+ sudo usermod -aG docker jenkins  
+
+  3. Restart Jenkins
+sudo systemctl restart jenkins
+
+==========================================
+Setting up K8s cluster from the kubernetes server.
+
+sudo apt-get update -y  
+sudo apt-get install -y apt-transport-https  
+sudo su -  
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+cat <<EOF >/etc/apt/sources.list.d/kubernetes.list  
+deb https://apt.kubernetes.io/ kubernetes-xenial main  
+EOF  
+
+Note:  when you paste the above line wait a while before hitting the enter key 
+
+apt-get update -y  
+
+Disable swap memory
+
+swapoff -a  
+sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab  
+
+Enable IP memories:
+
+modprobe br_netfilter
+sysctl -p  
+sudo sysctl net.bridge.bridge-nf-call-iptables=1  
+
+Add ubuntu user to the docker group
+
+apt  install docker.io -y
+
+This is optional
+usermod -aG docker ubuntu  
+
+systemctl restart docker
+systemctl enable docker.service  
+
+Install k8s modules:
+
+apt-get install -y kubelet kubeadm kubectl kubernetes-cni 
+
+ (If the above did not work,  remove the one inside using apt-get remove -y kubelet kubeadm kubectl kubernetes-cni  
+and then do apt -y install vim git curl wget kubeadm=1.24.1-00 kubelet=1.24.1-00 kubectl=1.24.1-00 containerd  
+#worked for me, (though I did kubeadm reset -y, and then ran kubeadm init again only on master node) apt remove -y kubelet kubectl kubeadm containerd
+
+
+systemctl daemon-reload
+systemctl start kubelet   
+systemctl enable kubelet.service  
+
+==========COMMON FOR MASTER & SLAVES END=====  
+
+Execute below commands only in master machine.  
+
+===========In Master Node Start====================  
+ 
+Execute below command as root user  
+kubeadm init  
+ 
+Exit root user & execute as normal user  
+mkdir -p $HOME/.kube  
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config  
+sudo chown $(id -u):$(id -g) $HOME/.kube/config  
+
+kubectl get nodes
+kubectl get pods --all-namespaces
+
+#DEPLOY WEAVE NETWORK ON THE MASTER
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml (this worked for me not the above) 
+
+kubectl get nodes  
+kubectl get pods --all-namespaces
+# Get token  
+
+kubeadm token create --print-join-command  
+
+
+After doing all of the above;
+Stage1 Jenkins
+-we went back to jenkins to create a project "springapp"
+-we did pipeline and write up the scripte groovy script,
+-we added our gitclone using the "pipeline syntax", we selected "Git" from the drop-down menu, we copied the 
+code https://github.com/Hecksflakes/Jenkins-Docker-K8s-Spring-boot-mongo.git and paste in Jenkins "Repository URL" and added credential and 
+click generate to generate the syntax then copy and add to your script
+-apply and save and build to test to see if it will gitclone
+
+{
+	stage("GitClone"){
+		git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/akurasy/Jenkins-Docker-K8s-Spring-boot-mongo.git'
+}
+}
+
+apply and save then build
+
+Stage2 Mavens
+-next is build the package with maven to do this you need to install maven from manage jenkins ----  gloabal too configuration. so we did that and went back to the pipeline project
+-we then added maven script to build and applied and saved and then build to test (success!). 
+
+	 stage("Maven Clean Build") {
+        stage("Maven Clean Package"){
+		def mavenHome = tool name: "maven3.9.2", type: "maven"
+		def mavenCMD = "${mavenHome}/bin/mvn" 
+		sh "${mavenCMD} clean package"
+    }
+        
+    }
+
+ Then headed back to the project
+
+Stage3 Docker build
+-We went back to the github repo for the app, there is already a Dockerfile there, we open it and read the content, Efe already added the content, 
+he pulled FROM alpine, pls READ this file (in our case we might need to create a docker file and add all those keywords in it)
+-After reading or creating the Dockerfile, we went back to our project and add the docker groovy script line to build a docker image and wrap it
+-we apply and save and tested
+
+ stage("Docker Build Image") {
+	sh "docker build -t akurasy/spring-boot-mongo ."
+}
+#the fullstop (.) at the end of the command means build in this cloned and packaged directory
+
+Stage4 Push image to Docker
+-next we need to push our image to docker registry (in this case dockerhub), so login into your docker hub
+
+-then we went back to our pipeline to add the docker push script line to do this YOU MUST LOGIN into your docker hub environment, 
+
+-not recommended to put password in plane text, so we use pipeline syntax to generate one.
+
+- click on pipeline syntax to create another syntax page. 
+
+- selected from dropdown "withCredetials:Bind credentials to variables",
+
+- click binding and select secret text
+
+then below it is "Bindings" and selected "Add" then "Secret text" then in the "varible" box we entered "DOCKER_HUB_CRED", under "credentials", select "Add" 
+
+- and then "secret text" under kind, here we need to pass our login details, IN THE SECRET BOX, INPUT YOUR DOCKERHUB PASSWORD, in ID put "DOCKER_HUB_CRED" and same on credentials
+
+and then generate and copy. we got something like withCredentials([string(credentialsId: 'DOCKER_HUB_CRED', variable: 'DOCKEER_HUB_CRED')]) {
+    // some block <---we removed this line and added sh "docker login -u <name of repo> -p ${DOCKEER_HUB_CRED}"
+}
+
+
+	    stage("Docker Push"){
+
+		withCredentials([string(credentialsId: 'DOCKEER_HUB_CRED', variable: 'DOCKEER_HUB_CRED')]) {
+		sh "docker login -u akurasy -p ${DOCKEER_HUB_CRED}"
+}
+		sh "docker push akurasy/spring-boot-mongo"
+}
+
+
+-next add to the script line.
+-apply and save and tested
+
+
+Stage5 Deployment to k8s-version
+
+-next go back to the pipeline project and write the k8s script line. We can do k8s deployment in two ways By installing the plugin in jenkins or
+ by installing kubectl in our click
+
+-we installed just the kubectl in our jenkins cli :
+ -  curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+ -  curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+ - echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+ - sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+ - kubectl version --client
+  -next we need to network the kubectl to our k8s cluster (server):
+      - so in jenkins cli we switched into jenkins user using "sudo -i -u jenkins"
+      - to confirm you can do ls to see the directories listed
+      -in the jenkins cli as a jenkins user, make a directory "mkdir .kube"
+      -then vi .kube/config = this is where you put the credentials for our cluster
+      -head over to k8s master then run  "cat .kube/config" (this is what makes your k8s cluster to talk to your jenkins kubelet), so cat and copy everything that shows up 
+      the "api version to last line"
+      -then paste in the .kube/config file you vi into in jenkins cli as jenkins user
+      -next in jenkins cli as jenkins user, run kubectl get pods --all-namespaces to see if it will work
+      -done
+  -next go back to Jenkins GUI and write up the script line "kubectl apply -f <yaml file> (Efe already put everything in github- bless this man)"
+  -go back to jenkins cli and run kubectl get pods = you should see all the pods running , kubectl get svc etc, grab your workernode Ip:port on the cli and open in the web,
+  you should see the website.
+
+
+ stage ("Kubernetes Deployment"){
+        sh "kubectl apply -f springBootMongo.yml"
+    }
+    
+
+=====================================================================================================
+  note: if you change anything in github jenkins will update the cluster.
+
+  Below is the scripted groovy script we created and ran: THIS IS A DECLARATIVE SCRIPT
+
+ node {
+    stage("Git Clone"){
+        git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/akurasy/Jenkins-Docker-K8s-Spring-boot-mongo.git'
+    }
+    stage("Maven Clean Build") {
+        stage("Maven Clean Package"){
+		def mavenHome = tool name: "maven3.9.2", type: "maven"
+		def mavenCMD = "${mavenHome}/bin/mvn" 
+		sh "${mavenCMD} clean package"
+    }
+    
+    }
+    stage("Docker Build Image") {
+	sh "docker build -t akurasy/spring-boot-mongo ."
+}
+    stage("Docker Push"){
+
+		withCredentials([string(credentialsId: 'DOCKEER_HUB_CRED', variable: 'DOCKEER_HUB_CRED')]) {
+		sh "docker login -u akurasy -p ${DOCKEER_HUB_CRED}"
+}
+		sh "docker push akurasy/spring-boot-mongo"
+}
+
+    stage ("Kubernetes Deployment"){
+        sh "kubectl apply -f springBootMongo.yml"
+    }
+
+}
+
+
+

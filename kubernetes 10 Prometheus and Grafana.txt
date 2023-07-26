@@ -1,0 +1,81 @@
+PROMETHEUS AND GRAFANA Dec 10, 2022
+
+What is Prometheus
+
+Prometheus is a highly scalable opensource , monitoring framework, it provides ootb (out of the box) monitoring abilities for K8 
+container orchestration or platform and has also gained  few poplarity as it helps with metrics and alerting.
+
+Prometheus has what is called metrics collection.  In a metrics collection, prometheus uses pull method to retrieve metrics over http,
+and also for pushgateway. So when using pushgateway, prometheus  cannot just grab metrics, so what we do is use the http to pull big  data.  
+Lastly we have the metrics endpoint, metric endpoint is basically where we defined the system we want to monitor using prometheus, then we expose the  
+metrics/metrics endpoint, then prometheus uses metric endpoint to pull metric in the regular interval e.g every 5mins, 3mins, 1mins etc.
+
+
+We will be deploying promethues server, once deployed, you can  visualize your k8s cluster dashboard from prometheus server , but that is not too efficieint
+ and that's where Grafana comes in to help visualize, to give it more visibility and more UI interface to visualize. 
+Grafana can visualize some other applications, e.g cloudwatch etc.
+
+We are deploying;
+Prometheus
+Grafana
+Alertmanager = this helps to network or configure email notification, slack notification, pager duty, we can set it up to be alerting us regularly at set time.
+
+Setup yur K8s cluster(eks, gke, minikube etc) , then deploy prometheus server, then setup grafana dashboard to visualize what prometheus is pulling,
+then we set up our alert manager to get notifcations.
+
+Going to the Lab!
+
+1-Deploy Prometheus in your k8s CLI
+
+i-You can deploy prometheus using helm OR
+
+i-deploy using the manifest file = this file is already written so we git clone https://github.com/akurasy/kube-state-metrics-configs.git in our k8s cluster
+ (we are doing this) (you can cd into the gitcloned directory to see its contents) --- Before running this, make sure your K8 cluster running(Both masters and nodes)
+
+ii- kubectl apply -f kube-state-metrics-configs  = to deploy kube state metrics yaml files we gitcloned earlier (deploy the whole directory)
+
+iii- kubectl get deployments kube-state-metrics -n kube-system = to know where the kube state metrics is deployed.  Here, it is deployed in kube-system
+
+iv-next Deploy Prometheus, git clone https://github.com/akurasy/kubernetes-prometheus.git
+    -cd into the kubernes-prometheus directory,
+    -ll the content , you would see clusterRole.yaml, config-map.yaml, prometheus-deployment.yaml, prometheus-ingress.yaml and prometheus-service.yaml
+    -kubectl create ns monitoring = to create a namespace called monitoring, if not already created
+    -kubectl create -f clusterRole.yaml
+    -kubectl create -f config-map.yaml
+    -kubectl create -f prometheus-deployment.yaml
+    -kubectl get deployments --namespace=monitoring = to see what you have deployed in the monitoring namespace
+    -kubectl get pods --namespace=monitoring = to see the pods in monitoring ns
+    -kubectl create -f prometheus-service.yaml --namespace=monitoring to deploy prom service into monitoring ns
+    -kubectl get svc -o wide --namespace=monitoring = to get the sevice and port NOTE if using eks, in place of the nodeport, a load balancer would be ddisplayed
+    -next curl ifcong.co = to grab your public IP or go to your instances to grab it and then grab your nodeport or your nodebalancer link and paste in web broswer (IP:port) to view prometheus dashboard
+    -you can select status when the page above is up, and select target to see what you have on prometheus
+    -you can check out the graph and chekout other information you need but better to use Grafana
+
+
+2-Deploy Grafana
+  -git clone https://github.com/akurasy/kubernetes-grafana.git
+  -can cd into kubernetes-grafana and deploy the content one after the other or just
+  -cd out back to ubuntu or any user and kubectl apply -f kubernetes-grafana
+  -kubectl get pods --namespace=monitoring
+  -kubectl get svc --namespace=monitoring = to geet the node port
+  -public IP:port to view the page
+  -Grafana default username and pwd is admin /admin, it will prompt you to change password immediately
+  -Adding Dashboard in Grafana:
+      -import dashboard by going to Grafana website (grafana.com/grafana/dashboards/?search=kubernetes) to see diff dashboards you can pull and configure etc
+      -we grab random dashboard (I used this https://grafana.com/grafana/dashboards/8588-1-kubernetes-deployment-statefulset-daemonset-metrics/)
+      -Grab the Dashboard ID on the right pane or copy it with an action button or download it JSON format, all on the right pane.  We simply copied the ID (8588)
+      -Go back to your own loaded Grafana web page and mouse over the four small cubes that made up a square on the left page, it will bring up a dropdown, clikc "import"
+      -a page opens that asks for ID or JSON downloaded.  Paste the ID 8588 and click load
+      -Once loaded, it will bring the name of the dashboard you copied.
+      -Input in the box that says prometheus at the bottm "Promtheus" and then click "import" and you would see your dashboard loaded in your grafana page
+          -you can select the node, you ccan select Damonset etc
+      -another example you can import dashboard ID 3119 and it will also load up, you will be able to visualize a lot of things about your cluster, e.g pod memory, all processes memory etc, you can switch to differnt nodes you provisioned, datasource (is prometheus)
+      -Grafana is just to visualize data source from Prometheus
+
+
+  LOADING AN APPLICATION and montior + view in prometheus and Grafana rsp.
+  -Deploy an application in your k8 cluster (in the video Efe deployed springbootmongo app, and mongo db with their corresponding svc and others)
+  -he viewed the app using IP:port on web browser (to get the node port, just do kubectl get svc --namespace=<nameofspaceyouwanttolookin>)
+  -then headover to the grafana dashboard you have pulled and see how the data are being presented nicely on the graph.
+
+   

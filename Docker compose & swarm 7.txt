@@ -1,0 +1,473 @@
+DOCKER COMPOSE (Oct 18,2022)
+
+Docker compose: is a tool for defining and running multiple contanerised applications.
+
+Microservice:
+
+Say an ecommerse wants to run a java based web application for ebay.  Microservices for such app include:
+
+login
+registration
+checkout
+payment
+order
+
+Above is are microservices running in one ecommerce application.
+
+To create a network for these microservices, for all these service to communicate, we can do docker network create ecommerce
+
+We also need to create docker volume to store persistent data = docker volume create datas 
+
+we want login to communicate with other services of the ecommerce application = docker run --name login --network ecommerce -d -p 5000:8080 acadalearning/ login --network fintech
+
+creating for registration= docker run --name registration --network ecommerce -d acadalearning/reigstration (here we are not doing port publishing)
+
+creating for checkout = docker run --name checkout --network ecommerce -d acadalearning/checkout --network fintech
+
+creating for payment = docker run --name payment --network ecommerce -d acadalearning/payment --network fintech
+
+creating for order = docker run --name order --network ecommerce -d acadalearning/order --network fintech
+
+creating for mongo = docker run --name mongo --network ecommerce -v datas:/data/db mongo  --network fintech
+
+creating for mysql = docker run --name msql --network ecommerce -v datas:/var/lib/mysql mysql --network fintech
+
+
+So how can we manage all of the above with docker compose file?
+
+Before you run docker compose, you must go to the documentation and check the version that is allowed.
+
+See the documentation here; docs.docker.com/compose/compose-file/compose-versioning
+------------------------------------------------------------------------------------
+
+docker --version = to check the version
+
+install docker-compose = sudo apt install docker-compose
+
+How do we write docker compose?
+
+To do this, we need to learn .yml or .yaml language
+
+it starts from integer e.g
+	age: 23
+
+float (anything )
+	price: 60.55 
+
+string
+	name: 'acada'
+
+dictionary (key and value pairs)
+	name: efe
+	age:23
+	country: 'canada'
+
+We can also have list/arrays:
+students:
+	- name: efe
+		age:23
+		country: 'canada'
+	- name: toyin
+		age:34
+		country: 'nigeria'
+	- name: richard
+
+Above is how Yaml is written
+
+To check our docker version = docker --version
+
+
+What we need to write a docker-compose.yml
+version: docker compose version (base on our docker engine version, which can be checked in the CLI using docker --version)
+services: this is the image name.  To create service we do = docker create service mongodb (image name and service name), can also include restart(could be always or never etc), networks ( one or multiple networks)
+volumes: 
+network:
+
+version: '3.1'
+services:
+        mongodb:
+                image: mongo
+                restart: always
+                networks:
+                - ecommerce
+                - fintech
+                volumes:
+                - mongo-data:/data/db
+                environment:
+                - MONGO_INITDB_ROOT_USERNAME=uatdb
+                - MONGO_INITDB_ROOT_PASSWORD=uatdb123
+        springapp:
+                image: joveluro/spring-boot-mongo
+                restart: always
+                networks:
+                - ecommerce
+                - fintech
+                ports:
+                - 6000:8080
+                environment:
+                - MONGO_DB_HOSTNAME=mongo26
+                - MONGO_DB_USERNAME=uatdb
+                - MONGO_DB_PASSWORD=uatdb123
+                depends_on:
+                - mongodb
+volumes:
+        mongo-data:
+                driver: local
+        ebs-data:
+                driver: rexray/ebs
+networks:
+        ecommerce:
+                driver: bridge
+        fintech:
+                external: true
+
+
+
+	How to check the configuration of .yaml file
+
+	to create = vi docker-compose.yml
+
+	docker-compose config = to check if the syntax of the file is ok and all
+
+
+	to run a docker-compose file = docker-compose up -d (this is the same way we run a shell script and do sh .filaname.sh)
+
+	After doing the above, we see that our springboot applicagtion and mongapp was running., deployed using .yml 
+
+
+	How do we kill these applications
+
+	docker-compose down = to pull down the application
+
+	docker-compose ps = to check our docker-compose running applicagtions
+
+	netstat -tlunp = to see the IPs and ports running
+
+	docker-compose -f docker-compose.yml config = to call the file docker-compose.yml 
+
+ docker run -d --name mongopark --network fintech -v ebsvolume:/data/db \
+-e MONGO_INITDB_ROOT_USERNAME=uatdb -e MONGO_INITDB_ROOT_PASSWORD=uatdb123 mongo 
+
+
+2-springbootmong application( we need to expose the port number) : docker run -d -p 8002:8080 --name springapp27 -e MONGO_DB_HOSTNAME=mongo26 \
+-e MONGO_DB_USERNAME=uatdb -e MONGO_DB_PASSWORD=uatdb123 --network fintech \
+acadalearning/spring-boot-mongo
+
+3- To confirm that the application app is talking to the DB, do : docker exec <appcontainername> ping <DBcontainername or DBhostname> e.g docker exec springapp ping mongo26
+
+
+DOCKER SWARM
+
+In Docker swarm, we have like a master and slave/node mode.  We have a Swarm (master) connected to the CLI, the docker nodes are connected to the master, in such a way that if we take away one of the docker container node, the other nodes will still be working.  
+
+In Docker swarm, we called the nodes or slaves the worker nodes, and master is the swarm controlling all of them.
+
+Swarm Features
+
+Cluster Management
+Decentralize design
+Declarative Service model - docker-compose file
+Our docker node is scalable (traditionally we can't scale), docker swarm gives access to scale
+Desired state reconciliation
+Multi-host network = overlay (remember overlay network runs on swarm, it combines two docker engines together)
+Service discovery
+Load balancing
+Secure by default
+Rolling updates - this happens when master docker engine is running on old version of webapp (say webapp3) and the nodes or worker nodes also running old version, soon as maaster gets updated to the latest version (webapp version 4, the workder nodes say we have 3 of them, also gets updated one after the other till the last worker node is updated, and if there multiple replica on each of the nodes and master, they all get the update the same way
+
+Pre-requisites
+
+-AWS account
+-Create 3 different unbuntu machines using AWS
+-Install Docker in all the 3 machines with below command curl -fsSL get.docksal.io | bash
+
+Additional Network checks
+
+The following ports must be available. On some systes, these ports are open by default.
+
+-TCP port 2377 for cluster communications management
+-TCP and UDP port 7946 for communicatiion among nodes
+-UDP port 4789 for overlay network traffic
+
+*if you are planning on creating an overlay network with encryption (--opt encrypted), you will also need to ensure ip protocol 50 (ESP) traffic is allowed
+*Enable all the ports in AWS security groups
+
+Running docker file
+
+Declarative:  This means running instructions in a file format (remember jenkinsfile)
+
+Imperative: running instructions on CLI
+
+so:
+
+version: '3.1'
+services:
+	Login:
+		image:
+		network:
+	Registration:
+		image:
+		network:
+	Checkout:
+		image:
+		network:
+	Payment:
+		image:
+		network:
+	Order:
+		image:
+		network:
+
+DNS Resolution is done using the service name - you can do something like acada.com/payment, acada.com/order
+
+
+Docker Swarm Installation:
+
+sudo hostname master = to change our first docker engine hostname to master
+
+docker swarm init = to make the docker engine the swarm manager (master node).  Running this command will provide you with the command below to use to add worker swarm, this command will also outcome  a swarm manager ID (e.g ok9vhtd6dwwcwhk3anxndyf5a) and don't forget to copy your swarm manager ID
+
+docker swarm join --token SWMTKN-1-5iv4oebhu5ffpdpoyaxd63y3wk3vzyqin38icp8t7y1ygxo354-4e0e05rfenlcwiq0q13ps62nf 172.31.23.130:2377 = this command will be an outcome of the docker swarm init, this is used to add worker to the swarm manager.
+
+docker node ls = to list all the nodes yo have
+
+Step2
+
+-Provision a docker node 1 unbuntu instance 
+
+-Once provisioned, use the below installation command for node 1, and this can be added as a User data
+
+sudo hostname node1
+sudo apt update -y
+sudo apt install docker.io -y
+sudo usermod -aG docker ubuntu
+docker swarm join --token SWMTKN-1-30q5mlaku7tpb80nftljaj0we49wyr5em08sg2p01xy4rgolp3-e4xifuy8lz0tknzrohjwjwfa8 172.31.36.207:2377
+
+
+-Provision a docker node 2 unbuntu instance
+
+-Once provisioned, use the below installation command for node 2, and this can be added as a User data
+
+sudo hostname node2
+sudo apt update -y
+sudo apt install docker.io -y
+sudo usermod -aG docker ubuntu
+sudo docker swarm join --token SWMTKN-1-5iv4oebhu5ffpdpoyaxd63y3wk3vzyqin38icp8t7y1ygxo354-4e0e05rfenlcwiq0q13ps62nf 172.31.23.130:2377
+
+
+CONTAINERIZATION TOOL
+
+such as docker, rocker coreos etc
+
+CONTAINER ORCHESTRATION TOOL 
+such as swarm, kubernettes, openshipft etc
+
+orcestration tools help with
+
+H.A = High Availability
+F.T = Fault Tolerance
+Scalability
+L.B = Load Balancing
+
+# In Normal(Standalone) Docker Server We can use below command to create a container.
+docker run -d -p <hostPort>:<containerPort> --name <containerName> <imageName>
+
+# In docker swarm we will use below command to deploy service.
+docker service create --name <serviceName> -p <hostPort>:<containerPort>  <imageName>
+
+# In Normal(Standalone) Docker Server We can use below command to create a containers from compose.
+docker-compose up -d
+
+# In docker swarm we will use below command to deploy services using docker compose.
+docker stack deploy --compose-file docker-compose.yml <stackName>
+
+
+Deploy application in a swarm using the standalone:
+
+docker service create --name <serviceName> -p <hostPort>:<containerPort>  <imageName>
+example :  docker service create --name javawebapp -p 7000:8080 joveluro/spring-boot-mongo
+
+to check if this is running and see which node is running on we can do = docker service ps <appname> e.g docker service ps javawebapp 
+
+to see if the number of repliccca (scalability) = docker service ls
+
+to check the listening port : netstat -an | grep <port> e.g netstat -an | grep 7000
+
+To scale  to any numbeer do:
+docker service scale <containername>=<number of replica you want> e.g docker service scale javawebapp=3
+check again with the command to check the scale up:
+docker service ps <appname> e.g docker service ps javawebapp 
+
+
+
+Docker Swarm has two modes of deployments:
+
+1-Replicas mode: --> It will deploy based on replicated number.
+             (Default mode)
+             Scaling is achievable
+             docker service scale javawebapp=5
+             we deploy custome applicatios using this mode
+
+command for replica mode -
+docker service create --name <serviceName> -p <hostPort>:<containerPort>  <imageName>
+Note: replica mode schedules 1 container in all the nodes 
+
+2-Global Mode: --> All the nodes (3 servers: 1 Manager + 2 Workers)
+             use for monitoring softwares deployments 
+               New Relic / Prometheus  / Cloudwatch / EFK / logmgt = these are monitoring tools
+Note: in global mode scalling is not possible (you cannot scale)
+
+docker service create --name <serviceName/containerName> -p <hostport>:<containerport> --mode=global <imageName>
+example = docker service create --name logmgt -p 8000:8080  --mode=global joveluro/spring-boot-mongo
+
+What is service in docker or docker swarm?:
+Service is nothing but a collection of one or more replicas(containers) of same image type or domain
+(dns) domain name resolution is done using the servicename
+
+What is stack in docker or docker swarm?:
+Stack is nothing but a collection of one or more serivces.
+
+docker stack deploy --compose-file dc.yml springmongo
+docker stack ls
+
+
+version: '3.1'
+services:
+  springapp:
+    image: joveluro/spring-boot-mongo:latest
+    environment:
+    - MONGO_DB_HOSTNAME=mongo
+    - MONGO_DB_USERNAME=devdb
+    - MONGO_DB_PASSWORD=devdb123
+    ports:
+      - 9000:8080
+    working_dir: /opt/app
+    depends_on:
+      - mongo
+    deploy: #This will be considered only in docker swarm.
+    replicas: 3 # by default replica will be one if not specified
+    update_config:
+      parallelism: 1  # By default rolling Update is the deployment strategy
+      delay: 20s
+    restart_policy:
+      condition: on-failure
+      delay: 10s
+      max_attempts: 5
+
+  mongo:
+    image: mongo
+    environment:
+    - MONGO_INITDB_ROOT_USERNAME=devdb
+    - MONGO_INITDB_ROOT_PASSWORD=devdb123
+    volumes:
+    - mongodb:/data/db
+    restart: always
+
+volumes:
+    mongodb:
+      driver: local
+
+
+updating a service (swarm container):
+docker service ls
+docker service update --image joveluro/maven-web-app:5 javawebapp  (use to update the service, esp when you want to change an image in service to another one.)
+docker service ls
+
+Services create containers and manages the containers
+
+How many docker swarm nodes do you have in production?  : 
+free -m =
+free -g = 
+
+and What is their capacities?  :
+
+   11 worker nodes  = 60GB memory and 20TB 
+   03 master nodes  = 
+       $200,000
+
+# Create a service with Volume mapping
+docker service create  -p <hostPort>:<containerPort> --name <serviceName> --replicas 1  --mount type=volume,source=<volumeName>,destination=<containerfolderPath> <imageName>
+
+# List Services
+docker service ls
+
+# List Services process
+docker service ps <servicenName>
+
+# Scale Services 
+docker service scale javawebapp=3
+
+docker service rm javawebapp
+
+In DockerSwarm:
+  Service is a collection of one or more containers(replicas)
+  of same image
+  Service creates containers and manages those containers
+
+
+# Add labels to node
+docker node update --label-add key=value <nodeid>
+Ex: docker node update --label-add server=nodeone qmdh9tgvdef99sryhbezswfl9
+
+docker node update --label-add server=nodetwo  n2brbkq0h61a1m1i0wz8dsbbp
+docker node ls
+
+docker node ls
+docker node update --label-add server=nodetwo node2
+docker node update --label-add server=dbnode node1
+docker inspect node1
+
+#Use above label in constraints  deploy this = constraining the app mongo replica 2 to run only on node "dbnode"
+docker service create --name mydb \
+--replicas 2 --constraint 'node.labels.server==dbnode' mongo
+
+docker service ps mydb
+we can use this to deploy to a specific node
+
+can we have this in different level yes
+
+docker node ls
+
+
+# Global mode 
+docker service create  -p 9000:8080 --name myapp2 --mode=global   joveluro/maven-web-app
+
+
+# Drain Nodes in Cluster(Swarm will not create containers in drained nodes)
+
+docker node update --availability drain <NodeID>
+docker node ls
+docker node update --availability drain node2
+docker service ls
+docker service ps javawebapp
+
+why do we need to drain node 
+1. we want to do some parching 
+2. want to update your node
+
+docker swarm join-token manager
+
+netstat -tunl = to running IP and port
+
+Replica:
+
+desired state = the number of replica we want to run
+
+running state = the actual number of replica running
+
+
+
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About

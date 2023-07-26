@@ -1,0 +1,4 @@
+jenkins akuracy   osmolo
+tomcat akuracy admin123
+sonar admin admin
+nexu admin admin123

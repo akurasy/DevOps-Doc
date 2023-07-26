@@ -1,0 +1,111 @@
+MAVEN
+maven is a built tool for creating  deployable artifact from source code
+
+types of built tool
+maven(400lines), ANT (1000lines), craddle
+
+WHY MAVEN?
+1.	it reduces the line of code
+2.	it have set of standards
+3.	allows for easy modification of the project
+4.	simplifies the declaration of project dependencies. focus on what not how.
+5.	ease the preparation of project documentation pom.xml
+
+pom.xml = project object model is for checklist
+pom.xml file is the heart of the maven project
+
+jenkins, maven needs java
+
+MAVEN PREREQUISITE
+JRE - java runtime environment (version 1.8 and above)
+JDK- java development kits
+
+maven can be installed and run on its own seperate server (stateful application = has an instance)
+maven can be installed as a tool in jenkins
+maven can be installed a plugin in jenkins
+
+INSTALLING MAVEN AS A TOOL IN JENKINS
+
+on jenkins, goto dashboard
+manage jenkins
+global tool configuration = to install as a tool
+global plugin= to install as a plugin
+scroll down to maven
+select version, then apply and save 
+
+MAVEN LIFECYCLE
+1.	clean - delete old built
+	achieved by running the command = mvn clean
+
+2.	site/swagger - handles creation of project's website using the  java C is a command that compiles java classes. 
+	generate bytes that JVM can understand. then it will do a build 
+
+3.	default - handles project deployment. (GOALS)
+		mvn validate to see if the project is correct and ensure all necesaary infos are available
+
+		command = mvn validate
+
+		mvn compiles the source code of the project
+		compiles all the java classes and the unit test cases
+
+		command = mvn compile
+
+		mvn tests the unit test case. to ensure the unit test cases passes all the criteriafor maven to run (JUnit) 
+
+		command = mvn test
+		
+		package- this the jack of all trade in maven. 
+		it will create the package file in the target directory
+		it will download all plugins / dependencies of that application from maven central library
+
+		mvn package will validate, compile, test and package
+		command = mvn package
+		
+		TYPES OF PACKAGES IN MAVEN
+			.jar (java application archives = STAND ALONE APPLICATION, MICROSERVICES)
+			 .war (web application archives)
+			 .ear (enterprise application archives)
+
+
+		install - it will install the package into the local repository for use as dependency 
+  			it will store the build artifact in the repository. an artifact is the packaged application
+		command = mvn install
+
+		local repository can be found in .m2/repository
+
+		deploy- this will upload the build artifact to the remote repository. just like push in GIT
+		command = mvn deploy
+
+		remote repo = NEXUS
+
+
+
+	JENKINS - MAVEN LABORATORY
+create a job in JENKINS with git repository by using the GIT integration step
+configure the Jenkins-maven integration
+
+MAVEN INSTALLALATION
+maven can be installed as a stateful application
+maven can be installed as a tool in jenkins
+maven can be installed as a plug-in in jenkins
+
+installing maven as a tool in jenkins
+on jenkins, goto dashboard
+manage jenkins
+global too configuration = to install as a tool
+global plugin= to install as a plugin
+scroll down to maven
+select version, then apply and save 
+
+
+MAVEN GOALS
+goto build and select "INVOKE TOP-LEVEL MAVEN TARGET"
+select version
+goals (install or package or compile or deploy e.t.c)
+
+PLS NOTE THAT MAVEN IS HIGLY DEPENDENT ON POM.XML FILE AND MUST BE INCOPORATED ALONGSIDE THE SOURCE CODE. 
+this is the work of a developer
+
+goto any pom file. copy the content
+goto your source repo on github and add file with the name pom.xml and save commit
+now copy the source code and run on maven
