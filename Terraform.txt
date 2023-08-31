@@ -188,6 +188,8 @@ copy the key too and paste
 
 
 ---------------------------------------------------------------------------------------------------
+
+
 Writing terraform file for EC2
 
 provider "aws" {
@@ -467,7 +469,7 @@ resource "aws_instance" "first_demo" {
   instance_type = "t2.micro"
   
   tags ={
-    "Name" = "EKS-Master"
+    Name = "EKS-Master"
 }
 }
 
@@ -583,14 +585,14 @@ Number:
 
 variable "sshport" {
   type = number
-  defautt = 22
+  default = 22
 }
 
 Boolean:
 - Bools are represented by the unquoted symbols true and false.
 
 variable "enabled" {
-  default = faulse
+  default = false
 }
 
 
@@ -599,7 +601,7 @@ List:
 
 variable "mylist" {
   type = list(string)
-  default = ["Value1", "Value2", value2]  <---value1 = 0, value2 = 1, value3 = 2
+  default = ["Value1", "Value2", value2]  <--- value1 = 0, value2 = 1, value3 = 2
 }
 
 
@@ -609,7 +611,7 @@ instance_type = var.mylist[1]
 
 
 Map:
-  - Maps/Obhects are represted by a pair of curl braces contain ing a series of <KEY> = <VALUE> pairs;
+  - Maps/Objects are represted by a pair of curl braces containing a series of <KEY> = <VALUE> pairs;
 
   variable "mymap" {
     type = map
@@ -756,6 +758,7 @@ Sample provision of EC2-instance, using VARIABLE- PROJECT 3:  <----BELOW IS AN E
 
 
 provider.tf:
+
 terraform {
   required_providers {
     aws = {
@@ -782,6 +785,7 @@ resource "aws_instance" "frist_demo" {
 }
 
 variable.tf:
+
 variable "instance_shola" {
   description = "The aws instance type"
   type = string
@@ -1244,7 +1248,7 @@ resource "aws_instance" "db" {
     ami = data.aws_ami.amzlinux2.id
     instance_type = "t2.micro"
 tags = {
-      "Name" = "Db_server"
+      Name = "Db_server"
     }
 }
 

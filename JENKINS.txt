@@ -101,7 +101,7 @@ sh "echo this is my testing class"
 apply and save.
 
 JENKINS -GITHUB INTEGRATION
-Copy the file link from jenkins
+Copy the file link from github
 git pull file-link = to integrate from jenkins to GIT
 
 installing GIT in jenkins or configuring GIT plugins in jenkins
@@ -128,9 +128,9 @@ maven can be installed as a plug-in in jenkins
 installing maven as a tool in jenkins
 on jenkins, goto dashboard
 manage jenkins
-global too configuration = to install as a tool
+global tool configuration = to install as a tool
 global plugin= to install as a plugin
-scrool dow to maven
+scroll down to maven
 select version, then apply and save 
 
 IF JENKINS IS SHOWING A CRUM ERROR. PLS FOLLOW THE STEP
