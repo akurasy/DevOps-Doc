@@ -1,0 +1,28 @@
+ELASTIC CONTAINER SERVICE (ECS)
+
+1. Create Cluster.
+-  for high availability, you must set at least 3 subnets. 
+-  on the infrastructure, select the ecs fargate launch type.
+
+
+
+2. Create Task Definition
+-  select a name for your task
+-  copy the image url form ecr 
+-  insert the container details and the port the application is running. note the port selected here must be the port the application is running
+
+
+3. Goto Cluster and Setup Service
+-  Select your compute configuration as launch type.
+-  select family and select the task definition
+-  select service in the application type
+-  select service name
+-  select the desired number of task. this is like the number of task you are running at all times.
+-  under networking, select the security group and thick the box for public IP.
+
+4. Check Running Container
+-  goto task ===== details and copy the public IP and browse at PublicIP:Port
+
+
+
+
