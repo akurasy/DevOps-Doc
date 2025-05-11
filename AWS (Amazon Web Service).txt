@@ -650,10 +650,10 @@ RELEASE THE CREATED ELASTIC IP.
 
 
       5-Connect public Routetable of VPC 1 with VPC 2:
-      -Go to VPC1 privateroutetable
+      -Go to VPC1 public routetable
       -click actions
       -click Edit route
-      -enter cidr block of vpc1 (172.0.0.0/24) and select Peering connect then enter Peering connection ID
+      -enter cidr block of vpc2 (172.0.0.0/24) and select Peering connect then enter Peering connection ID
 
       -ssh into your jumpServer, then ssh into your private server2 using your private instance details 
 
